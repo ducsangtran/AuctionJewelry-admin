@@ -2,12 +2,11 @@ import { Card, Row, Col, Typography } from 'antd';
 
 const { Title, Text } = Typography;
 
-const Dashboard = ({ totalUsers }) => {
+const totalUsers = 10; // này phải call api nha
+
+export const TotalUserList = () => {
   return (
     <div className='container' style={{ marginTop: '2rem' }}>
-      <Title level={2} style={{ marginBottom: '1.5rem' }}>
-        Dashboard
-      </Title>
       <Row gutter={[16, 16]}>
         <Col span={8}>
           <Card>
@@ -22,5 +21,3 @@ const Dashboard = ({ totalUsers }) => {
     </div>
   );
 };
-
-export default Dashboard;
