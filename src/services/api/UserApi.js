@@ -12,7 +12,6 @@ export const fetchUsers = async () => {
         throw error;
     }
 };
-
 export const updateUser = async (user) => {
     try {
         const response = await axios.put(
@@ -22,6 +21,25 @@ export const updateUser = async (user) => {
         return response.data;
     } catch (error) {
         console.error("Error updating user:", error);
+        throw error;
+    }
+};
+export const addUser = async (user) => {
+    try {
+        const response = await axios.post(`${API_BASE_URL}/users`, user);
+        return response.data;
+    } catch (error) {
+        console.error("Error adding user:", error);
+        throw error;
+    }
+};
+
+export const deleteUser = async (userId) => {
+    try {
+        const response = await axios.delete(`${API_BASE_URL}/users/${userId}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error deleting user:", error);
         throw error;
     }
 };
