@@ -2,25 +2,25 @@ import React, { useState, useEffect } from "react";
 import { Table, Button, Modal, Form, Input, DatePicker } from "antd";
 import moment from "moment";
 
-const MaterialsManagement = () => {
-    const [materials, setMaterials] = useState([]);
+const CategoriesManagement = () => {
+    const [categories, setCategories] = useState([]);
     const [isModalVisible, setIsModalVisible] = useState(false);
-    const [editingMaterial, setEditingMaterial] = useState(null);
+    const [editingCategory, setEditingCategory] = useState(null);
 
     const [form] = Form.useForm();
 
     useEffect(() => {
-        // Fetch materials data from API
-        // setMaterials(fetchedData);
+        // Fetch categories data from API
+        // setCategories(fetchedData);
     }, []);
 
     const handleAdd = () => {
-        setEditingMaterial(null);
+        setEditingCategory(null);
         setIsModalVisible(true);
     };
 
     const handleEdit = (record) => {
-        setEditingMaterial(record);
+        setEditingCategory(record);
         setIsModalVisible(true);
         form.setFieldsValue({
             ...record,
@@ -30,25 +30,25 @@ const MaterialsManagement = () => {
     };
 
     const handleDelete = (id) => {
-        // Delete material by id from API
-        setMaterials(materials.filter((item) => item.id !== id));
+        // Delete category by id from API
+        setCategories(categories.filter((item) => item.id !== id));
     };
 
     const handleOk = () => {
         form.validateFields().then((values) => {
-            if (editingMaterial) {
-                // Update material
-                const updatedMaterials = materials.map((item) =>
-                    item.id === editingMaterial.id
+            if (editingCategory) {
+                // Update category
+                const updatedCategories = categories.map((item) =>
+                    item.id === editingCategory.id
                         ? { ...item, ...values }
                         : item
                 );
-                setMaterials(updatedMaterials);
+                setCategories(updatedCategories);
             } else {
-                // Add new material
-                setMaterials([
-                    ...materials,
-                    { ...values, id: materials.length + 1 },
+                // Add new category
+                setCategories([
+                    ...categories,
+                    { ...values, id: categories.length + 1 },
                 ]);
             }
             setIsModalVisible(false);
@@ -89,11 +89,11 @@ const MaterialsManagement = () => {
     return (
         <div>
             <Button type="primary" onClick={handleAdd}>
-                Add Material
+                Add Category
             </Button>
-            <Table dataSource={materials} columns={columns} rowKey="id" />
+            <Table dataSource={categories} columns={columns} rowKey="id" />
             <Modal
-                title={editingMaterial ? "Edit Material" : "Add Material"}
+                title={editingCategory ? "Edit Category" : "Add Category"}
                 visible={isModalVisible}
                 onOk={handleOk}
                 onCancel={handleCancel}
@@ -141,4 +141,4 @@ const MaterialsManagement = () => {
     );
 };
 
-export default MaterialsManagement;
+export default CategoriesManagement;

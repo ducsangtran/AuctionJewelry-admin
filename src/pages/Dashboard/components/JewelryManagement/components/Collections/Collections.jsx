@@ -1,26 +1,29 @@
 import React, { useState, useEffect } from "react";
-import { Table, Button, Modal, Form, Input, DatePicker } from "antd";
+import { Table, Button, Modal, Form, Input, DatePicker, Select } from "antd";
 import moment from "moment";
 
-const MaterialsManagement = () => {
-    const [materials, setMaterials] = useState([]);
+const CollectionsManagement = () => {
+    const [collections, setCollections] = useState([]);
+    const [brands, setBrands] = useState([]);
     const [isModalVisible, setIsModalVisible] = useState(false);
-    const [editingMaterial, setEditingMaterial] = useState(null);
+    const [editingCollection, setEditingCollection] = useState(null);
 
     const [form] = Form.useForm();
 
     useEffect(() => {
-        // Fetch materials data from API
-        // setMaterials(fetchedData);
+        // Fetch collections data from API
+        // setCollections(fetchedData);
+        // Fetch brands data from API
+        // setBrands(fetchedBrandsData);
     }, []);
 
     const handleAdd = () => {
-        setEditingMaterial(null);
+        setEditingCollection(null);
         setIsModalVisible(true);
     };
 
     const handleEdit = (record) => {
-        setEditingMaterial(record);
+        setEditingCollection(record);
         setIsModalVisible(true);
         form.setFieldsValue({
             ...record,
@@ -30,25 +33,25 @@ const MaterialsManagement = () => {
     };
 
     const handleDelete = (id) => {
-        // Delete material by id from API
-        setMaterials(materials.filter((item) => item.id !== id));
+        // Delete collection by id from API
+        setCollections(collections.filter((item) => item.id !== id));
     };
 
     const handleOk = () => {
         form.validateFields().then((values) => {
-            if (editingMaterial) {
-                // Update material
-                const updatedMaterials = materials.map((item) =>
-                    item.id === editingMaterial.id
+            if (editingCollection) {
+                // Update collection
+                const updatedCollections = collections.map((item) =>
+                    item.id === editingCollection.id
                         ? { ...item, ...values }
                         : item
                 );
-                setMaterials(updatedMaterials);
+                setCollections(updatedCollections);
             } else {
-                // Add new material
-                setMaterials([
-                    ...materials,
-                    { ...values, id: materials.length + 1 },
+                // Add new collection
+                setCollections([
+                    ...collections,
+                    { ...values, id: collections.length + 1 },
                 ]);
             }
             setIsModalVisible(false);
@@ -64,6 +67,7 @@ const MaterialsManagement = () => {
     const columns = [
         { title: "ID", dataIndex: "id", key: "id" },
         { title: "Name", dataIndex: "name", key: "name" },
+        { title: "Brand ID", dataIndex: "brand_id", key: "brand_id" },
         { title: "Created At", dataIndex: "created_at", key: "created_at" },
         { title: "Updated At", dataIndex: "updated_at", key: "updated_at" },
         {
@@ -89,11 +93,11 @@ const MaterialsManagement = () => {
     return (
         <div>
             <Button type="primary" onClick={handleAdd}>
-                Add Material
+                Add Collection
             </Button>
-            <Table dataSource={materials} columns={columns} rowKey="id" />
+            <Table dataSource={collections} columns={columns} rowKey="id" />
             <Modal
-                title={editingMaterial ? "Edit Material" : "Add Material"}
+                title={editingCollection ? "Edit Collection" : "Add Collection"}
                 visible={isModalVisible}
                 onOk={handleOk}
                 onCancel={handleCancel}
@@ -110,6 +114,24 @@ const MaterialsManagement = () => {
                         ]}
                     >
                         <Input />
+                    </Form.Item>
+                    <Form.Item
+                        name="brand_id"
+                        label="Brand ID"
+                        rules={[
+                            {
+                                required: true,
+                                message: "Please select the brand!",
+                            },
+                        ]}
+                    >
+                        <Select>
+                            {brands.map((brand) => (
+                                <Select.Option key={brand.id} value={brand.id}>
+                                    {brand.name}
+                                </Select.Option>
+                            ))}
+                        </Select>
                     </Form.Item>
                     <Form.Item
                         name="created_at"
@@ -141,4 +163,4 @@ const MaterialsManagement = () => {
     );
 };
 
-export default MaterialsManagement;
+export default CollectionsManagement;

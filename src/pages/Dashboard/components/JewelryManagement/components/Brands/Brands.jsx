@@ -2,25 +2,25 @@ import React, { useState, useEffect } from "react";
 import { Table, Button, Modal, Form, Input, DatePicker } from "antd";
 import moment from "moment";
 
-const MaterialsManagement = () => {
-    const [materials, setMaterials] = useState([]);
+const BrandsManagement = () => {
+    const [brands, setBrands] = useState([]);
     const [isModalVisible, setIsModalVisible] = useState(false);
-    const [editingMaterial, setEditingMaterial] = useState(null);
+    const [editingBrand, setEditingBrand] = useState(null);
 
     const [form] = Form.useForm();
 
     useEffect(() => {
-        // Fetch materials data from API
-        // setMaterials(fetchedData);
+        // Fetch brands data from API
+        // setBrands(fetchedData);
     }, []);
 
     const handleAdd = () => {
-        setEditingMaterial(null);
+        setEditingBrand(null);
         setIsModalVisible(true);
     };
 
     const handleEdit = (record) => {
-        setEditingMaterial(record);
+        setEditingBrand(record);
         setIsModalVisible(true);
         form.setFieldsValue({
             ...record,
@@ -30,26 +30,21 @@ const MaterialsManagement = () => {
     };
 
     const handleDelete = (id) => {
-        // Delete material by id from API
-        setMaterials(materials.filter((item) => item.id !== id));
+        // Delete brand by id from API
+        setBrands(brands.filter((item) => item.id !== id));
     };
 
     const handleOk = () => {
         form.validateFields().then((values) => {
-            if (editingMaterial) {
-                // Update material
-                const updatedMaterials = materials.map((item) =>
-                    item.id === editingMaterial.id
-                        ? { ...item, ...values }
-                        : item
+            if (editingBrand) {
+                // Update brand
+                const updatedBrands = brands.map((item) =>
+                    item.id === editingBrand.id ? { ...item, ...values } : item
                 );
-                setMaterials(updatedMaterials);
+                setBrands(updatedBrands);
             } else {
-                // Add new material
-                setMaterials([
-                    ...materials,
-                    { ...values, id: materials.length + 1 },
-                ]);
+                // Add new brand
+                setBrands([...brands, { ...values, id: brands.length + 1 }]);
             }
             setIsModalVisible(false);
             form.resetFields();
@@ -89,11 +84,11 @@ const MaterialsManagement = () => {
     return (
         <div>
             <Button type="primary" onClick={handleAdd}>
-                Add Material
+                Add Brand
             </Button>
-            <Table dataSource={materials} columns={columns} rowKey="id" />
+            <Table dataSource={brands} columns={columns} rowKey="id" />
             <Modal
-                title={editingMaterial ? "Edit Material" : "Add Material"}
+                title={editingBrand ? "Edit Brand" : "Add Brand"}
                 visible={isModalVisible}
                 onOk={handleOk}
                 onCancel={handleCancel}
@@ -141,4 +136,4 @@ const MaterialsManagement = () => {
     );
 };
 
-export default MaterialsManagement;
+export default BrandsManagement;

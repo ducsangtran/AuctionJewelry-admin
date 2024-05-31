@@ -38,11 +38,7 @@ const items = [
     //     label: <Link to="/jewelrymanagement">Jewelry Management</Link>,
     // },
     getItem("jewelry ", "sub2", <UserOutlined />, [
-        getItem(
-            "Materials",
-            "1",
-            <Link to="/jewelrymanagement/materials"></Link>
-        ),
+        getItem("Materials", "1", <Link to="/materials"></Link>),
         getItem("Categories", "2"),
         getItem("Brands", "3"),
     ]),
