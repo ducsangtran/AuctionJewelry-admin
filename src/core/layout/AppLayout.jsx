@@ -1,31 +1,54 @@
-import {
-    UploadOutlined,
-    UserOutlined,
-    VideoCameraOutlined,
-} from "@ant-design/icons";
+import { UserOutlined } from "@ant-design/icons";
 import { Layout, Menu, theme } from "antd";
 import { Link } from "react-router-dom";
-const { Header, Content, Footer, Sider } = Layout;
+import React from "react";
 
+const { Header, Content, Footer, Sider } = Layout;
+function getItem(label, key, icon, children) {
+    return {
+        key,
+        icon,
+        children,
+        label,
+    };
+}
 // Cái này đổi thành danh mục ở sider bar nha a sang
 const items = [
+    // {
+    //     key: "1",
+    //     icon: <UserOutlined />,
+    //     label: <Link to="/usermanagement">User Management</Link>,
+    // },
+    getItem("Account", "sub1", <UserOutlined />, [
+        getItem("User", "1", <Link to="/usermanagement"></Link>),
+        getItem("Total User", "2", <Link to="/statistics/totaluser"></Link>),
+        getItem("Staff", "3"),
+        getItem("Total Staff", "4"),
+        getItem("Manager", "5"),
+        getItem("Total Manager", "6"),
+    ]),
+    // {
+    //     key: "2",
+    //     icon: <VideoCameraOutlined />,
+    //     label: <Link to="/statistics/totaluser">Total User</Link>,
+    // },
+    // {
+    //     key: "3",
+    //     icon: <UploadOutlined />,
+    //     label: <Link to="/jewelrymanagement">Jewelry Management</Link>,
+    // },
+    getItem("jewelry ", "sub2", <UserOutlined />, [
+        getItem(
+            "Materials",
+            "1",
+            <Link to="/jewelrymanagement/materials"></Link>
+        ),
+        getItem("Categories", "2"),
+        getItem("Brands", "3"),
+    ]),
+
     {
-        key: "1",
-        icon: <UserOutlined />,
-        label: <Link to="/usermanagement">User Management</Link>,
-    },
-    {
-        key: "2",
-        icon: <VideoCameraOutlined />,
-        label: <Link to="/statistics/totaluser">Total User</Link>,
-    },
-    {
-        key: "3",
-        icon: <UploadOutlined />,
-        label: <Link to="/upload">Bla bla</Link>,
-    },
-    {
-        key: "4",
+        key: "7",
         icon: <UserOutlined />,
         label: <Link to="/nav4">Bla bla</Link>,
     },

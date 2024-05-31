@@ -12,6 +12,15 @@ export const fetchUsers = async () => {
         throw error;
     }
 };
+export const fetchTotalUsers = async () => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/users`);
+        return response.data.length;
+    } catch (error) {
+        console.error("Error fetching total users:", error);
+        throw error;
+    }
+};
 export const updateUser = async (user) => {
     try {
         const response = await axios.put(
