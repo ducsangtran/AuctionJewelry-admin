@@ -2,6 +2,7 @@ import { UserOutlined } from "@ant-design/icons";
 import { Layout, Menu, theme } from "antd";
 import { Link } from "react-router-dom";
 import React from "react";
+import AppHeader from "./AppHeader";
 
 const { Header, Content, Footer, Sider } = Layout;
 function getItem(label, key, icon, children) {
@@ -39,8 +40,8 @@ const items = [
     // },
     getItem("jewelry ", "sub2", <UserOutlined />, [
         getItem("Materials", "1", <Link to="/materials"></Link>),
-        getItem("Categories", "2"),
-        getItem("Brands", "3"),
+        getItem("Categories", "2", <Link to="/categories"></Link>),
+        getItem("Brands", "3", <Link to="/brands"></Link>),
     ]),
 
     {
@@ -80,7 +81,8 @@ export const AppLayout = ({ components }) => {
                         padding: 0,
                         background: colorBgContainer,
                     }}
-                />
+                ></Header>
+
                 <Content
                     style={{
                         margin: "24px 16px 0",
@@ -89,7 +91,7 @@ export const AppLayout = ({ components }) => {
                     <div
                         style={{
                             padding: 24,
-                            minHeight: 360,
+                            minHeight: `81vh`,
                             background: colorBgContainer,
                             borderRadius: borderRadiusLG,
                         }}

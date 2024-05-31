@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Table, Button, Modal, Form, Input, DatePicker } from "antd";
-import moment from "moment";
 
 const BrandsManagement = () => {
     const [brands, setBrands] = useState([]);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [editingBrand, setEditingBrand] = useState(null);
-
     const [form] = Form.useForm();
 
     useEffect(() => {
@@ -24,8 +22,8 @@ const BrandsManagement = () => {
         setIsModalVisible(true);
         form.setFieldsValue({
             ...record,
-            created_at: moment(record.created_at),
-            updated_at: moment(record.updated_at),
+            created_at: record.created_at ? new Date(record.created_at) : null,
+            updated_at: record.updated_at ? new Date(record.updated_at) : null,
         });
     };
 
@@ -34,21 +32,35 @@ const BrandsManagement = () => {
         setBrands(brands.filter((item) => item.id !== id));
     };
 
-    const handleOk = () => {
-        form.validateFields().then((values) => {
+    const handleOk = async () => {
+        try {
+            const values = await form.validateFields();
+            const formattedValues = {
+                ...values,
+                created_at: values.created_at
+                    ? values.created_at.toISOString()
+                    : null,
+                updated_at: values.updated_at
+                    ? values.updated_at.toISOString()
+                    : null,
+            };
+
             if (editingBrand) {
-                // Update brand
                 const updatedBrands = brands.map((item) =>
-                    item.id === editingBrand.id ? { ...item, ...values } : item
+                    item.id === editingBrand.id
+                        ? { ...item, ...formattedValues }
+                        : item
                 );
                 setBrands(updatedBrands);
             } else {
-                // Add new brand
-                setBrands([...brands, { ...values, id: brands.length + 1 }]);
+                const newBrand = { ...formattedValues, id: brands.length + 1 };
+                setBrands([...brands, newBrand]);
             }
             setIsModalVisible(false);
             form.resetFields();
-        });
+        } catch (errorInfo) {
+            console.log("Validation failed:", errorInfo);
+        }
     };
 
     const handleCancel = () => {

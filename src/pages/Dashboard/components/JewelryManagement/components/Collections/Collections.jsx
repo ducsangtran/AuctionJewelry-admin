@@ -1,21 +1,29 @@
 import React, { useState, useEffect } from "react";
 import { Table, Button, Modal, Form, Input, DatePicker, Select } from "antd";
-import moment from "moment";
 
 const CollectionsManagement = () => {
     const [collections, setCollections] = useState([]);
     const [brands, setBrands] = useState([]);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [editingCollection, setEditingCollection] = useState(null);
-
     const [form] = Form.useForm();
 
     useEffect(() => {
-        // Fetch collections data from API
-        // setCollections(fetchedData);
-        // Fetch brands data from API
-        // setBrands(fetchedBrandsData);
+        fetchCollections();
+        fetchBrands();
     }, []);
+
+    const fetchCollections = async () => {
+        // Replace with API call
+        const fetchedData = []; // Mock data
+        setCollections(fetchedData);
+    };
+
+    const fetchBrands = async () => {
+        // Replace with API call
+        const fetchedBrandsData = []; // Mock data
+        setBrands(fetchedBrandsData);
+    };
 
     const handleAdd = () => {
         setEditingCollection(null);
@@ -27,36 +35,43 @@ const CollectionsManagement = () => {
         setIsModalVisible(true);
         form.setFieldsValue({
             ...record,
-            created_at: moment(record.created_at),
-            updated_at: moment(record.updated_at),
+            created_at: new Date(record.created_at),
+            updated_at: new Date(record.updated_at),
         });
     };
 
-    const handleDelete = (id) => {
-        // Delete collection by id from API
+    const handleDelete = async (id) => {
+        // Replace with API call
         setCollections(collections.filter((item) => item.id !== id));
     };
 
-    const handleOk = () => {
-        form.validateFields().then((values) => {
+    const handleOk = async () => {
+        try {
+            const values = await form.validateFields();
+            const formattedValues = {
+                ...values,
+                created_at: values.created_at.toISOString(),
+                updated_at: values.updated_at.toISOString(),
+            };
             if (editingCollection) {
-                // Update collection
                 const updatedCollections = collections.map((item) =>
                     item.id === editingCollection.id
-                        ? { ...item, ...values }
+                        ? { ...item, ...formattedValues }
                         : item
                 );
                 setCollections(updatedCollections);
             } else {
-                // Add new collection
-                setCollections([
-                    ...collections,
-                    { ...values, id: collections.length + 1 },
-                ]);
+                const newCollection = {
+                    ...formattedValues,
+                    id: collections.length + 1,
+                };
+                setCollections([...collections, newCollection]);
             }
             setIsModalVisible(false);
             form.resetFields();
-        });
+        } catch (errorInfo) {
+            console.log("Validation failed:", errorInfo);
+        }
     };
 
     const handleCancel = () => {
@@ -117,7 +132,7 @@ const CollectionsManagement = () => {
                     </Form.Item>
                     <Form.Item
                         name="brand_id"
-                        label="Brand ID"
+                        label="Brand"
                         rules={[
                             {
                                 required: true,

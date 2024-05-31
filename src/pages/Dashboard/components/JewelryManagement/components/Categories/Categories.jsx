@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Table, Button, Modal, Form, Input, DatePicker } from "antd";
-import moment from "moment";
 
 const CategoriesManagement = () => {
     const [categories, setCategories] = useState([]);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [editingCategory, setEditingCategory] = useState(null);
-
     const [form] = Form.useForm();
 
     useEffect(() => {
@@ -24,8 +22,8 @@ const CategoriesManagement = () => {
         setIsModalVisible(true);
         form.setFieldsValue({
             ...record,
-            created_at: moment(record.created_at),
-            updated_at: moment(record.updated_at),
+            created_at: record.created_at ? new Date(record.created_at) : null,
+            updated_at: record.updated_at ? new Date(record.updated_at) : null,
         });
     };
 
@@ -36,11 +34,21 @@ const CategoriesManagement = () => {
 
     const handleOk = () => {
         form.validateFields().then((values) => {
+            const formattedValues = {
+                ...values,
+                created_at: values.created_at
+                    ? values.created_at.toISOString()
+                    : null,
+                updated_at: values.updated_at
+                    ? values.updated_at.toISOString()
+                    : null,
+            };
+
             if (editingCategory) {
                 // Update category
                 const updatedCategories = categories.map((item) =>
                     item.id === editingCategory.id
-                        ? { ...item, ...values }
+                        ? { ...item, ...formattedValues }
                         : item
                 );
                 setCategories(updatedCategories);
@@ -48,7 +56,7 @@ const CategoriesManagement = () => {
                 // Add new category
                 setCategories([
                     ...categories,
-                    { ...values, id: categories.length + 1 },
+                    { ...formattedValues, id: categories.length + 1 },
                 ]);
             }
             setIsModalVisible(false);
