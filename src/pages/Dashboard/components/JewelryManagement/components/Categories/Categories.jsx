@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Table, Button, Modal, Form, Input, DatePicker } from "antd";
+import { Table, Button, Modal, Form, Input, DatePicker, message } from "antd";
 
 const CategoriesManagement = () => {
     const [categories, setCategories] = useState([]);
@@ -8,9 +8,19 @@ const CategoriesManagement = () => {
     const [form] = Form.useForm();
 
     useEffect(() => {
-        // Fetch categories data from API
-        // setCategories(fetchedData);
+        fetchCategories();
     }, []);
+
+    const fetchCategories = async () => {
+        try {
+            // Fetch categories data from API
+            const response = await fetch("/api/categories"); // Replace with your API endpoint
+            const fetchedData = await response.json();
+            setCategories(fetchedData);
+        } catch (error) {
+            // message.error("Failed to fetch categories data.");
+        }
+    };
 
     const handleAdd = () => {
         setEditingCategory(null);
@@ -27,13 +37,20 @@ const CategoriesManagement = () => {
         });
     };
 
-    const handleDelete = (id) => {
-        // Delete category by id from API
-        setCategories(categories.filter((item) => item.id !== id));
+    const handleDelete = async (id) => {
+        try {
+            // Delete category by id from API
+            await fetch(`/api/categories/${id}`, { method: "DELETE" }); // Replace with your API endpoint
+            setCategories(categories.filter((item) => item.id !== id));
+            message.success("Category deleted successfully.");
+        } catch (error) {
+            message.error("Failed to delete category.");
+        }
     };
 
-    const handleOk = () => {
-        form.validateFields().then((values) => {
+    const handleOk = async () => {
+        try {
+            const values = await form.validateFields();
             const formattedValues = {
                 ...values,
                 created_at: values.created_at
@@ -45,23 +62,41 @@ const CategoriesManagement = () => {
             };
 
             if (editingCategory) {
-                // Update category
+                // Update category in API
+                await fetch(`/api/categories/${editingCategory.id}`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(formattedValues),
+                }); // Replace with your API endpoint
+
                 const updatedCategories = categories.map((item) =>
                     item.id === editingCategory.id
                         ? { ...item, ...formattedValues }
                         : item
                 );
                 setCategories(updatedCategories);
+                message.success("Category updated successfully.");
             } else {
-                // Add new category
-                setCategories([
-                    ...categories,
-                    { ...formattedValues, id: categories.length + 1 },
-                ]);
+                // Create new category in API
+                const response = await fetch("/api/categories", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(formattedValues),
+                }); // Replace with your API endpoint
+                const newCategory = await response.json();
+                setCategories([...categories, newCategory]);
+                message.success("Category added successfully.");
             }
+
             setIsModalVisible(false);
             form.resetFields();
-        });
+        } catch (error) {
+            message.error("Validation failed: " + error);
+        }
     };
 
     const handleCancel = () => {
@@ -119,7 +154,7 @@ const CategoriesManagement = () => {
                     >
                         <Input />
                     </Form.Item>
-                    <Form.Item
+                    {/* <Form.Item
                         name="created_at"
                         label="Created At"
                         rules={[
@@ -142,7 +177,7 @@ const CategoriesManagement = () => {
                         ]}
                     >
                         <DatePicker showTime />
-                    </Form.Item>
+                    </Form.Item> */}
                 </Form>
             </Modal>
         </div>

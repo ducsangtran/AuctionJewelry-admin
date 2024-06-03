@@ -38,14 +38,16 @@ const items = [
     //     icon: <UploadOutlined />,
     //     label: <Link to="/jewelrymanagement">Jewelry Management</Link>,
     // },
-    getItem("jewelry ", "sub2", <UserOutlined />, [
-        getItem("Materials", "1", <Link to="/materials"></Link>),
-        getItem("Categories", "2", <Link to="/categories"></Link>),
-        getItem("Brands", "3", <Link to="/brands"></Link>),
+    getItem("jewelryManagement ", "sub2", <UserOutlined />, [
+        getItem("Materials", "7", <Link to="/materials"></Link>),
+        getItem("Categories", "8", <Link to="/categories"></Link>),
+        getItem("Brands", "9", <Link to="/brands"></Link>),
+        getItem("Collections", "10", <Link to="/collections"></Link>),
+        getItem("Jewelries", "11", <Link to="/jewelries"></Link>),
     ]),
 
     {
-        key: "7",
+        key: "12",
         icon: <UserOutlined />,
         label: <Link to="/nav4">Bla bla</Link>,
     },

@@ -15,13 +15,13 @@ const CollectionsManagement = () => {
 
     const fetchCollections = async () => {
         // Replace with API call
-        const fetchedData = []; // Mock data
+        const fetchedData = await getCollectionsFromAPI(); // Mock API call
         setCollections(fetchedData);
     };
 
     const fetchBrands = async () => {
         // Replace with API call
-        const fetchedBrandsData = []; // Mock data
+        const fetchedBrandsData = await getBrandsFromAPI(); // Mock API call
         setBrands(fetchedBrandsData);
     };
 
@@ -35,43 +35,9 @@ const CollectionsManagement = () => {
         setIsModalVisible(true);
         form.setFieldsValue({
             ...record,
-            created_at: new Date(record.created_at),
-            updated_at: new Date(record.updated_at),
+            created_at: record.created_at ? new Date(record.created_at) : null,
+            updated_at: record.updated_at ? new Date(record.updated_at) : null,
         });
-    };
-
-    const handleDelete = async (id) => {
-        // Replace with API call
-        setCollections(collections.filter((item) => item.id !== id));
-    };
-
-    const handleOk = async () => {
-        try {
-            const values = await form.validateFields();
-            const formattedValues = {
-                ...values,
-                created_at: values.created_at.toISOString(),
-                updated_at: values.updated_at.toISOString(),
-            };
-            if (editingCollection) {
-                const updatedCollections = collections.map((item) =>
-                    item.id === editingCollection.id
-                        ? { ...item, ...formattedValues }
-                        : item
-                );
-                setCollections(updatedCollections);
-            } else {
-                const newCollection = {
-                    ...formattedValues,
-                    id: collections.length + 1,
-                };
-                setCollections([...collections, newCollection]);
-            }
-            setIsModalVisible(false);
-            form.resetFields();
-        } catch (errorInfo) {
-            console.log("Validation failed:", errorInfo);
-        }
     };
 
     const handleCancel = () => {
@@ -114,10 +80,36 @@ const CollectionsManagement = () => {
             <Modal
                 title={editingCollection ? "Edit Collection" : "Add Collection"}
                 visible={isModalVisible}
-                onOk={handleOk}
+                onOk={() => form.submit()}
                 onCancel={handleCancel}
             >
-                <Form form={form} layout="vertical">
+                <Form
+                    form={form}
+                    layout="vertical"
+                    onFinish={(values) => {
+                        const formattedValues = {
+                            ...values,
+                            created_at: values.created_at
+                                ? values.created_at.toISOString()
+                                : null,
+                            updated_at: values.updated_at
+                                ? values.updated_at.toISOString()
+                                : null,
+                        };
+                        if (editingCollection) {
+                            // Replace with API call
+                            updateCollectionAPI(
+                                editingCollection.id,
+                                formattedValues
+                            );
+                        } else {
+                            // Replace with API call
+                            createCollectionAPI(formattedValues);
+                        }
+                        setIsModalVisible(false);
+                        fetchCollections();
+                    }}
+                >
                     <Form.Item
                         name="name"
                         label="Name"
@@ -148,7 +140,7 @@ const CollectionsManagement = () => {
                             ))}
                         </Select>
                     </Form.Item>
-                    <Form.Item
+                    {/* <Form.Item
                         name="created_at"
                         label="Created At"
                         rules={[
@@ -171,7 +163,7 @@ const CollectionsManagement = () => {
                         ]}
                     >
                         <DatePicker showTime />
-                    </Form.Item>
+                    </Form.Item> */}
                 </Form>
             </Modal>
         </div>

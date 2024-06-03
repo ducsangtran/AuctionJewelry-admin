@@ -6,7 +6,8 @@ import { UserManagement } from "../../pages/Dashboard/components/UserManagement"
 import { MaterialsManagement } from "../../pages/Dashboard/components/JewelryManagement/components/Materials/Materials";
 import CategoriesManagement from "../../pages/Dashboard/components/JewelryManagement/components/Categories/Categories";
 import BrandsManagement from "../../pages/Dashboard/components/JewelryManagement/components/Brands/Brands";
-// import { JewelryManagement } from "../../pages/Dashboard/components/JewelryManagement";
+import JewelryAdmin from "../../pages/Dashboard/components/JewelryManagement/components/Jewelries/Jewelry";
+import CollectionsManagement from "../../pages/Dashboard/components/JewelryManagement/components/Collections/Collections";
 
 const AppRouting = () => {
     return (
@@ -21,6 +22,8 @@ const AppRouting = () => {
                 <Route path="categories" element={<CategoriesManagement />} />
                 <Route path="brands" element={<BrandsManagement />} />
                 <Route path="categories" element={<CategoriesManagement />} />
+                <Route path="collections" element={<CollectionsManagement />} />
+                <Route path="jewelries" element={<JewelryAdmin />} />
             </Route>
         </Routes>
     );

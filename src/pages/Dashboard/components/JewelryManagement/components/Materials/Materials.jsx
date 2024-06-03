@@ -1,5 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Table, Button, Modal, Form, Input, DatePicker, Space } from "antd";
+import {
+    Table,
+    Button,
+    Modal,
+    Form,
+    Input,
+    DatePicker,
+    Space,
+    message,
+} from "antd";
 import {
     createMaterial,
     getAllMaterials,
@@ -15,21 +24,21 @@ export const MaterialsManagement = () => {
     const [form] = Form.useForm();
 
     useEffect(() => {
-        const fetchMaterials = async () => {
-            try {
-                const data = await getAllMaterials();
-                if (Array.isArray(data)) {
-                    setMaterials(data);
-                } else {
-                    console.error("Expected an array but received:", data);
-                }
-            } catch (error) {
-                console.error("Failed to fetch materials:", error);
-            }
-        };
-
         fetchMaterials();
     }, []);
+
+    const fetchMaterials = async () => {
+        try {
+            const data = await getAllMaterials();
+            if (Array.isArray(data)) {
+                setMaterials(data);
+            } else {
+                console.error("Expected an array but received:", data);
+            }
+        } catch (error) {
+            console.error("Failed to fetch materials:", error);
+        }
+    };
 
     const handleAdd = () => {
         setEditingMaterial(null);
@@ -50,43 +59,44 @@ export const MaterialsManagement = () => {
         try {
             await deleteMaterial(id);
             setMaterials(materials.filter((item) => item.id !== id));
+            message.success("Material deleted successfully.");
         } catch (error) {
             console.error("Failed to delete material:", error);
+            message.error("Failed to delete material.");
         }
     };
 
-    const handleOk = () => {
-        form.validateFields().then(async (values) => {
+    const handleOk = async () => {
+        try {
+            const values = await createMaterial;
             const newValues = {
                 ...values,
                 created_at: values.created_at.toISOString(),
                 updated_at: values.updated_at.toISOString(),
             };
-            try {
-                if (editingMaterial) {
-                    // Update material
-                    const updatedMaterial = await updateMaterial(
-                        editingMaterial.id,
-                        values.name
-                    );
-                    setMaterials(
-                        materials.map((item) =>
-                            item.id === editingMaterial.id
-                                ? updatedMaterial
-                                : item
-                        )
-                    );
-                } else {
-                    // Add new material
-                    const newMaterial = await createMaterial(values.name);
-                    setMaterials([...materials, newMaterial]);
-                }
-                setIsModalVisible(false);
-                form.resetFields();
-            } catch (error) {
-                console.error("Failed to save material:", error);
+
+            if (editingMaterial) {
+                const updatedMaterial = await updateMaterial(
+                    editingMaterial.id,
+                    newValues
+                );
+                setMaterials(
+                    materials.map((item) =>
+                        item.id === editingMaterial.id ? updatedMaterial : item
+                    )
+                );
+                message.success("Material updated successfully.");
+            } else {
+                const newMaterial = await createMaterial(newValues);
+                setMaterials([...materials, newMaterial]);
+                message.success("Material added successfully.");
             }
-        });
+            setIsModalVisible(false);
+            form.resetFields();
+        } catch (error) {
+            console.error("Failed to save material:", error);
+            message.error("Failed to save material.");
+        }
     };
 
     const handleCancel = () => {
@@ -94,18 +104,19 @@ export const MaterialsManagement = () => {
         form.resetFields();
     };
 
-    const formatDateTime = (dateString) => {
-        const date = new Date(dateString);
-        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
-            2,
-            "0"
-        )}-${String(date.getDate()).padStart(2, "0")} ${String(
-            date.getHours()
-        ).padStart(2, "0")}:${String(date.getMinutes()).padStart(
-            2,
-            "0"
-        )}:${String(date.getSeconds()).padStart(2, "0")}`;
-    };
+    // const formatDateTime = (dateString) => {
+    //     const date = new Date(dateString);
+    //     return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+    //         2,
+    //         "0"
+    //     )}-${String(date.getDate()).padStart(2, "0")} ${String(date.getHours()).padStart(
+    //         2,
+    //         "0"
+    //     )}:${String(date.getMinutes()).padStart(2, "0")}:${String(date.getSeconds()).padStart(
+    //         2,
+    //         "0"
+    //     )}`;
+    // };
 
     const columns = [
         { title: "ID", dataIndex: "id", key: "id" },
@@ -171,7 +182,7 @@ export const MaterialsManagement = () => {
                     >
                         <Input />
                     </Form.Item>
-                    <Form.Item
+                    {/* <Form.Item
                         name="created_at"
                         label="Created At"
                         rules={[
@@ -194,9 +205,11 @@ export const MaterialsManagement = () => {
                         ]}
                     >
                         <DatePicker showTime />
-                    </Form.Item>
+                    </Form.Item> */}
                 </Form>
             </Modal>
         </div>
     );
 };
+
+export default MaterialsManagement;

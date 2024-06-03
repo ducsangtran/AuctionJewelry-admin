@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Table, Button, Modal, Form, Input, DatePicker } from "antd";
+import { Table, Button, Modal, Form, Input, DatePicker, message } from "antd";
 
 const BrandsManagement = () => {
     const [brands, setBrands] = useState([]);
@@ -8,9 +8,19 @@ const BrandsManagement = () => {
     const [form] = Form.useForm();
 
     useEffect(() => {
-        // Fetch brands data from API
-        // setBrands(fetchedData);
+        fetchBrands();
     }, []);
+
+    const fetchBrands = async () => {
+        try {
+            // Fetch brands data from API
+            const response = await fetch("/api/brands"); // Replace with your API endpoint
+            const fetchedData = await response.json();
+            setBrands(fetchedData);
+        } catch (error) {
+            // message.error("Failed to fetch brands data.");
+        }
+    };
 
     const handleAdd = () => {
         setEditingBrand(null);
@@ -27,9 +37,15 @@ const BrandsManagement = () => {
         });
     };
 
-    const handleDelete = (id) => {
-        // Delete brand by id from API
-        setBrands(brands.filter((item) => item.id !== id));
+    const handleDelete = async (id) => {
+        try {
+            // Delete brand by id from API
+            await fetch(`/api/brands/${id}`, { method: "DELETE" }); // Replace with your API endpoint
+            setBrands(brands.filter((item) => item.id !== id));
+            message.success("Brand deleted successfully.");
+        } catch (error) {
+            message.error("Failed to delete brand.");
+        }
     };
 
     const handleOk = async () => {
@@ -46,20 +62,40 @@ const BrandsManagement = () => {
             };
 
             if (editingBrand) {
+                // Update brand in API
+                await fetch(`/api/brands/${editingBrand.id}`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(formattedValues),
+                }); // Replace with your API endpoint
+
                 const updatedBrands = brands.map((item) =>
                     item.id === editingBrand.id
                         ? { ...item, ...formattedValues }
                         : item
                 );
                 setBrands(updatedBrands);
+                message.success("Brand updated successfully.");
             } else {
-                const newBrand = { ...formattedValues, id: brands.length + 1 };
+                // Create new brand in API
+                const response = await fetch("/api/brands", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(formattedValues),
+                }); // Replace with your API endpoint
+                const newBrand = await response.json();
                 setBrands([...brands, newBrand]);
+                message.success("Brand added successfully.");
             }
+
             setIsModalVisible(false);
             form.resetFields();
-        } catch (errorInfo) {
-            console.log("Validation failed:", errorInfo);
+        } catch (error) {
+            message.error("Validation failed: " + error);
         }
     };
 
@@ -118,7 +154,7 @@ const BrandsManagement = () => {
                     >
                         <Input />
                     </Form.Item>
-                    <Form.Item
+                    {/* <Form.Item
                         name="created_at"
                         label="Created At"
                         rules={[
@@ -141,7 +177,7 @@ const BrandsManagement = () => {
                         ]}
                     >
                         <DatePicker showTime />
-                    </Form.Item>
+                    </Form.Item> */}
                 </Form>
             </Modal>
         </div>
