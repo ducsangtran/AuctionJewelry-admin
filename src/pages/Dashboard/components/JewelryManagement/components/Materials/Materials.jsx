@@ -1,14 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-    Table,
-    Button,
-    Modal,
-    Form,
-    Input,
-    DatePicker,
-    Space,
-    message,
-} from "antd";
+import { Table, Button, Modal, Form, Input, Space, message } from "antd";
 import {
     createMaterial,
     getAllMaterials,
@@ -18,9 +9,9 @@ import {
 
 export const MaterialsManagement = () => {
     const [materials, setMaterials] = useState([]);
+    const [updateMaterials, setUpdateMaterials] = useState([]);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [editingMaterial, setEditingMaterial] = useState(null);
-
     const [form] = Form.useForm();
 
     useEffect(() => {
@@ -29,14 +20,12 @@ export const MaterialsManagement = () => {
 
     const fetchMaterials = async () => {
         try {
-            const data = await getAllMaterials();
-            if (Array.isArray(data)) {
-                setMaterials(data);
-            } else {
-                console.error("Expected an array but received:", data);
-            }
+            // Fetch materials data from API
+            const response = await getAllMaterials(); // Replace with your API endpoint
+            const { data } = response; // Extract data array from the response object
+            setMaterials(data);
         } catch (error) {
-            console.error("Failed to fetch materials:", error);
+            message.error("Failed to fetch materials data.");
         }
     };
 
@@ -49,12 +38,9 @@ export const MaterialsManagement = () => {
         setEditingMaterial(record);
         setIsModalVisible(true);
         form.setFieldsValue({
-            ...record,
-            created_at: record.created_at ? new Date(record.created_at) : null,
-            updated_at: record.updated_at ? new Date(record.updated_at) : null,
+            name: record.name,
         });
     };
-
     const handleDelete = async (id) => {
         try {
             await deleteMaterial(id);
@@ -68,34 +54,34 @@ export const MaterialsManagement = () => {
 
     const handleOk = async () => {
         try {
-            const values = await createMaterial;
-            const newValues = {
-                ...values,
-                created_at: values.created_at.toISOString(),
-                updated_at: values.updated_at.toISOString(),
-            };
-
+            const values = await form.validateFields(); // Validate form fields
+            const name = values.name; // Extract the 'name' value from form data
             if (editingMaterial) {
-                const updatedMaterial = await updateMaterial(
-                    editingMaterial.id,
-                    newValues
+                // Update category in API
+                await updateMaterials(editingMaterial.id, name); // Replace with your API endpoint
+
+                const updatedMaterials = materials.map((item) =>
+                    item.id === editingMaterial.id ? { ...item } : item
                 );
-                setMaterials(
-                    materials.map((item) =>
-                        item.id === editingMaterial.id ? updatedMaterial : item
-                    )
-                );
+                setMaterials(updatedMaterials);
                 message.success("Material updated successfully.");
+                setIsModalVisible(false);
+                fetchCategories(); // Fetch categories again to update the data
             } else {
-                const newMaterial = await createMaterial(newValues);
-                setMaterials([...materials, newMaterial]);
-                message.success("Material added successfully.");
+                const newMaterial = await createMaterial(name); // Call create API
+                if (newMaterial) {
+                    setMaterials([newMaterial, ...materials]); // Update the materials state with the new material
+                    message.success("Material added successfully."); // Show success message
+                } else {
+                    throw new Error("Failed to create material."); // Throw an error if new material data is not received
+                }
             }
-            setIsModalVisible(false);
-            form.resetFields();
+            setIsModalVisible(false); // Hide the modal
+            form.resetFields(); // Reset form fields
+            fetchMaterials(); // Fetch materials again to update the data
         } catch (error) {
-            console.error("Failed to save material:", error);
-            message.error("Failed to save material.");
+            console.error("Failed to save material:", error); // Log error if failed to create material
+            message.error("Failed to save material."); // Show error message
         }
     };
 
@@ -103,34 +89,31 @@ export const MaterialsManagement = () => {
         setIsModalVisible(false);
         form.resetFields();
     };
-
-    // const formatDateTime = (dateString) => {
-    //     const date = new Date(dateString);
-    //     return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
-    //         2,
-    //         "0"
-    //     )}-${String(date.getDate()).padStart(2, "0")} ${String(date.getHours()).padStart(
-    //         2,
-    //         "0"
-    //     )}:${String(date.getMinutes()).padStart(2, "0")}:${String(date.getSeconds()).padStart(
-    //         2,
-    //         "0"
-    //     )}`;
-    // };
+    const formatDateTime = (dateString) => {
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) {
+            // Check if the date is invalid
+            return ""; // Return an empty string if the date is invalid
+        }
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+    };
 
     const columns = [
         { title: "ID", dataIndex: "id", key: "id" },
         { title: "Name", dataIndex: "name", key: "name" },
         {
             title: "Created At",
-            dataIndex: "created_at",
-            key: "created_at",
+            dataIndex: "createdAt",
+            key: "createdAt",
             render: (text) => formatDateTime(text),
         },
         {
             title: "Updated At",
-            dataIndex: "updated_at",
-            key: "updated_at",
+            dataIndex: "updatedAt",
+            key: "updatedAt",
             render: (text) => formatDateTime(text),
         },
         {
@@ -138,7 +121,11 @@ export const MaterialsManagement = () => {
             key: "action",
             render: (_, record) => (
                 <Space size="middle">
-                    <Button type="link" onClick={() => handleEdit(record)}>
+                    <Button
+                        type="link"
+                        primary
+                        onClick={() => handleEdit(record)}
+                    >
                         Edit
                     </Button>
                     <Button
@@ -182,30 +169,6 @@ export const MaterialsManagement = () => {
                     >
                         <Input />
                     </Form.Item>
-                    {/* <Form.Item
-                        name="created_at"
-                        label="Created At"
-                        rules={[
-                            {
-                                required: true,
-                                message: "Please select the created date!",
-                            },
-                        ]}
-                    >
-                        <DatePicker showTime />
-                    </Form.Item>
-                    <Form.Item
-                        name="updated_at"
-                        label="Updated At"
-                        rules={[
-                            {
-                                required: true,
-                                message: "Please select the updated date!",
-                            },
-                        ]}
-                    >
-                        <DatePicker showTime />
-                    </Form.Item> */}
                 </Form>
             </Modal>
         </div>

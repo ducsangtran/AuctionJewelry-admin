@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Table, Button, Modal, Form, Input, DatePicker, message } from "antd";
+import {
+    createBrand,
+    getAllBrands,
+    updateBrand,
+} from "../../../../../../services/api/BrandApi";
 
 const BrandsManagement = () => {
     const [brands, setBrands] = useState([]);
@@ -14,9 +19,9 @@ const BrandsManagement = () => {
     const fetchBrands = async () => {
         try {
             // Fetch brands data from API
-            const response = await fetch("/api/brands"); // Replace with your API endpoint
-            const fetchedData = await response.json();
-            setBrands(fetchedData);
+            const response = await getAllBrands(); // Replace with your API endpoint
+            const { data } = response; // Extract data array from the response object
+            setBrands(data);
         } catch (error) {
             // message.error("Failed to fetch brands data.");
         }
@@ -50,50 +55,31 @@ const BrandsManagement = () => {
 
     const handleOk = async () => {
         try {
-            const values = await form.validateFields();
-            const formattedValues = {
-                ...values,
-                created_at: values.created_at
-                    ? values.created_at.toISOString()
-                    : null,
-                updated_at: values.updated_at
-                    ? values.updated_at.toISOString()
-                    : null,
-            };
-
+            const values = await form.validateFields(); // Validate form fields
+            const name = values.name; // Extract the 'name' value from form data
             if (editingBrand) {
                 // Update brand in API
-                await fetch(`/api/brands/${editingBrand.id}`, {
-                    method: "PUT",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(formattedValues),
-                }); // Replace with your API endpoint
+                await updateBrand(editingBrand.id, name); // Replace with your API endpoint
 
-                const updatedBrands = brands.map((item) =>
-                    item.id === editingBrand.id
-                        ? { ...item, ...formattedValues }
-                        : item
+                const updatedBrand = brands.map((item) =>
+                    item.id === editingBrand.id ? { ...item } : item
                 );
-                setBrands(updatedBrands);
+                setBrands(updatedBrand);
                 message.success("Brand updated successfully.");
+                setIsModalVisible(false);
+                fetchBrands(); // Fetch categories again to update the data
             } else {
-                // Create new brand in API
-                const response = await fetch("/api/brands", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(formattedValues),
-                }); // Replace with your API endpoint
-                const newBrand = await response.json();
-                setBrands([...brands, newBrand]);
-                message.success("Brand added successfully.");
+                // Create new Brand in API
+                const newBrand = await createBrand(name); // Call create API
+                setBrands([newBrand, ...brands]);
+                message.success
+                    ? "Brand added successfully."
+                    : "Failed to create brand.";
             }
-
             setIsModalVisible(false);
             form.resetFields();
+
+            fetchBrands(); // Fetch materials again to update the data
         } catch (error) {
             message.error("Validation failed: " + error);
         }
@@ -103,12 +89,32 @@ const BrandsManagement = () => {
         setIsModalVisible(false);
         form.resetFields();
     };
-
+    const formatDateTime = (dateString) => {
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) {
+            // Check if the date is invalid
+            return ""; // Return an empty string if the date is invalid
+        }
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+    };
     const columns = [
         { title: "ID", dataIndex: "id", key: "id" },
         { title: "Name", dataIndex: "name", key: "name" },
-        { title: "Created At", dataIndex: "created_at", key: "created_at" },
-        { title: "Updated At", dataIndex: "updated_at", key: "updated_at" },
+        {
+            title: "Created At",
+            dataIndex: "createdAt",
+            key: "createdAt",
+            render: (text) => formatDateTime(text),
+        },
+        {
+            title: "Updated At",
+            dataIndex: "updatedAt",
+            key: "updatedAt",
+            render: (text) => formatDateTime(text),
+        },
         {
             title: "Action",
             key: "action",
@@ -154,30 +160,6 @@ const BrandsManagement = () => {
                     >
                         <Input />
                     </Form.Item>
-                    {/* <Form.Item
-                        name="created_at"
-                        label="Created At"
-                        rules={[
-                            {
-                                required: true,
-                                message: "Please select the created date!",
-                            },
-                        ]}
-                    >
-                        <DatePicker showTime />
-                    </Form.Item>
-                    <Form.Item
-                        name="updated_at"
-                        label="Updated At"
-                        rules={[
-                            {
-                                required: true,
-                                message: "Please select the updated date!",
-                            },
-                        ]}
-                    >
-                        <DatePicker showTime />
-                    </Form.Item> */}
                 </Form>
             </Modal>
         </div>

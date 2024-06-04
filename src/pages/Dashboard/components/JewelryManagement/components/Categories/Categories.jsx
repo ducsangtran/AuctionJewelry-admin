@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Table, Button, Modal, Form, Input, DatePicker, message } from "antd";
+import {
+    createCategory,
+    getAllCategories,
+    updateCategory,
+} from "../../../../../../services/api/Categories";
 
 const CategoriesManagement = () => {
     const [categories, setCategories] = useState([]);
@@ -14,14 +19,30 @@ const CategoriesManagement = () => {
     const fetchCategories = async () => {
         try {
             // Fetch categories data from API
-            const response = await fetch("/api/categories"); // Replace with your API endpoint
-            const fetchedData = await response.json();
-            setCategories(fetchedData);
+            const response = await getAllCategories(); // Replace with your API endpoint
+            const { data } = response; // Extract data array from the response object
+            setCategories(data);
         } catch (error) {
-            // message.error("Failed to fetch categories data.");
+            message.error("Failed to fetch categories data.");
         }
     };
+    // useEffect(() => {
+    //     fetchMaterials();
+    // }, []);
 
+    // const fetchMaterials = async () => {
+    //     try {
+    //         const res = await getAllMaterials();
+    //         const { data } = res; // Extract data array from the response object
+    //         if (Array.isArray(data)) {
+    //             setMaterials(data);
+    //         } else {
+    //             console.error("Expected an array but received:", data);
+    //         }
+    //     } catch (error) {
+    //         console.error("Failed to fetch materials:", error);
+    //     }
+    // };
     const handleAdd = () => {
         setEditingCategory(null);
         setIsModalVisible(true);
@@ -30,11 +51,11 @@ const CategoriesManagement = () => {
     const handleEdit = (record) => {
         setEditingCategory(record);
         setIsModalVisible(true);
-        form.setFieldsValue({
-            ...record,
-            created_at: record.created_at ? new Date(record.created_at) : null,
-            updated_at: record.updated_at ? new Date(record.updated_at) : null,
-        });
+        // form.setFieldsValue({
+        //     ...record,
+        //     created_at: record.created_at ? new Date(record.created_at) : null,
+        //     updated_at: record.updated_at ? new Date(record.updated_at) : null,
+        // });
     };
 
     const handleDelete = async (id) => {
@@ -50,50 +71,31 @@ const CategoriesManagement = () => {
 
     const handleOk = async () => {
         try {
-            const values = await form.validateFields();
-            const formattedValues = {
-                ...values,
-                created_at: values.created_at
-                    ? values.created_at.toISOString()
-                    : null,
-                updated_at: values.updated_at
-                    ? values.updated_at.toISOString()
-                    : null,
-            };
-
+            const values = await form.validateFields(); // Validate form fields
+            const name = values.name; // Extract the 'name' value from form data
+            // const newCategory = await createCategory(name); // Call create API
             if (editingCategory) {
                 // Update category in API
-                await fetch(`/api/categories/${editingCategory.id}`, {
-                    method: "PUT",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(formattedValues),
-                }); // Replace with your API endpoint
+                await updateCategory(editingCategory.id, name); // Replace with your API endpoint
 
                 const updatedCategories = categories.map((item) =>
-                    item.id === editingCategory.id
-                        ? { ...item, ...formattedValues }
-                        : item
+                    item.id === editingCategory.id ? { ...item } : item
                 );
                 setCategories(updatedCategories);
                 message.success("Category updated successfully.");
+                setIsModalVisible(false);
+                fetchCategories(); // Fetch categories again to update the data
             } else {
                 // Create new category in API
-                const response = await fetch("/api/categories", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(formattedValues),
-                }); // Replace with your API endpoint
-                const newCategory = await response.json();
-                setCategories([...categories, newCategory]);
-                message.success("Category added successfully.");
+                const newCategory = await createCategory(name); // Call create API
+                setCategories([newCategory, ...categories]);
+                message.success
+                    ? "Category added successfully."
+                    : "Failed to create category.";
+                setIsModalVisible(false);
+                form.resetFields();
+                fetchCategories(); // Fetch categories again to update the data
             }
-
-            setIsModalVisible(false);
-            form.resetFields();
         } catch (error) {
             message.error("Validation failed: " + error);
         }
@@ -103,12 +105,32 @@ const CategoriesManagement = () => {
         setIsModalVisible(false);
         form.resetFields();
     };
-
+    const formatDateTime = (dateString) => {
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) {
+            // Check if the date is invalid
+            return ""; // Return an empty string if the date is invalid
+        }
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+    };
     const columns = [
         { title: "ID", dataIndex: "id", key: "id" },
         { title: "Name", dataIndex: "name", key: "name" },
-        { title: "Created At", dataIndex: "created_at", key: "created_at" },
-        { title: "Updated At", dataIndex: "updated_at", key: "updated_at" },
+        {
+            title: "Created At",
+            dataIndex: "createdAt",
+            key: "createdAt",
+            render: (text) => formatDateTime(text),
+        },
+        {
+            title: "Updated At",
+            dataIndex: "updatedAt",
+            key: "updatedAt",
+            render: (text) => formatDateTime(text),
+        },
         {
             title: "Action",
             key: "action",
@@ -154,30 +176,6 @@ const CategoriesManagement = () => {
                     >
                         <Input />
                     </Form.Item>
-                    {/* <Form.Item
-                        name="created_at"
-                        label="Created At"
-                        rules={[
-                            {
-                                required: true,
-                                message: "Please select the created date!",
-                            },
-                        ]}
-                    >
-                        <DatePicker showTime />
-                    </Form.Item>
-                    <Form.Item
-                        name="updated_at"
-                        label="Updated At"
-                        rules={[
-                            {
-                                required: true,
-                                message: "Please select the updated date!",
-                            },
-                        ]}
-                    >
-                        <DatePicker showTime />
-                    </Form.Item> */}
                 </Form>
             </Modal>
         </div>

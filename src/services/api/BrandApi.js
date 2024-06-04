@@ -1,8 +1,8 @@
 import axios from "axios";
 const API_BASE_URL = "http://localhost:8080";
-const createMaterial = async (name) => {
+const createBrand = async (name) => {
     try {
-        const response = await axios.post(`${API_BASE_URL}/api/v1/material`, {
+        const response = await axios.post(`${API_BASE_URL}/api/v1/brand`, {
             name,
         });
         return response.data;
@@ -13,9 +13,9 @@ const createMaterial = async (name) => {
     }
 };
 
-const getAllMaterials = async () => {
+const getAllBrands = async () => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/api/v1/material`);
+        const response = await axios.get(`${API_BASE_URL}/api/v1/brand`);
         return response.data;
     } catch (error) {
         // Handle error
@@ -23,11 +23,9 @@ const getAllMaterials = async () => {
         throw error;
     }
 };
-const getMaterialById = async (id) => {
+const getBrandById = async (id) => {
     try {
-        const response = await axios.get(
-            `${API_BASE_URL}/api/v1/material/${id}`
-        );
+        const response = await axios.get(`${API_BASE_URL}/api/v1/brand/${id}`);
         return response.data;
     } catch (error) {
         // Handle error
@@ -35,12 +33,11 @@ const getMaterialById = async (id) => {
         throw error;
     }
 };
-const updateMaterial = async (id, name) => {
+const updateBrand = async (id, name) => {
     try {
-        const response = await axios.put(
-            `${API_BASE_URL}/api/v1/material/${id}`,
-            { name }
-        );
+        const response = await axios.put(`${API_BASE_URL}/api/v1/brand/${id}`, {
+            name,
+        });
         return response.data;
     } catch (error) {
         // Handle error
@@ -48,10 +45,10 @@ const updateMaterial = async (id, name) => {
         throw error;
     }
 };
-const deleteMaterial = async (id) => {
+const deleteBrand = async (id) => {
     try {
         const response = await axios.delete(
-            `${API_BASE_URL}/api/v1/material/${id}`
+            `${API_BASE_URL}/api/v1/brand/${id}`
         );
         return response.data;
     } catch (error) {
@@ -61,10 +58,4 @@ const deleteMaterial = async (id) => {
     }
 };
 
-export {
-    createMaterial,
-    getAllMaterials,
-    getMaterialById,
-    updateMaterial,
-    deleteMaterial,
-};
+export { createBrand, deleteBrand, getAllBrands, updateBrand, getBrandById };

@@ -1,8 +1,8 @@
 import axios from "axios";
 const API_BASE_URL = "http://localhost:8080";
-const createMaterial = async (name) => {
+const createCategory = async (name) => {
     try {
-        const response = await axios.post(`${API_BASE_URL}/api/v1/material`, {
+        const response = await axios.post(`${API_BASE_URL}/api/v1/category`, {
             name,
         });
         return response.data;
@@ -13,9 +13,9 @@ const createMaterial = async (name) => {
     }
 };
 
-const getAllMaterials = async () => {
+const getAllCategories = async () => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/api/v1/material`);
+        const response = await axios.get(`${API_BASE_URL}/api/v1/category`);
         return response.data;
     } catch (error) {
         // Handle error
@@ -26,7 +26,7 @@ const getAllMaterials = async () => {
 const getMaterialById = async (id) => {
     try {
         const response = await axios.get(
-            `${API_BASE_URL}/api/v1/material/${id}`
+            `${API_BASE_URL}/api/v1/category/${id}`
         );
         return response.data;
     } catch (error) {
@@ -35,10 +35,10 @@ const getMaterialById = async (id) => {
         throw error;
     }
 };
-const updateMaterial = async (id, name) => {
+const updateCategory = async (id, name) => {
     try {
         const response = await axios.put(
-            `${API_BASE_URL}/api/v1/material/${id}`,
+            `${API_BASE_URL}/api/v1/category/${id}`,
             { name }
         );
         return response.data;
@@ -48,10 +48,10 @@ const updateMaterial = async (id, name) => {
         throw error;
     }
 };
-const deleteMaterial = async (id) => {
+const deleteCategory = async (id) => {
     try {
         const response = await axios.delete(
-            `${API_BASE_URL}/api/v1/material/${id}`
+            `${API_BASE_URL}/api/v1/category/${id}`
         );
         return response.data;
     } catch (error) {
@@ -62,9 +62,9 @@ const deleteMaterial = async (id) => {
 };
 
 export {
-    createMaterial,
-    getAllMaterials,
+    createCategory,
+    deleteCategory,
+    getAllCategories,
+    updateCategory,
     getMaterialById,
-    updateMaterial,
-    deleteMaterial,
 };
