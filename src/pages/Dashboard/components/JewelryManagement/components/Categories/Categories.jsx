@@ -26,23 +26,7 @@ const CategoriesManagement = () => {
             message.error("Failed to fetch categories data.");
         }
     };
-    // useEffect(() => {
-    //     fetchMaterials();
-    // }, []);
 
-    // const fetchMaterials = async () => {
-    //     try {
-    //         const res = await getAllMaterials();
-    //         const { data } = res; // Extract data array from the response object
-    //         if (Array.isArray(data)) {
-    //             setMaterials(data);
-    //         } else {
-    //             console.error("Expected an array but received:", data);
-    //         }
-    //     } catch (error) {
-    //         console.error("Failed to fetch materials:", error);
-    //     }
-    // };
     const handleAdd = () => {
         setEditingCategory(null);
         setIsModalVisible(true);
@@ -51,11 +35,6 @@ const CategoriesManagement = () => {
     const handleEdit = (record) => {
         setEditingCategory(record);
         setIsModalVisible(true);
-        // form.setFieldsValue({
-        //     ...record,
-        //     created_at: record.created_at ? new Date(record.created_at) : null,
-        //     updated_at: record.updated_at ? new Date(record.updated_at) : null,
-        // });
     };
 
     const handleDelete = async (id) => {

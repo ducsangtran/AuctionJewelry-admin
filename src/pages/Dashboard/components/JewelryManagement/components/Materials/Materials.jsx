@@ -9,7 +9,6 @@ import {
 
 export const MaterialsManagement = () => {
     const [materials, setMaterials] = useState([]);
-    const [updateMaterials, setUpdateMaterials] = useState([]);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [editingMaterial, setEditingMaterial] = useState(null);
     const [form] = Form.useForm();
@@ -58,7 +57,7 @@ export const MaterialsManagement = () => {
             const name = values.name; // Extract the 'name' value from form data
             if (editingMaterial) {
                 // Update category in API
-                await updateMaterials(editingMaterial.id, name); // Replace with your API endpoint
+                await updateMaterial(editingMaterial.id, name); // Replace with your API endpoint
 
                 const updatedMaterials = materials.map((item) =>
                     item.id === editingMaterial.id ? { ...item } : item
@@ -66,7 +65,7 @@ export const MaterialsManagement = () => {
                 setMaterials(updatedMaterials);
                 message.success("Material updated successfully.");
                 setIsModalVisible(false);
-                fetchCategories(); // Fetch categories again to update the data
+                fetchMaterials(); // Fetch categories again to update the data
             } else {
                 const newMaterial = await createMaterial(name); // Call create API
                 if (newMaterial) {
