@@ -10,46 +10,47 @@ import {
     Row,
     Col,
 } from "antd";
+import { getAllJewelries } from "../../../../../../services/api/JewelryApi";
 
 const { Option } = Select;
 
 const jewelryColumns = [
     { title: "ID", dataIndex: "id", key: "id" },
-    { title: "Seller ID", dataIndex: "seller_id", key: "seller_id" },
+    { title: "Seller", dataIndex: "sellerName", key: "seller_id" },
     { title: "Name", dataIndex: "name", key: "name" },
     { title: "Description", dataIndex: "description", key: "description" },
-    { title: "Category ID", dataIndex: "category_id", key: "category_id" },
+    { title: "Category", dataIndex: "categoryName", key: "category_id" },
     { title: "Weight", dataIndex: "weight", key: "weight" },
     { title: "Size", dataIndex: "size", key: "size" },
     { title: "Color", dataIndex: "color", key: "color" },
     { title: "Sex", dataIndex: "sex", key: "sex" },
-    { title: "Brand ID", dataIndex: "brand_id", key: "brand_id" },
-    { title: "Condition", dataIndex: "condition", key: "condition" },
+    { title: "Brand", dataIndex: "brandName", key: "brandName" },
+    { title: "Condition", dataIndex: "jewelryCondition", key: "condition" },
     {
         title: "Starting Price",
-        dataIndex: "starting_price",
+        dataIndex: "staringPrice",
         key: "starting_price",
     },
     { title: "Status", dataIndex: "status", key: "status" },
     {
-        title: "Collection ID",
-        dataIndex: "collection_id",
+        title: "Collection",
+        dataIndex: "collectionName",
         key: "collection_id",
     },
-    { title: "Created At", dataIndex: "created_at", key: "created_at" },
-    { title: "Updated At", dataIndex: "updated_at", key: "updated_at" },
-    {
-        title: "Action",
-        key: "action",
-        render: (_, record) => (
-            <span>
-                <Button type="link">Edit</Button>
-                <Button type="link" danger>
-                    Delete
-                </Button>
-            </span>
-        ),
-    },
+    // { title: "Created At", dataIndex: "createdAt", key: "created_at" },
+    // { title: "Updated At", dataIndex: "updatedAt", key: "updated_at" },
+    // {
+    //     title: "Action",
+    //     key: "action",
+    //     render: (_, record) => (
+    //         <span>
+    //             <Button type="link">Edit</Button>
+    //             <Button type="link" danger>
+    //                 Delete
+    //             </Button>
+    //         </span>
+    //     ),
+    // },
 ];
 
 const JewelryAdmin = () => {
@@ -58,9 +59,53 @@ const JewelryAdmin = () => {
     const [jewelryData, setJewelryData] = useState([]);
 
     useEffect(() => {
-        // Fetch data from API and setJewelryData
+        fetchJewelryData();
     }, []);
+    const fetchJewelryData = async () => {
+        try {
+            const response = await getAllJewelries();
+            const jewelriesData = response.data;
+            // Directly map the brand name from nested brand object
+            const updatedJewelries = jewelriesData.map((jewelriesData) => ({
+                ...jewelriesData,
+                brandName: jewelriesData.brand.name,
+                sellerName: jewelriesData.sellerId.full_name,
+                categoryName: jewelriesData.category.name,
+                collectionName: jewelriesData.collection.name,
+            }));
+            setJewelryData(updatedJewelries);
+            console.log(response.data);
+        } catch (error) {
+            message.error("Failed to fetch jewelries data.");
+        }
+    };
 
+    // const fetchCollections = async () => {
+    //     try {
+    //         const response = await getAllCollections();
+    //         const collectionsData = response.data;
+
+    //         // Directly map the brand name from nested brand object
+    //         const updatedCollections = collectionsData.map((collection) => ({
+    //             ...collection,
+    //             brandName: collection.brand ? collection.brand.name : "Unknown",
+    //         }));
+
+    //         setCollections(updatedCollections);
+    //     } catch (error) {
+    //         message.error("Failed to fetch collections data.");
+    //     }
+    // };
+
+    // const fetchBrands = async () => {
+    //     try {
+    //         const response = await getAllBrands();
+    //         const { data } = response;
+    //         setBrands(data);
+    //     } catch (error) {
+    //         message.error("Failed to fetch brands data.");
+    //     }
+    // };
     const handleAdd = () => {
         setVisible(true);
     };

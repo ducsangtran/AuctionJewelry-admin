@@ -1,7 +1,7 @@
 // src/services/api.js
 import axios from "axios";
 
-const API_BASE_URL = "https://664ef232fafad45dfae1a318.mockapi.io/user/api/v1";
+const API_BASE_URL = "http://localhost:8080/user/api/v1";
 
 export const fetchUsers = async () => {
     try {

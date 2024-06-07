@@ -36,12 +36,13 @@ const getCollectionById = async (id) => {
         throw error;
     }
 };
-const updateCollection = async (id, name) => {
+const updateCollection = async (id, name, brand) => {
     try {
         const response = await axios.put(
             `${API_BASE_URL}/api/v1/collection/${id}`,
             {
                 name,
+                brand,
             }
         );
         return response.data;
