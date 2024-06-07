@@ -20,25 +20,25 @@ const jewelryColumns = [
     { title: "Name", dataIndex: "name", key: "name" },
     { title: "Description", dataIndex: "description", key: "description" },
     { title: "Category", dataIndex: "categoryName", key: "category_id" },
+    { title: "Brand", dataIndex: "brandName", key: "brandName" },
+    { title: "Material", dataIndex: "jewelryCondition", key: "condition" },
+    { title: "Collection", dataIndex: "collectionName", key: "collection_id" },
     { title: "Weight", dataIndex: "weight", key: "weight" },
     { title: "Size", dataIndex: "size", key: "size" },
     { title: "Color", dataIndex: "color", key: "color" },
     { title: "Sex", dataIndex: "sex", key: "sex" },
-    { title: "Brand", dataIndex: "brandName", key: "brandName" },
+
     { title: "Condition", dataIndex: "jewelryCondition", key: "condition" },
+
     {
         title: "Starting Price",
         dataIndex: "staringPrice",
         key: "starting_price",
     },
     { title: "Status", dataIndex: "status", key: "status" },
-    {
-        title: "Collection",
-        dataIndex: "collectionName",
-        key: "collection_id",
-    },
-    // { title: "Created At", dataIndex: "createdAt", key: "created_at" },
-    // { title: "Updated At", dataIndex: "updatedAt", key: "updated_at" },
+
+    { title: "Created At", dataIndex: "createdAt", key: "created_at" },
+    { title: "Updated At", dataIndex: "updatedAt", key: "updated_at" },
     // {
     //     title: "Action",
     //     key: "action",
