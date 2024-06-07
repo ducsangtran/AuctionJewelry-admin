@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Table, Button, Modal, Form, Input, DatePicker, message } from "antd";
 import {
     createCategory,
+    deleteCategory,
     getAllCategories,
     updateCategory,
 } from "../../../../../../services/api/Categories";
@@ -40,7 +41,7 @@ const CategoriesManagement = () => {
     const handleDelete = async (id) => {
         try {
             // Delete category by id from API
-            await fetch(`/api/categories/${id}`, { method: "DELETE" }); // Replace with your API endpoint
+            await deleteCategory(id); // Replace with your API endpoint
             setCategories(categories.filter((item) => item.id !== id));
             message.success("Category deleted successfully.");
         } catch (error) {

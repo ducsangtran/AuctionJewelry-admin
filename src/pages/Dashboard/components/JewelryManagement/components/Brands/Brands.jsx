@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Table, Button, Modal, Form, Input, DatePicker, message } from "antd";
 import {
     createBrand,
+    deleteBrand,
     getAllBrands,
     updateBrand,
 } from "../../../../../../services/api/BrandApi";
@@ -45,7 +46,7 @@ const BrandsManagement = () => {
     const handleDelete = async (id) => {
         try {
             // Delete brand by id from API
-            await fetch(`/api/brands/${id}`, { method: "DELETE" }); // Replace with your API endpoint
+            await deleteBrand(id);
             setBrands(brands.filter((item) => item.id !== id));
             message.success("Brand deleted successfully.");
         } catch (error) {
