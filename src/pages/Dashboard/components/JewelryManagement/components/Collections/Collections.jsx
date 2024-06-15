@@ -1,14 +1,5 @@
 // import React, { useState, useEffect } from "react";
-// import {
-//     Table,
-//     Button,
-//     Modal,
-//     Form,
-//     Input,
-//     DatePicker,
-//     Select,
-//     message,
-// } from "antd";
+// import { Table, Button, Modal, Form, Input, Select, message, Collapse, Divider } from "antd";
 // import {
 //     getAllCollections,
 //     createCollection,
@@ -16,6 +7,7 @@
 //     deleteCollection,
 // } from "../../../../../../services/api/Collections";
 // import { getAllBrands } from "../../../../../../services/api/BrandApi";
+
 // const CollectionsManagement = () => {
 //     const [collections, setCollections] = useState([]);
 //     const [brands, setBrands] = useState([]);
@@ -30,30 +22,32 @@
 
 //     const fetchCollections = async () => {
 //         try {
-//             const response = await getAllCollections();
-//             const collectionsData = response.data;
+//             const collectionsData = await getAllCollections();
+//             // const collectionsData = response.data;
 
 //             // Directly map the brand name from nested brand object
 //             const updatedCollections = collectionsData.map((collection) => ({
 //                 ...collection,
-//                 brandName: collection.brand ? collection.brand.name : "Unknown",
+//                 brandName: collection.brand ? collection.brand.name : null,
 //             }));
 
 //             setCollections(updatedCollections);
+//             // console.log(collectionsData);
 //         } catch (error) {
 //             message.error("Failed to fetch collections data.");
 //         }
 //     };
+
 //     const fetchBrands = async () => {
 //         try {
-//             // Fetch brands data from API
-//             const response = await getAllBrands(); // Replace with your API endpoint
-//             const { data } = response; // Extract data array from the response object
+//             const response = await getAllBrands();
+//             const { data } = response;
 //             setBrands(data);
 //         } catch (error) {
-//             // message.error("Failed to fetch brands data.");
+//             message.error("Failed to fetch brands data.");
 //         }
 //     };
+
 //     const handleAdd = () => {
 //         setEditingCollection(null);
 //         setIsModalVisible(true);
@@ -63,7 +57,8 @@
 //         setEditingCollection(record);
 //         setIsModalVisible(true);
 //         form.setFieldsValue({
-//             ...record,
+//             name: record.name,
+//             brand: record.brand ? record.brand.name : null,
 //         });
 //     };
 
@@ -71,6 +66,7 @@
 //         setIsModalVisible(false);
 //         form.resetFields();
 //     };
+
 //     const handleDelete = async (id) => {
 //         try {
 //             await deleteCollection(id);
@@ -81,25 +77,33 @@
 //         }
 //     };
 
-//     const handleFormSubmit = async (values) => {
+//     const handleFormSubmit = async (formValues) => {
 //         try {
+//             console.log("Form values:", formValues); // Debugging line to check form values
+//             const values = await form.validateFields(); // Lấy giá trị từ form
+
+//             // Trích xuất giá trị name và brand từ form values
+//             const { name, brand } = values;
+
 //             if (editingCollection) {
-//                 await updateCollection(editingCollection.id, values.name);
+//                 await updateCollection(editingCollection.id, name, brand);
 //                 message.success("Collection updated successfully");
 //             } else {
-//                 await createCollection(values.name, values.brand_id);
+//                 await createCollection(name, brand);
 //                 message.success("Collection created successfully");
 //             }
 //             setIsModalVisible(false);
 //             fetchCollections();
 //         } catch (error) {
+//             console.error("Error saving collection:", error); // Debugging line to check error
 //             message.error("Failed to save collection.");
 //         }
 //     };
+
 //     const columns = [
 //         { title: "ID", dataIndex: "id", key: "id" },
 //         { title: "Name", dataIndex: "name", key: "name" },
-//         { title: "Brand", dataIndex: "brandName", key: "brandName" }, // Cập nhật cột này
+//         { title: "Brand", dataIndex: "brandName", key: "brandName" },
 //         { title: "Created At", dataIndex: "createdAt", key: "created_at" },
 //         { title: "Updated At", dataIndex: "updatedAt", key: "updated_at" },
 //         {
@@ -110,11 +114,7 @@
 //                     <Button type="link" onClick={() => handleEdit(record)}>
 //                         Edit
 //                     </Button>
-//                     <Button
-//                         type="link"
-//                         danger
-//                         onClick={() => handleDelete(record.id)}
-//                     >
+//                     <Button type="link" danger onClick={() => handleDelete(record.id)}>
 //                         Delete
 //                     </Button>
 //                 </>
@@ -127,40 +127,14 @@
 //             <Button type="primary" onClick={handleAdd}>
 //                 Add Collection
 //             </Button>
-//             <Table dataSource={collections} columns={columns} rowKey="id" />
+//             <Table dataSource={collections} columns={columns} rowKey="id" scroll={{ x: 1000 }} />
 //             <Modal
 //                 title={editingCollection ? "Edit Collection" : "Add Collection"}
 //                 visible={isModalVisible}
 //                 onOk={() => form.submit()}
 //                 onCancel={handleCancel}
 //             >
-//                 <Form
-//                     form={form}
-//                     layout="vertical"
-//                     onFinish={(values) => {
-//                         const formattedValues = {
-//                             ...values,
-//                             created_at: values.created_at
-//                                 ? values.created_at.toISOString()
-//                                 : null,
-//                             updated_at: values.updated_at
-//                                 ? values.updated_at.toISOString()
-//                                 : null,
-//                         };
-//                         if (editingCollection) {
-//                             // Replace with API call
-//                             updateCollectionAPI(
-//                                 editingCollection.id,
-//                                 formattedValues
-//                             );
-//                         } else {
-//                             // Replace with API call
-//                             createCollectionAPI(formattedValues);
-//                         }
-//                         setIsModalVisible(false);
-//                         fetchCollections();
-//                     }}
-//                 >
+//                 <Form form={form} layout="vertical" onFinish={handleFormSubmit}>
 //                     <Form.Item
 //                         name="name"
 //                         label="Name"
@@ -174,7 +148,7 @@
 //                         <Input />
 //                     </Form.Item>
 //                     <Form.Item
-//                         name="brand_id"
+//                         name="brand"
 //                         label="Brand"
 //                         rules={[
 //                             {
@@ -185,7 +159,7 @@
 //                     >
 //                         <Select>
 //                             {brands.map((brand) => (
-//                                 <Select.Option key={brand.id} value={brand.id}>
+//                                 <Select.Option key={brand.id} value={brand.name}>
 //                                     {brand.name}
 //                                 </Select.Option>
 //                             ))}
@@ -225,10 +199,10 @@ const CollectionsManagement = () => {
             const response = await getAllCollections();
             const collectionsData = response.data;
 
-            // Directly map the brand name from nested brand object
+            // Map the brand name to the collections data
             const updatedCollections = collectionsData.map((collection) => ({
                 ...collection,
-                brandName: collection.brand ? collection.brand.name : "Unknown",
+                brandName: collection.brand ? collection.brand.name : "unknown",
             }));
 
             setCollections(updatedCollections);
@@ -241,6 +215,8 @@ const CollectionsManagement = () => {
         try {
             const response = await getAllBrands();
             const { data } = response;
+
+            console.log(response);
             setBrands(data);
         } catch (error) {
             message.error("Failed to fetch brands data.");
@@ -298,13 +274,33 @@ const CollectionsManagement = () => {
             message.error("Failed to save collection.");
         }
     };
-
+    const formatDateTime = (dateString) => {
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) {
+            // Check if the date is invalid
+            return ""; // Return an empty string if the date is invalid
+        }
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+    };
     const columns = [
         { title: "ID", dataIndex: "id", key: "id" },
         { title: "Name", dataIndex: "name", key: "name" },
-        { title: "Brand", dataIndex: "brandName", key: "brandName" },
-        { title: "Created At", dataIndex: "createdAt", key: "created_at" },
-        { title: "Updated At", dataIndex: "updatedAt", key: "updated_at" },
+        { title: "Brand", dataIndex: "brandName", key: "brand_name" },
+        {
+            title: "Created At",
+            dataIndex: "createdAt",
+            key: "created_at",
+            render: (text) => formatDateTime(text),
+        },
+        {
+            title: "Updated At",
+            dataIndex: "updatedAt",
+            key: "updated_at",
+            render: (text) => formatDateTime(text),
+        },
         {
             title: "Action",
             key: "action",
@@ -313,11 +309,7 @@ const CollectionsManagement = () => {
                     <Button type="link" onClick={() => handleEdit(record)}>
                         Edit
                     </Button>
-                    <Button
-                        type="link"
-                        danger
-                        onClick={() => handleDelete(record.id)}
-                    >
+                    <Button type="link" danger onClick={() => handleDelete(record.id)}>
                         Delete
                     </Button>
                 </>
@@ -362,10 +354,7 @@ const CollectionsManagement = () => {
                     >
                         <Select>
                             {brands.map((brand) => (
-                                <Select.Option
-                                    key={brand.id}
-                                    value={brand.name}
-                                >
+                                <Select.Option key={brand.id} value={brand.name}>
                                     {brand.name}
                                 </Select.Option>
                             ))}

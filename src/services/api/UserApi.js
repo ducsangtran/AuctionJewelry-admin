@@ -23,10 +23,7 @@ export const fetchTotalUsers = async () => {
 };
 export const updateUser = async (user) => {
     try {
-        const response = await axios.put(
-            `${API_BASE_URL}/users/${user.id}`,
-            user
-        );
+        const response = await axios.put(`${API_BASE_URL}/users/${user.id}`, user);
         return response.data;
     } catch (error) {
         console.error("Error updating user:", error);

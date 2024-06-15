@@ -1,5 +1,5 @@
 import axios from "axios";
-const API_BASE_URL = "http://localhost:8080";
+const API_BASE_URL = "http://167.71.212.203:8080";
 const createMaterial = async (name) => {
     try {
         const response = await axios.post(`${API_BASE_URL}/api/v1/material`, {
@@ -25,9 +25,7 @@ const getAllMaterials = async () => {
 };
 const getMaterialById = async (id) => {
     try {
-        const response = await axios.get(
-            `${API_BASE_URL}/api/v1/material/${id}`
-        );
+        const response = await axios.get(`${API_BASE_URL}/api/v1/material/${id}`);
         return response.data;
     } catch (error) {
         // Handle error
@@ -37,10 +35,7 @@ const getMaterialById = async (id) => {
 };
 const updateMaterial = async (id, name) => {
     try {
-        const response = await axios.put(
-            `${API_BASE_URL}/api/v1/material/${id}`,
-            { name }
-        );
+        const response = await axios.put(`${API_BASE_URL}/api/v1/material/${id}`, { name });
         return response.data;
     } catch (error) {
         // Handle error
@@ -50,9 +45,7 @@ const updateMaterial = async (id, name) => {
 };
 const deleteMaterial = async (id) => {
     try {
-        const response = await axios.delete(
-            `${API_BASE_URL}/api/v1/material/${id}`
-        );
+        const response = await axios.delete(`${API_BASE_URL}/api/v1/material/${id}`);
         return response.data;
     } catch (error) {
         // Handle error
@@ -61,10 +54,4 @@ const deleteMaterial = async (id) => {
     }
 };
 
-export {
-    createMaterial,
-    getAllMaterials,
-    getMaterialById,
-    updateMaterial,
-    deleteMaterial,
-};
+export { createMaterial, getAllMaterials, getMaterialById, updateMaterial, deleteMaterial };

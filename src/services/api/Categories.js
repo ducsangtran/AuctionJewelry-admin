@@ -1,5 +1,5 @@
 import axios from "axios";
-const API_BASE_URL = "http://localhost:8080";
+const API_BASE_URL = "http://167.71.212.203:8080";
 const createCategory = async (name) => {
     try {
         const response = await axios.post(`${API_BASE_URL}/api/v1/category`, {
@@ -25,9 +25,7 @@ const getAllCategories = async () => {
 };
 const getMaterialById = async (id) => {
     try {
-        const response = await axios.get(
-            `${API_BASE_URL}/api/v1/category/${id}`
-        );
+        const response = await axios.get(`${API_BASE_URL}/api/v1/category/${id}`);
         return response.data;
     } catch (error) {
         // Handle error
@@ -37,10 +35,7 @@ const getMaterialById = async (id) => {
 };
 const updateCategory = async (id, name) => {
     try {
-        const response = await axios.put(
-            `${API_BASE_URL}/api/v1/category/${id}`,
-            { name }
-        );
+        const response = await axios.put(`${API_BASE_URL}/api/v1/category/${id}`, { name });
         return response.data;
     } catch (error) {
         // Handle error
@@ -50,9 +45,7 @@ const updateCategory = async (id, name) => {
 };
 const deleteCategory = async (id) => {
     try {
-        const response = await axios.delete(
-            `${API_BASE_URL}/api/v1/category/${id}`
-        );
+        const response = await axios.delete(`${API_BASE_URL}/api/v1/category/${id}`);
         return response.data;
     } catch (error) {
         // Handle error
@@ -61,10 +54,4 @@ const deleteCategory = async (id) => {
     }
 };
 
-export {
-    createCategory,
-    deleteCategory,
-    getAllCategories,
-    updateCategory,
-    getMaterialById,
-};
+export { createCategory, deleteCategory, getAllCategories, updateCategory, getMaterialById };

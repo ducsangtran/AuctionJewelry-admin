@@ -1,15 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-    Table,
-    Button,
-    Modal,
-    Form,
-    Input,
-    Select,
-    InputNumber,
-    Row,
-    Col,
-} from "antd";
+import { Table, Button, Modal, Form, Input, Select, InputNumber, Row, Col } from "antd";
 import { getAllJewelries } from "../../../../../../services/api/JewelryApi";
 
 const { Option } = Select;
@@ -37,8 +27,8 @@ const jewelryColumns = [
     },
     { title: "Status", dataIndex: "status", key: "status" },
 
-    { title: "Created At", dataIndex: "createdAt", key: "created_at" },
-    { title: "Updated At", dataIndex: "updatedAt", key: "updated_at" },
+    // { title: "Created At", dataIndex: "createdAt", key: "created_at" },
+    // { title: "Updated At", dataIndex: "updatedAt", key: "updated_at" },
     // {
     //     title: "Action",
     //     key: "action",
@@ -80,32 +70,6 @@ const JewelryAdmin = () => {
         }
     };
 
-    // const fetchCollections = async () => {
-    //     try {
-    //         const response = await getAllCollections();
-    //         const collectionsData = response.data;
-
-    //         // Directly map the brand name from nested brand object
-    //         const updatedCollections = collectionsData.map((collection) => ({
-    //             ...collection,
-    //             brandName: collection.brand ? collection.brand.name : "Unknown",
-    //         }));
-
-    //         setCollections(updatedCollections);
-    //     } catch (error) {
-    //         message.error("Failed to fetch collections data.");
-    //     }
-    // };
-
-    // const fetchBrands = async () => {
-    //     try {
-    //         const response = await getAllBrands();
-    //         const { data } = response;
-    //         setBrands(data);
-    //     } catch (error) {
-    //         message.error("Failed to fetch brands data.");
-    //     }
-    // };
     const handleAdd = () => {
         setVisible(true);
     };
@@ -125,18 +89,10 @@ const JewelryAdmin = () => {
 
     return (
         <div>
-            <Button
-                type="primary"
-                onClick={handleAdd}
-                style={{ marginBottom: 16 }}
-            >
+            {/* <Button type="primary" onClick={handleAdd} style={{ marginBottom: 16 }}>
                 Add Jewelry
-            </Button>
-            <Table
-                columns={jewelryColumns}
-                dataSource={jewelryData}
-                rowKey="id"
-            />
+            </Button> */}
+            <Table columns={jewelryColumns} dataSource={jewelryData} rowKey="id" />
             <Modal
                 title="Add/Edit Jewelry"
                 visible={visible}
@@ -155,11 +111,7 @@ const JewelryAdmin = () => {
                             </Form.Item>
                         </Col>
                         <Col span={12}>
-                            <Form.Item
-                                name="name"
-                                label="Name"
-                                rules={[{ required: true }]}
-                            >
+                            <Form.Item name="name" label="Name" rules={[{ required: true }]}>
                                 <Input />
                             </Form.Item>
                         </Col>
@@ -186,40 +138,24 @@ const JewelryAdmin = () => {
                     </Row>
                     <Row gutter={16}>
                         <Col span={12}>
-                            <Form.Item
-                                name="weight"
-                                label="Weight"
-                                rules={[{ required: true }]}
-                            >
+                            <Form.Item name="weight" label="Weight" rules={[{ required: true }]}>
                                 <InputNumber style={{ width: "100%" }} />
                             </Form.Item>
                         </Col>
                         <Col span={12}>
-                            <Form.Item
-                                name="size"
-                                label="Size"
-                                rules={[{ required: true }]}
-                            >
+                            <Form.Item name="size" label="Size" rules={[{ required: true }]}>
                                 <Input />
                             </Form.Item>
                         </Col>
                     </Row>
                     <Row gutter={16}>
                         <Col span={12}>
-                            <Form.Item
-                                name="color"
-                                label="Color"
-                                rules={[{ required: true }]}
-                            >
+                            <Form.Item name="color" label="Color" rules={[{ required: true }]}>
                                 <Input />
                             </Form.Item>
                         </Col>
                         <Col span={12}>
-                            <Form.Item
-                                name="sex"
-                                label="Sex"
-                                rules={[{ required: true }]}
-                            >
+                            <Form.Item name="sex" label="Sex" rules={[{ required: true }]}>
                                 <Select>
                                     <Option value="male">Male</Option>
                                     <Option value="female">Female</Option>
@@ -261,11 +197,7 @@ const JewelryAdmin = () => {
                             </Form.Item>
                         </Col>
                         <Col span={12}>
-                            <Form.Item
-                                name="status"
-                                label="Status"
-                                rules={[{ required: true }]}
-                            >
+                            <Form.Item name="status" label="Status" rules={[{ required: true }]}>
                                 <Select>
                                     <Option value="available">Available</Option>
                                     <Option value="sold">Sold</Option>

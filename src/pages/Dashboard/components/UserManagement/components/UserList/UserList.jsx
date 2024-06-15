@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Table, Button, Form, Modal, Pagination, Input } from "antd";
 import { fetchUsers, updateUser, addUser, deleteUser } from "@api/UserApi.js";
+import { useSelector } from "react-redux";
 
 const { Item: FormItem } = Form;
 const { Column } = Table;
@@ -19,7 +20,7 @@ export const UserList = ({ setTotalUsers }) => {
         idCard: "",
         phoneNumber: "",
     });
-
+  
     useEffect(() => {
         const getUsers = async () => {
             try {
@@ -49,9 +50,7 @@ export const UserList = ({ setTotalUsers }) => {
     const handleSaveEdit = async () => {
         try {
             await updateUser(editUser);
-            setUsers(
-                users.map((user) => (user.id === editUser.id ? editUser : user))
-            );
+            setUsers(users.map((user) => (user.id === editUser.id ? editUser : user)));
             handleCloseEdit();
         } catch (error) {
             console.error("Error updating user:", error);
@@ -116,21 +115,12 @@ export const UserList = ({ setTotalUsers }) => {
             <Button type="primary" onClick={handleShowAdd} className="mb-4">
                 Add User
             </Button>
-            <Table
-                dataSource={currentUsers}
-                rowKey="id"
-                pagination={false}
-                className="mb-4"
-            >
+            <Table dataSource={currentUsers} rowKey="id" pagination={false} className="mb-4">
                 <Column title="ID" dataIndex="id" key="id" />
                 <Column title="Name" dataIndex="name" key="name" />
                 <Column title="Email" dataIndex="email" key="email" />
                 <Column title="IdCard" dataIndex="IdCard" key="IdCard" />
-                <Column
-                    title="Phone Number"
-                    dataIndex="phoneNumber"
-                    key="phoneNumber"
-                />
+                <Column title="Phone Number" dataIndex="phoneNumber" key="phoneNumber" />
                 <Column
                     title="Actions"
                     key="actions"
@@ -146,9 +136,7 @@ export const UserList = ({ setTotalUsers }) => {
                             <Button
                                 type="primary"
                                 danger
-                                onClick={() =>
-                                    showDeleteConfirm(user.id, user.name)
-                                }
+                                onClick={() => showDeleteConfirm(user.id, user.name)}
                             >
                                 Delete
                             </Button>

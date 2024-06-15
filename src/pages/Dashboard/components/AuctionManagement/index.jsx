@@ -1,10 +1,10 @@
 import React from "react";
 import { Outlet } from "react-router-dom";
 
-export const JewelryManagement = () => {
+export const AuctionManagement = () => {
     return (
         <div>
-            <h1>Jewelry Management</h1>
+            <h1>Auctions Management</h1>
             <Outlet />3
         </div>
     );

@@ -1,5 +1,11 @@
 import { UserOutlined } from "@ant-design/icons";
 import { Layout, Menu, theme } from "antd";
+import {
+    CrownOutlined,
+    ShoppingOutlined,
+    RocketOutlined,
+    MonitorOutlined,
+} from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import React from "react";
 import AppHeader from "./AppHeader";
@@ -38,7 +44,7 @@ const items = [
     //     icon: <UploadOutlined />,
     //     label: <Link to="/jewelrymanagement">Jewelry Management</Link>,
     // },
-    getItem("jewelryManagement ", "sub2", <UserOutlined />, [
+    getItem("jewelryManagement ", "sub2", <CrownOutlined />, [
         getItem("Materials", "7", <Link to="/materials"></Link>),
         getItem("Categories", "8", <Link to="/categories"></Link>),
         getItem("Brands", "9", <Link to="/brands"></Link>),
@@ -48,8 +54,18 @@ const items = [
 
     {
         key: "12",
-        icon: <UserOutlined />,
-        label: <Link to="/nav4">Bla bla</Link>,
+        icon: <ShoppingOutlined />,
+        label: <Link to="/auctions">Auction Management</Link>,
+    },
+    {
+        key: "13",
+        icon: <RocketOutlined />,
+        label: <Link to="/deliveries">Delivery Management</Link>,
+    },
+    {
+        key: "14",
+        icon: <MonitorOutlined />,
+        label: <Link to="/valuations">Valuating Management</Link>,
     },
 ];
 
@@ -70,12 +86,7 @@ export const AppLayout = ({ components }) => {
                 }}
             >
                 <div className="demo-logo-vertical" />
-                <Menu
-                    theme="dark"
-                    mode="inline"
-                    defaultSelectedKeys={["4"]}
-                    items={items}
-                />
+                <Menu theme="dark" mode="inline" defaultSelectedKeys={["4"]} items={items} />
             </Sider>
             <Layout>
                 <Header
@@ -83,7 +94,9 @@ export const AppLayout = ({ components }) => {
                         padding: 0,
                         background: colorBgContainer,
                     }}
-                ></Header>
+                >
+                    {/* <AppHeader /> */}
+                </Header>
 
                 <Content
                     style={{
