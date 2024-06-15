@@ -1,13 +1,45 @@
-import React, { useState } from "react";
-import { Form, Input, DatePicker, Switch, Button, Table, Space, Modal } from "antd";
+import React, { useEffect, useState } from "react";
+import { Form, Input, DatePicker, Switch, Button, Table, Space, Modal, message } from "antd";
+import { getAllAuctions } from "../../../../../services/api/AuctionApi";
 
 const AuctionManagement = () => {
     const [form] = Form.useForm();
-    const [data, setData] = useState([]);
+    const [AuctionsData, setAuctionData] = useState([]);
     const [filteredData, setFilteredData] = useState([]);
     const [modalVisible, setModalVisible] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
-
+    useEffect(() => {
+        fetchAllAuctions();
+    }, []);
+    const fetchAllAuctions = async () => {
+        try {
+            const response = await getAllAuctions();
+            const AuctionsData = response.data;
+            // Directly map the brand name from nested brand object
+            const updatedAuctions = AuctionsData.map((auction) => ({
+                ...auction,
+                jewelryName: auction.jewelry.name,
+                winnerName: auction.winner.full_name,
+                startingPrice: auction.jewelry.staringPrice,
+                // collectionName: auction.collection.name,
+            }));
+            setAuctionData(updatedAuctions);
+            console.log(response.data);
+        } catch (error) {
+            message.error("Failed to fetch auctions data.");
+        }
+    };
+    const formatDateTime = (dateString) => {
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) {
+            // Check if the date is invalid
+            return ""; // Return an empty string if the date is invalid
+        }
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+    };
     const columns = [
         {
             title: "ID",
@@ -15,47 +47,65 @@ const AuctionManagement = () => {
             key: "id",
         },
         {
-            title: "Seller Name",
-            dataIndex: "sellerName",
-            key: "sellerName",
+            title: "Created At",
+            dataIndex: "createdAt",
+            key: "createdAt",
+            render: (text) => formatDateTime(text),
         },
         {
-            title: "Phone Number",
-            dataIndex: "phoneNumber",
-            key: "phoneNumber",
+            title: "End Time",
+            dataIndex: "endTime",
+            key: "endTime",
+            render: (text) => formatDateTime(text),
         },
         {
-            title: "Email",
-            dataIndex: "email",
-            key: "email",
+            title: "Jewelry",
+            dataIndex: "jewelryName",
+            key: "jewelryName",
         },
         {
-            title: "Address",
-            dataIndex: "address",
-            key: "address",
+            title: "Current Price",
+            dataIndex: "currentPrice",
+            key: "currentPrice",
         },
         {
-            title: "Date of Birth",
-            dataIndex: "dateOfBirth",
-            key: "dateOfBirth",
+            title: "Start Time",
+            dataIndex: "startTime",
+            key: "startTime",
+            render: (text) => formatDateTime(text),
         },
         {
-            title: "Role",
-            dataIndex: "role",
-            key: "role",
+            title: "Status",
+            dataIndex: "status",
+            key: "status",
         },
         {
-            title: "Email Verified",
-            dataIndex: "emailVerified",
-            key: "emailVerified",
-            render: (text) => (text ? "Yes" : "No"),
+            title: "Starting Price",
+            dataIndex: "startingPrice",
+            key: "startingPrice",
         },
         {
-            title: "Active",
-            dataIndex: "isActive",
-            key: "isActive",
-            render: (text) => (text ? "Yes" : "No"),
+            title: "Step",
+            dataIndex: "step",
+            key: "step",
         },
+        {
+            title: "Total Bid",
+            dataIndex: "totalBids",
+            key: "totalBids",
+        },
+        {
+            title: "Updated At",
+            dataIndex: "updatedAt",
+            key: "updatedAt",
+            render: (text) => formatDateTime(text),
+        },
+        {
+            title: "Winner",
+            dataIndex: "winnerName",
+            key: "winnerName",
+        },
+
         {
             title: "Action",
             key: "action",
@@ -123,7 +173,7 @@ const AuctionManagement = () => {
             <Space style={{ marginBottom: 16 }}>
                 <Input.Search placeholder="Search auctions" onSearch={onSearch} enterButton />
             </Space>
-            <Table columns={columns} dataSource={filteredData} rowKey="id" />
+            <Table columns={columns} dataSource={AuctionsData} rowKey="id" />
 
             <Modal
                 title={editingItem ? "Edit Auction" : "Add New Auction"}

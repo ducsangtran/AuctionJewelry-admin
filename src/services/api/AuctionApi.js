@@ -1,6 +1,6 @@
 import axios from "axios";
 const API_BASE_URL = "http://167.71.212.203:8080";
-const getAuctions = async () => {
+const getAllAuctions = async () => {
     try {
         const response = await axios.get(`${API_BASE_URL}/api/v1/auction`);
         return response.data;
