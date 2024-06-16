@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Form, Input, DatePicker, Switch, Button, Table, Space, Modal, message } from "antd";
-import { getAllAuctions } from "../../../../../services/api/AuctionApi";
+import { getAllAuctions, searchAuctionByAdmin } from "../../../../../services/api/AuctionApi";
+import SearchModal from "./searchModal";
 
 const AuctionManagement = () => {
     const [form] = Form.useForm();
@@ -8,9 +9,12 @@ const AuctionManagement = () => {
     const [filteredData, setFilteredData] = useState([]);
     const [modalVisible, setModalVisible] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
+    const [searchModalVisible, setSearchModalVisible] = useState(false); // State để điều khiển hiển thị modal tìm kiếm
+
     useEffect(() => {
         fetchAllAuctions();
     }, []);
+
     const fetchAllAuctions = async () => {
         try {
             const response = await getAllAuctions();
@@ -29,6 +33,7 @@ const AuctionManagement = () => {
             message.error("Failed to fetch auctions data.");
         }
     };
+
     const formatDateTime = (dateString) => {
         const date = new Date(dateString);
         if (isNaN(date.getTime())) {
@@ -40,6 +45,7 @@ const AuctionManagement = () => {
         const day = String(date.getDate()).padStart(2, "0");
         return `${year}-${month}-${day}`;
     };
+
     const columns = [
         {
             title: "ID",
@@ -52,12 +58,7 @@ const AuctionManagement = () => {
             key: "createdAt",
             render: (text) => formatDateTime(text),
         },
-        {
-            title: "End Time",
-            dataIndex: "endTime",
-            key: "endTime",
-            render: (text) => formatDateTime(text),
-        },
+
         {
             title: "Jewelry",
             dataIndex: "jewelryName",
@@ -72,6 +73,12 @@ const AuctionManagement = () => {
             title: "Start Time",
             dataIndex: "startTime",
             key: "startTime",
+            render: (text) => formatDateTime(text),
+        },
+        {
+            title: "End Time",
+            dataIndex: "endTime",
+            key: "endTime",
             render: (text) => formatDateTime(text),
         },
         {
@@ -105,7 +112,6 @@ const AuctionManagement = () => {
             dataIndex: "winnerName",
             key: "winnerName",
         },
-
         {
             title: "Action",
             key: "action",
@@ -127,8 +133,8 @@ const AuctionManagement = () => {
     };
 
     const handleDelete = (id) => {
-        const newData = data.filter((item) => item.id !== id);
-        setData(newData);
+        const newData = AuctionsData.filter((item) => item.id !== id);
+        setAuctionData(newData);
         setFilteredData(newData);
     };
 
@@ -141,14 +147,14 @@ const AuctionManagement = () => {
     const handleModalOk = () => {
         form.validateFields()
             .then((values) => {
-                const newData = [...data];
+                const newData = [...AuctionsData];
                 if (editingItem) {
                     const index = newData.findIndex((item) => item.id === editingItem.id);
                     if (index > -1) {
                         newData[index] = { ...editingItem, ...values };
                     }
                 }
-                setData(newData);
+                setAuctionData(newData);
                 setFilteredData(newData);
                 form.resetFields();
                 setModalVisible(false);
@@ -160,7 +166,7 @@ const AuctionManagement = () => {
     };
 
     const onSearch = (value) => {
-        const filtered = data.filter((item) =>
+        const filtered = AuctionsData.filter((item) =>
             Object.values(item).some(
                 (val) => typeof val === "string" && val.toLowerCase().includes(value.toLowerCase())
             )
@@ -168,10 +174,50 @@ const AuctionManagement = () => {
         setFilteredData(filtered);
     };
 
+    const handleOpenSearchModal = () => {
+        setSearchModalVisible(true);
+    };
+
+    const handleCancelSearchModal = () => {
+        setSearchModalVisible(false);
+    };
+
+    const handleSearch = async (searchParams) => {
+        try {
+            const AuctionsData = await searchAuctionByAdmin(
+                searchParams.collectionId,
+                searchParams.categoryId,
+                searchParams.minPrice,
+                searchParams.maxPrice,
+                searchParams.brandId,
+                searchParams.jewelryCondition,
+                searchParams.status,
+                searchParams.sex
+                // searchParams.page || 1
+                // Assuming you are starting from page 1
+            );
+            console.log("Response Data:", AuctionsData); // In ra phản hồi từ API
+            const updatedAuctions = AuctionsData.content.map((auction) => ({
+                ...auction,
+                jewelryName: auction.jewelry.name,
+                winnerName: auction.winner.full_name,
+                startingPrice: auction.jewelry.staringPrice,
+                // Update auction fields if needed
+            }));
+            setAuctionData(updatedAuctions);
+            // setFilteredData(updatedAuctions);
+            setSearchModalVisible(false); // Hide modal after search
+        } catch (error) {
+            message.error("Failed to search auctions.");
+        }
+    };
     return (
         <div>
             <Space style={{ marginBottom: 16 }}>
                 <Input.Search placeholder="Search auctions" onSearch={onSearch} enterButton />
+                <Button type="primary" onClick={handleOpenSearchModal}>
+                    Advanced Search
+                </Button>
             </Space>
             <Table columns={columns} dataSource={AuctionsData} rowKey="id" />
 
@@ -212,6 +258,13 @@ const AuctionManagement = () => {
                     </Form.Item>
                 </Form>
             </Modal>
+
+            {/* Modal tìm kiếm */}
+            <SearchModal
+                visible={searchModalVisible}
+                onCancel={handleCancelSearchModal}
+                onSearch={handleSearch}
+            />
         </div>
     );
 };

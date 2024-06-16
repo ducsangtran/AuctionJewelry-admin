@@ -21,4 +21,36 @@ const searchAuctionById = async (id) => {
         throw error;
     }
 };
-export { getAllAuctions, searchAuctionById };
+const searchAuctionByAdmin = async (
+    collectionId,
+    categoryId,
+    minPrice,
+    maxPrice,
+    brandId,
+    jewelryCondition,
+    status,
+    sex
+    // page
+) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/api/v1/auction/admin/search`, {
+            params: {
+                collectionId,
+                categoryId,
+                minPrice,
+                maxPrice,
+                brandId,
+                jewelryCondition,
+                status,
+                sex,
+                // page,
+            },
+        });
+        return response.data;
+    } catch (error) {
+        // Handle error
+        console.error(error);
+        throw error;
+    }
+};
+export { getAllAuctions, searchAuctionById, searchAuctionByAdmin };
