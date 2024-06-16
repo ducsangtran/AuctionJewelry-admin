@@ -1,13 +1,34 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Form, Input, DatePicker, Switch, Button, Table, Space, Modal } from "antd";
+import { getAllValuations } from "../../../../../services/api/ValuationApi";
 
 const ValuationManagement = () => {
     const [form] = Form.useForm();
-    const [data, setData] = useState([]);
+    const [ValuationsData, setValuationsData] = useState([]);
     const [filteredData, setFilteredData] = useState([]);
     const [modalVisible, setModalVisible] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
-
+    useEffect(() => {
+        fetchAllValuations();
+    }, []);
+    const fetchAllValuations = async () => {
+        try {
+            const response = await getAllValuations();
+            const ValuationsData = response.data;
+            // Directly map the brand name from nested brand object
+            const updatedValuations = ValuationsData.map((valuation) => ({
+                ...valuation,
+                // jewelryName: auction.jewelry.name,
+                // winnerName: auction.winner.full_name,
+                // startingPrice: auction.jewelry.staringPrice,
+                // collectionName: auction.collection.name,
+            }));
+            setValuationsData(updatedValuations);
+            console.log(response.data);
+        } catch (error) {
+            message.error("Failed to fetch auctions data.");
+        }
+    };
     const columns = [
         {
             title: "ID",

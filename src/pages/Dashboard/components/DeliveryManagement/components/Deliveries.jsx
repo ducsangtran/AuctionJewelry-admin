@@ -1,13 +1,34 @@
-import React, { useState } from "react";
-import { Form, Input, DatePicker, Switch, Button, Table, Space, Modal, Image } from "antd";
+import React, { useState, useEffect } from "react";
+import { Form, Input, DatePicker, Switch, Button, Table, Space, Modal, Image, message } from "antd";
+import { getAllDeliveries } from "../../../../../services/api/DeliveryApi";
 
 const DeliveryManagement = () => {
     const [form] = Form.useForm();
-    const [data, setData] = useState([]);
+    const [DeliveriesData, setDeliveriesData] = useState([]);
     const [filteredData, setFilteredData] = useState([]);
     const [modalVisible, setModalVisible] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
-
+    useEffect(() => {
+        fetchAllDeliveries();
+    }, []);
+    const fetchAllDeliveries = async () => {
+        try {
+            const response = await getAllDeliveries();
+            const DeliveriesData = response.data;
+            // Directly map the brand name from nested brand object
+            const updatedDeliveries = DeliveriesData.map((delivery) => ({
+                ...delivery,
+                // jewelryName: auction.jewelry.name,
+                // winnerName: auction.winner.full_name,
+                // startingPrice: auction.jewelry.staringPrice,
+                // collectionName: auction.collection.name,
+            }));
+            setDeliveriesData(updatedDeliveries);
+            console.log(response.data);
+        } catch (error) {
+            message.error("Failed to fetch auctions data.");
+        }
+    };
     const columns = [
         {
             title: "ID",
