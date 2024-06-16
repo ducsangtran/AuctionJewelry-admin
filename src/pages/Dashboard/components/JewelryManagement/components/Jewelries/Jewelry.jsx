@@ -9,10 +9,10 @@ const jewelryColumns = [
     { title: "Seller", dataIndex: "sellerName", key: "seller_id" },
     { title: "Name", dataIndex: "name", key: "name" },
     { title: "Description", dataIndex: "description", key: "description" },
-    { title: "Category", dataIndex: "categoryName", key: "category_id" },
-    { title: "Brand", dataIndex: "brandName", key: "brandName" },
+    { title: "Category", dataIndex: ["category", "name"], key: "category_id" },
+    { title: "Brand", dataIndex: ["brand", "name"], key: "brandName" },
     { title: "Material", dataIndex: "jewelryCondition", key: "condition" },
-    { title: "Collection", dataIndex: "collectionName", key: "collection_id" },
+    { title: "Collection", dataIndex: ["collection", "name"], key: "collection_id" },
     { title: "Weight", dataIndex: "weight", key: "weight" },
     { title: "Size", dataIndex: "size", key: "size" },
     { title: "Color", dataIndex: "color", key: "color" },
@@ -26,21 +26,6 @@ const jewelryColumns = [
         key: "starting_price",
     },
     { title: "Status", dataIndex: "status", key: "status" },
-
-    // { title: "Created At", dataIndex: "createdAt", key: "created_at" },
-    // { title: "Updated At", dataIndex: "updatedAt", key: "updated_at" },
-    // {
-    //     title: "Action",
-    //     key: "action",
-    //     render: (_, record) => (
-    //         <span>
-    //             <Button type="link">Edit</Button>
-    //             <Button type="link" danger>
-    //                 Delete
-    //             </Button>
-    //         </span>
-    //     ),
-    // },
 ];
 
 const JewelryAdmin = () => {
@@ -55,15 +40,7 @@ const JewelryAdmin = () => {
         try {
             const response = await getAllJewelries();
             const jewelriesData = response.data;
-            // Directly map the brand name from nested brand object
-            const updatedJewelries = jewelriesData.map((jewelriesData) => ({
-                ...jewelriesData,
-                brandName: jewelriesData.brand.name,
-                sellerName: jewelriesData.sellerId.full_name,
-                categoryName: jewelriesData.category.name,
-                collectionName: jewelriesData.collection.name,
-            }));
-            setJewelryData(updatedJewelries);
+            setJewelryData(jewelriesData);
             console.log(response.data);
         } catch (error) {
             message.error("Failed to fetch jewelries data.");

@@ -20,15 +20,8 @@ const AuctionManagement = () => {
             const response = await getAllAuctions();
             const AuctionsData = response.data;
             // Directly map the brand name from nested brand object
-            const updatedAuctions = AuctionsData.map((auction) => ({
-                ...auction,
-                jewelryName: auction.jewelry.name,
-                winnerName: auction.winner.full_name,
-                startingPrice: auction.jewelry.staringPrice,
-                // collectionName: auction.collection.name,
-            }));
-            setAuctionData(updatedAuctions);
-            console.log(response.data);
+
+            setAuctionData(AuctionsData);
         } catch (error) {
             message.error("Failed to fetch auctions data.");
         }
@@ -61,7 +54,7 @@ const AuctionManagement = () => {
 
         {
             title: "Jewelry",
-            dataIndex: "jewelryName",
+            dataIndex: ["jewelry", "name"],
             key: "jewelryName",
         },
         {
@@ -88,7 +81,7 @@ const AuctionManagement = () => {
         },
         {
             title: "Starting Price",
-            dataIndex: "startingPrice",
+            dataIndex: ["jewelry", "staringPrice"],
             key: "startingPrice",
         },
         {
@@ -109,7 +102,7 @@ const AuctionManagement = () => {
         },
         {
             title: "Winner",
-            dataIndex: "winnerName",
+            dataIndex: ["winner", "full_name"],
             key: "winnerName",
         },
         {
@@ -199,10 +192,6 @@ const AuctionManagement = () => {
             console.log("Response Data:", AuctionsData); // In ra phản hồi từ API
             const updatedAuctions = AuctionsData.content.map((auction) => ({
                 ...auction,
-                jewelryName: auction.jewelry.name,
-                winnerName: auction.winner.full_name,
-                startingPrice: auction.jewelry.staringPrice,
-                // Update auction fields if needed
             }));
             setAuctionData(updatedAuctions);
             // setFilteredData(updatedAuctions);
@@ -258,7 +247,7 @@ const AuctionManagement = () => {
                     </Form.Item>
                 </Form>
             </Modal>
-
+            {console.log("AuctionsData:", AuctionsData)}
             {/* Modal tìm kiếm */}
             <SearchModal
                 visible={searchModalVisible}
