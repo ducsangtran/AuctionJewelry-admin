@@ -277,14 +277,11 @@ const AuctionManagement = () => {
                 onSearch={handleSearch}
             />
 
-            <Modal
+            <DetailAuctions
                 open={detailModalVisible}
                 onCancel={handleDetailModalCancel}
-                footer={null}
-                width={800} // Đặt giá trị width theo ý muốn
-            >
-                {detailItem && <DetailAuctions auction={detailItem} />}
-            </Modal>
+                auction={detailItem}
+            />
         </div>
     );
 };
