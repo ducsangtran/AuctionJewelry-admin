@@ -1,7 +1,25 @@
 import React, { useEffect, useState } from "react";
-import { Form, Input, DatePicker, Switch, Button, Table, Space, Modal, message } from "antd";
-import { getAllAuctions, searchAuctionByAdmin } from "../../../../../services/api/AuctionApi";
+import {
+    Form,
+    Input,
+    DatePicker,
+    Button,
+    Table,
+    Space,
+    Modal,
+    message,
+    Dropdown,
+    Menu,
+} from "antd";
+import {
+    cancelAuction,
+    getAllAuctions,
+    searchAuctionByAdmin,
+} from "../../../../../services/api/AuctionApi";
 import SearchModal from "./searchModal";
+import moment from "moment";
+import DetailAuctions from "./DetailAuctions";
+import { MoreOutlined } from "@ant-design/icons";
 
 const AuctionManagement = () => {
     const [form] = Form.useForm();
@@ -9,7 +27,9 @@ const AuctionManagement = () => {
     const [filteredData, setFilteredData] = useState([]);
     const [modalVisible, setModalVisible] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
-    const [searchModalVisible, setSearchModalVisible] = useState(false); // State để điều khiển hiển thị modal tìm kiếm
+    const [searchModalVisible, setSearchModalVisible] = useState(false);
+    const [detailModalVisible, setDetailModalVisible] = useState(false);
+    const [detailItem, setDetailItem] = useState(null);
 
     useEffect(() => {
         fetchAllAuctions();
@@ -19,9 +39,8 @@ const AuctionManagement = () => {
         try {
             const response = await getAllAuctions();
             const AuctionsData = response.data;
-            // Directly map the brand name from nested brand object
-
             setAuctionData(AuctionsData);
+            setFilteredData(AuctionsData);
         } catch (error) {
             message.error("Failed to fetch auctions data.");
         }
@@ -30,13 +49,14 @@ const AuctionManagement = () => {
     const formatDateTime = (dateString) => {
         const date = new Date(dateString);
         if (isNaN(date.getTime())) {
-            // Check if the date is invalid
-            return ""; // Return an empty string if the date is invalid
+            return "";
         }
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, "0");
         const day = String(date.getDate()).padStart(2, "0");
-        return `${year}-${month}-${day}`;
+        const hours = String(date.getHours()).padStart(2, "0");
+        const minutes = String(date.getMinutes()).padStart(2, "0");
+        return `${year}-${month}-${day} ${hours}:${minutes}`;
     };
 
     const columns = [
@@ -51,7 +71,6 @@ const AuctionManagement = () => {
             key: "createdAt",
             render: (text) => formatDateTime(text),
         },
-
         {
             title: "Jewelry",
             dataIndex: ["jewelry", "name"],
@@ -111,24 +130,53 @@ const AuctionManagement = () => {
             render: (text, record) => (
                 <Space size="middle">
                     <Button onClick={() => handleEdit(record)}>Edit</Button>
-                    <Button onClick={() => handleDelete(record.id)} type="danger">
-                        Delete
+                    <Button onClick={() => handleDelete(record.auctionId)} type="danger">
+                        Cancel
                     </Button>
+                    <Dropdown overlay={menu(record)} trigger={["click"]}>
+                        <Button icon={<MoreOutlined />} />
+                    </Dropdown>
                 </Space>
             ),
         },
     ];
 
+    const menu = (record) => (
+        <Menu>
+            <Menu.Item key="1" onClick={() => showDetailModal(record)}>
+                View Details
+            </Menu.Item>
+        </Menu>
+    );
+
+    const showDetailModal = (record) => {
+        setDetailItem(record);
+        setDetailModalVisible(true);
+    };
+
+    const handleDetailModalCancel = () => {
+        setDetailModalVisible(false);
+        setDetailItem(null);
+    };
+
     const handleEdit = (record) => {
         setEditingItem(record);
-        form.setFieldsValue(record);
+        form.setFieldsValue({
+            ...record,
+            startTime: moment(record.startTime),
+            endTime: moment(record.endTime),
+        });
         setModalVisible(true);
     };
 
-    const handleDelete = (id) => {
-        const newData = AuctionsData.filter((item) => item.id !== id);
-        setAuctionData(newData);
-        setFilteredData(newData);
+    const handleDelete = async (auctionId) => {
+        try {
+            await cancelAuction(auctionId);
+            message.success("Auction cancelled successfully.");
+            fetchAllAuctions();
+        } catch (error) {
+            message.error("Failed to cancel auction.");
+        }
     };
 
     const handleModalCancel = () => {
@@ -186,20 +234,17 @@ const AuctionManagement = () => {
                 searchParams.jewelryCondition,
                 searchParams.status,
                 searchParams.sex
-                // searchParams.page || 1
-                // Assuming you are starting from page 1
             );
-            console.log("Response Data:", AuctionsData); // In ra phản hồi từ API
             const updatedAuctions = AuctionsData.content.map((auction) => ({
                 ...auction,
             }));
             setAuctionData(updatedAuctions);
-            // setFilteredData(updatedAuctions);
-            setSearchModalVisible(false); // Hide modal after search
+            setSearchModalVisible(false);
         } catch (error) {
             message.error("Failed to search auctions.");
         }
     };
+
     return (
         <div>
             <Space style={{ marginBottom: 16 }}>
@@ -208,52 +253,38 @@ const AuctionManagement = () => {
                     Advanced Search
                 </Button>
             </Space>
-            <Table columns={columns} dataSource={AuctionsData} rowKey="id" />
+            <Table columns={columns} dataSource={filteredData} rowKey="id" />
 
             <Modal
                 title={editingItem ? "Edit Auction" : "Add New Auction"}
-                visible={modalVisible}
+                open={modalVisible}
                 onOk={handleModalOk}
                 onCancel={handleModalCancel}
             >
-                <Form form={form} onFinish={handleModalOk} initialValues={editingItem}>
-                    <Form.Item label="Seller Name" name="sellerName" rules={[{ required: true }]}>
-                        <Input />
+                <Form form={form}>
+                    <Form.Item label="Start Time" name="startTime" rules={[{ required: true }]}>
+                        <DatePicker showTime />
                     </Form.Item>
-                    <Form.Item label="Phone Number" name="phoneNumber" rules={[{ required: true }]}>
-                        <Input />
-                    </Form.Item>
-                    <Form.Item
-                        label="Email"
-                        name="email"
-                        rules={[{ required: true, type: "email" }]}
-                    >
-                        <Input />
-                    </Form.Item>
-                    <Form.Item label="Address" name="address" rules={[{ required: true }]}>
-                        <Input />
-                    </Form.Item>
-                    <Form.Item label="Date of Birth" name="dateOfBirth">
-                        <DatePicker />
-                    </Form.Item>
-                    <Form.Item label="Role" name="role">
-                        <Input />
-                    </Form.Item>
-                    <Form.Item label="Email Verified" name="emailVerified" valuePropName="checked">
-                        <Switch />
-                    </Form.Item>
-                    <Form.Item label="Active" name="isActive" valuePropName="checked">
-                        <Switch />
+                    <Form.Item label="End Time" name="endTime" rules={[{ required: true }]}>
+                        <DatePicker showTime />
                     </Form.Item>
                 </Form>
             </Modal>
-            {console.log("AuctionsData:", AuctionsData)}
-            {/* Modal tìm kiếm */}
+
             <SearchModal
-                visible={searchModalVisible}
+                open={searchModalVisible}
                 onCancel={handleCancelSearchModal}
                 onSearch={handleSearch}
             />
+
+            <Modal
+                open={detailModalVisible}
+                onCancel={handleDetailModalCancel}
+                footer={null}
+                width={800} // Đặt giá trị width theo ý muốn
+            >
+                {detailItem && <DetailAuctions auction={detailItem} />}
+            </Modal>
         </div>
     );
 };

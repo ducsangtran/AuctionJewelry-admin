@@ -27,7 +27,7 @@ const SearchModal = ({ visible, onCancel, onSearch }) => {
     return (
         <Modal
             title="Search Auction"
-            visible={visible}
+            open={visible}
             onOk={handleSearch}
             onCancel={handleCancel}
             footer={[
