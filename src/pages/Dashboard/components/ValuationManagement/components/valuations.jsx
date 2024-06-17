@@ -55,6 +55,13 @@ const ValuationManagement = () => {
             key: "notes",
         },
         {
+            title: "Online",
+            dataIndex: "online",
+            key: "online",
+            render: (text) => (text ? "True" : "False"),
+        },
+
+        {
             title: "Payment Method",
             dataIndex: "paymentMethod",
             key: "paymentMethod",
