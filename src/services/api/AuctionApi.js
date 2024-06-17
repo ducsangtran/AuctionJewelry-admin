@@ -63,4 +63,5 @@ const cancelAuction = async (id) => {
         throw error;
     }
 };
+
 export { getAllAuctions, searchAuctionById, searchAuctionByAdmin, cancelAuction };

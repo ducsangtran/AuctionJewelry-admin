@@ -69,9 +69,7 @@ const CategoriesManagement = () => {
                 // Create new category in API
                 const newCategory = await createCategory(name); // Call create API
                 setCategories([newCategory, ...categories]);
-                message.success
-                    ? "Category added successfully."
-                    : "Failed to create category.";
+                message.success ? "Category added successfully." : "Failed to create category.";
                 setIsModalVisible(false);
                 form.resetFields();
                 fetchCategories(); // Fetch categories again to update the data
@@ -94,7 +92,9 @@ const CategoriesManagement = () => {
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, "0");
         const day = String(date.getDate()).padStart(2, "0");
-        return `${year}-${month}-${day}`;
+        const hours = String(date.getHours()).padStart(2, "0");
+        const minutes = String(date.getMinutes()).padStart(2, "0");
+        return `${year}-${month}-${day} ${hours}:${minutes}`;
     };
     const columns = [
         { title: "ID", dataIndex: "id", key: "id" },
@@ -119,11 +119,7 @@ const CategoriesManagement = () => {
                     <Button type="link" onClick={() => handleEdit(record)}>
                         Edit
                     </Button>
-                    <Button
-                        type="link"
-                        danger
-                        onClick={() => handleDelete(record.id)}
-                    >
+                    <Button type="link" danger onClick={() => handleDelete(record.id)}>
                         Delete
                     </Button>
                 </>

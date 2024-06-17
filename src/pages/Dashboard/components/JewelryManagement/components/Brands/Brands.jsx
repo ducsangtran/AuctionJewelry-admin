@@ -73,9 +73,7 @@ const BrandsManagement = () => {
                 // Create new Brand in API
                 const newBrand = await createBrand(name); // Call create API
                 setBrands([newBrand, ...brands]);
-                message.success
-                    ? "Brand added successfully."
-                    : "Failed to create brand.";
+                message.success ? "Brand added successfully." : "Failed to create brand.";
             }
             setIsModalVisible(false);
             form.resetFields();
@@ -99,7 +97,9 @@ const BrandsManagement = () => {
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, "0");
         const day = String(date.getDate()).padStart(2, "0");
-        return `${year}-${month}-${day}`;
+        const hours = String(date.getHours()).padStart(2, "0");
+        const minutes = String(date.getMinutes()).padStart(2, "0");
+        return `${year}-${month}-${day} ${hours}:${minutes}`;
     };
     const columns = [
         { title: "ID", dataIndex: "id", key: "id" },
@@ -124,11 +124,7 @@ const BrandsManagement = () => {
                     <Button type="link" onClick={() => handleEdit(record)}>
                         Edit
                     </Button>
-                    <Button
-                        type="link"
-                        danger
-                        onClick={() => handleDelete(record.id)}
-                    >
+                    <Button type="link" danger onClick={() => handleDelete(record.id)}>
                         Delete
                     </Button>
                 </>

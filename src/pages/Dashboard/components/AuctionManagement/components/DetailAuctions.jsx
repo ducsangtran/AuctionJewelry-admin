@@ -1,8 +1,8 @@
 import React from "react";
 import { Badge, Descriptions, Modal } from "antd";
 
-const DetailAuctions = ({ open, onCancel, auction }) => (
-    <Modal open={open} onCancel={onCancel} footer={null} width={1800}>
+const DetailAuctions = ({ visible, onCancel, auction }) => (
+    <Modal open={visible} onCancel={onCancel} footer={null} width={1800}>
         {auction && (
             <Descriptions title="Auctions Details" bordered column={10}>
                 <Descriptions.Item label="Id" span={2}>

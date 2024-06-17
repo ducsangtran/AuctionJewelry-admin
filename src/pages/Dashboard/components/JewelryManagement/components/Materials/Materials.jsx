@@ -97,7 +97,9 @@ export const MaterialsManagement = () => {
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, "0");
         const day = String(date.getDate()).padStart(2, "0");
-        return `${year}-${month}-${day}`;
+        const hours = String(date.getHours()).padStart(2, "0");
+        const minutes = String(date.getMinutes()).padStart(2, "0");
+        return `${year}-${month}-${day} ${hours}:${minutes}`;
     };
 
     const columns = [
@@ -120,18 +122,10 @@ export const MaterialsManagement = () => {
             key: "action",
             render: (_, record) => (
                 <Space size="middle">
-                    <Button
-                        type="link"
-                        primary
-                        onClick={() => handleEdit(record)}
-                    >
+                    <Button type="link" primary onClick={() => handleEdit(record)}>
                         Edit
                     </Button>
-                    <Button
-                        type="link"
-                        danger
-                        onClick={() => handleDelete(record.id)}
-                    >
+                    <Button type="link" danger onClick={() => handleDelete(record.id)}>
                         Delete
                     </Button>
                 </Space>
@@ -141,11 +135,7 @@ export const MaterialsManagement = () => {
 
     return (
         <div>
-            <Button
-                type="primary"
-                onClick={handleAdd}
-                style={{ marginBottom: 16 }}
-            >
+            <Button type="primary" onClick={handleAdd} style={{ marginBottom: 16 }}>
                 Add Material
             </Button>
             <Table dataSource={materials} columns={columns} rowKey="id" />

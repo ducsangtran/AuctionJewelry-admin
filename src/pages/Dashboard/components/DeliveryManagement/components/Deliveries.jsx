@@ -15,15 +15,7 @@ const DeliveryManagement = () => {
         try {
             const response = await getAllDeliveries();
             const DeliveriesData = response.data;
-            // Directly map the brand name from nested brand object
-            const updatedDeliveries = DeliveriesData.map((delivery) => ({
-                ...delivery,
-                // jewelryName: auction.jewelry.name,
-                // winnerName: auction.winner.full_name,
-                // startingPrice: auction.jewelry.staringPrice,
-                // collectionName: auction.collection.name,
-            }));
-            setDeliveriesData(updatedDeliveries);
+            setDeliveriesData(DeliveriesData);
             console.log(response.data);
         } catch (error) {
             message.error("Failed to fetch auctions data.");
@@ -36,53 +28,52 @@ const DeliveryManagement = () => {
             key: "id",
         },
         {
-            title: "User Name",
-            dataIndex: "userName",
-            key: "userName",
+            title: "Created At",
+            dataIndex: "createdAt",
+            key: "createdAt",
+        },
+        {
+            title: "Full Name",
+            dataIndex: "full_name",
+            key: "full_name",
+        },
+        {
+            title: "Jewelry",
+            dataIndex: "jewelry",
+            key: "jewelry",
         },
         {
             title: "Phone Number",
-            dataIndex: "phone_number",
-            key: "phone_number",
+            dataIndex: "phoneNumber",
+            key: "phoneNumber",
         },
         {
-            title: "Email",
-            dataIndex: "email",
-            key: "email",
+            title: "Staff",
+            dataIndex: "staff",
+            key: "staff",
         },
         {
-            title: "Address",
-            dataIndex: "address",
-            key: "address",
+            title: "Status",
+            dataIndex: "status",
+            key: "status",
         },
         {
-            title: "Image",
-            dataIndex: "imageUrl",
-            key: "imageUrl",
-            render: (text) => <Image width={50} src={text} />,
+            title: "Updated At",
+            dataIndex: "updatedAt",
+            key: "updatedAt",
         },
         {
-            title: "Date of Birth",
-            dataIndex: "date_of_birth",
-            key: "date_of_birth",
+            title: "User",
+            dataIndex: "user",
+            key: "user",
         },
         {
-            title: "Role",
-            dataIndex: "role",
-            key: "role",
+            title: "Valuating Delivery",
+            dataIndex: "valuatingDelivery",
+            key: "valuatingDelivery",
+            render: (text) => (text ? "True" : "False"),
         },
-        {
-            title: "Email Verified",
-            dataIndex: "email_verified",
-            key: "email_verified",
-            render: (text) => (text ? "Yes" : "No"),
-        },
-        {
-            title: "Active",
-            dataIndex: "is_active",
-            key: "is_active",
-            render: (text) => (text ? "Yes" : "No"),
-        },
+
         {
             title: "Action",
             key: "action",
@@ -96,7 +87,19 @@ const DeliveryManagement = () => {
             ),
         },
     ];
-
+    const formatDateTime = (dateString) => {
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) {
+            // Check if the date is invalid
+            return ""; // Return an empty string if the date is invalid
+        }
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        const hours = String(date.getHours()).padStart(2, "0");
+        const minutes = String(date.getMinutes()).padStart(2, "0");
+        return `${year}-${month}-${day} ${hours}:${minutes}`;
+    };
     const handleEdit = (record) => {
         setEditingItem(record);
         form.setFieldsValue(record);
@@ -154,7 +157,7 @@ const DeliveryManagement = () => {
             <Space style={{ marginBottom: 16 }}>
                 <Input.Search placeholder="Search deliveries" onSearch={onSearch} enterButton />
             </Space>
-            <Table columns={columns} dataSource={filteredData} rowKey="id" />
+            <Table columns={columns} dataSource={DeliveriesData} rowKey="id" />
 
             <Modal
                 title={editingItem ? "Edit Delivery" : "Add New Delivery"}

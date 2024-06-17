@@ -15,15 +15,8 @@ const ValuationManagement = () => {
         try {
             const response = await getAllValuations();
             const ValuationsData = response.data;
-            // Directly map the brand name from nested brand object
-            const updatedValuations = ValuationsData.map((valuation) => ({
-                ...valuation,
-                // jewelryName: auction.jewelry.name,
-                // winnerName: auction.winner.full_name,
-                // startingPrice: auction.jewelry.staringPrice,
-                // collectionName: auction.collection.name,
-            }));
-            setValuationsData(updatedValuations);
+
+            setValuationsData(ValuationsData);
             console.log(response.data);
         } catch (error) {
             message.error("Failed to fetch auctions data.");
@@ -37,45 +30,61 @@ const ValuationManagement = () => {
         },
         {
             title: "Staff Name",
-            dataIndex: "staffName",
+            dataIndex: "staff",
             key: "staffName",
         },
         {
-            title: "Phone Number",
-            dataIndex: "phone_number",
-            key: "phone_number",
+            title: "Created At",
+            dataIndex: "createdAt",
+            key: "createdAt",
         },
         {
-            title: "Email",
-            dataIndex: "email",
-            key: "email",
+            title: "Desired Price",
+            dataIndex: "desiredPrice",
+            key: "createdAt",
+            render: (text) => formatDateTime(text),
         },
         {
-            title: "Address",
-            dataIndex: "address",
-            key: "address",
+            title: "Jewelry",
+            dataIndex: ["jewelry", "name"],
+            key: "createdAt",
         },
         {
-            title: "Date of Birth",
-            dataIndex: "date_of_birth",
-            key: "date_of_birth",
+            title: "Notes",
+            dataIndex: "notes",
+            key: "notes",
         },
         {
-            title: "Role Name",
-            dataIndex: "roleName",
-            key: "roleName",
+            title: "Payment Method",
+            dataIndex: "paymentMethod",
+            key: "paymentMethod",
+        },
+
+        {
+            title: "Status",
+            dataIndex: "status",
+            key: "status",
         },
         {
-            title: "Email Verified",
-            dataIndex: "email_verified",
-            key: "email_verified",
-            render: (text) => (text ? "Yes" : "No"),
+            title: "Updated At",
+            dataIndex: "updatedAt",
+            key: "updatedAt",
+            render: (text) => formatDateTime(text),
         },
         {
-            title: "Active",
-            dataIndex: "is_active",
-            key: "is_active",
-            render: (text) => (text ? "Yes" : "No"),
+            title: "Valuating Fee",
+            dataIndex: "valuatingFee",
+            key: "valuatingFee",
+        },
+        {
+            title: "Valuating Method",
+            dataIndex: "valuatingMethod",
+            key: "valuatingMethod",
+        },
+        {
+            title: "Valuation Value",
+            dataIndex: "valuation_value",
+            key: "valuation_value",
         },
         {
             title: "Action",
@@ -93,7 +102,19 @@ const ValuationManagement = () => {
             ),
         },
     ];
-
+    const formatDateTime = (dateString) => {
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) {
+            // Check if the date is invalid
+            return ""; // Return an empty string if the date is invalid
+        }
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        const hours = String(date.getHours()).padStart(2, "0");
+        const minutes = String(date.getMinutes()).padStart(2, "0");
+        return `${year}-${month}-${day} ${hours}:${minutes}`;
+    };
     const handleEdit = (record) => {
         setEditingItem(record);
         form.setFieldsValue(record);
@@ -157,7 +178,7 @@ const ValuationManagement = () => {
             <Space style={{ marginBottom: 16 }}>
                 <Input.Search placeholder="Search valuations" onSearch={onSearch} enterButton />
             </Space>
-            <Table columns={columns} dataSource={filteredData} rowKey="id" />
+            <Table columns={columns} dataSource={ValuationsData} rowKey="id" />
 
             <Modal
                 title={editingItem ? "Edit Valuation" : "Add New Valuation"}

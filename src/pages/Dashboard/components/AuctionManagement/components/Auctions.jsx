@@ -205,8 +205,17 @@ const AuctionManagement = () => {
                 console.log("Validate Failed:", errorInfo);
             });
     };
-
-    const onSearch = (value) => {
+    const searchAuctionById = async (auctionId) => {
+        try {
+            const response = await searchAuctionById(auctionId);
+            const AuctionData = response.data;
+            setAuctionData(AuctionData);
+            setFilteredData(AuctionData);
+        } catch (error) {
+            message.error("Failed to search auction by ID.");
+        }
+    };
+    onSearch = (value) => {
         const filtered = AuctionsData.filter((item) =>
             Object.values(item).some(
                 (val) => typeof val === "string" && val.toLowerCase().includes(value.toLowerCase())
@@ -225,7 +234,7 @@ const AuctionManagement = () => {
 
     const handleSearch = async (searchParams) => {
         try {
-            const AuctionsData = await searchAuctionByAdmin(
+            const response = await searchAuctionByAdmin(
                 searchParams.collectionId,
                 searchParams.categoryId,
                 searchParams.minPrice,
@@ -235,10 +244,8 @@ const AuctionManagement = () => {
                 searchParams.status,
                 searchParams.sex
             );
-            const updatedAuctions = AuctionsData.content.map((auction) => ({
-                ...auction,
-            }));
-            setAuctionData(updatedAuctions);
+            const AuctionsData = response.content;
+            setAuctionData(AuctionsData);
             setSearchModalVisible(false);
         } catch (error) {
             message.error("Failed to search auctions.");
@@ -253,8 +260,7 @@ const AuctionManagement = () => {
                     Advanced Search
                 </Button>
             </Space>
-            <Table columns={columns} dataSource={filteredData} rowKey="id" />
-
+            <Table columns={columns} dataSource={AuctionsData} rowKey="id" />
             <Modal
                 title={editingItem ? "Edit Auction" : "Add New Auction"}
                 open={modalVisible}
@@ -272,13 +278,12 @@ const AuctionManagement = () => {
             </Modal>
 
             <SearchModal
-                open={searchModalVisible}
+                visible={searchModalVisible}
                 onCancel={handleCancelSearchModal}
                 onSearch={handleSearch}
             />
-
             <DetailAuctions
-                open={detailModalVisible}
+                visible={detailModalVisible}
                 onCancel={handleDetailModalCancel}
                 auction={detailItem}
             />
