@@ -1,5 +1,5 @@
 import axios from "axios";
-const API_BASE_URL = "http://167.71.212.203:8080";
+const API_BASE_URL = "http://apijewelryauction.techx.id.vn:8081";
 const createCategory = async (name) => {
     try {
         const response = await axios.post(`${API_BASE_URL}/api/v1/category`, {
@@ -23,7 +23,7 @@ const getAllCategories = async () => {
         throw error;
     }
 };
-const getMaterialById = async (id) => {
+const getCategoryById = async (id) => {
     try {
         const response = await axios.get(`${API_BASE_URL}/api/v1/category/${id}`);
         return response.data;
@@ -54,4 +54,4 @@ const deleteCategory = async (id) => {
     }
 };
 
-export { createCategory, deleteCategory, getAllCategories, updateCategory, getMaterialById };
+export { createCategory, deleteCategory, getAllCategories, updateCategory, getCategoryById };

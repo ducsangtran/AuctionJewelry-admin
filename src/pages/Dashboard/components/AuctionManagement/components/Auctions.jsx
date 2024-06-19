@@ -14,6 +14,7 @@ import {
 import {
     cancelAuction,
     getAllAuctions,
+    getAuctionById,
     searchAuctionByAdmin,
 } from "../../../../../services/api/AuctionApi";
 import SearchModal from "./searchModal";
@@ -24,13 +25,13 @@ import { MoreOutlined } from "@ant-design/icons";
 const AuctionManagement = () => {
     const [form] = Form.useForm();
     const [AuctionsData, setAuctionData] = useState([]);
-    const [filteredData, setFilteredData] = useState([]);
     const [modalVisible, setModalVisible] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
     const [searchModalVisible, setSearchModalVisible] = useState(false);
     const [detailModalVisible, setDetailModalVisible] = useState(false);
     const [detailItem, setDetailItem] = useState(null);
-
+    const [searchStatus, setSearchStatus] = useState(null);
+    // Fetch all auctions on component mount
     useEffect(() => {
         fetchAllAuctions();
     }, []);
@@ -38,9 +39,7 @@ const AuctionManagement = () => {
     const fetchAllAuctions = async () => {
         try {
             const response = await getAllAuctions();
-            const AuctionsData = response.data;
-            setAuctionData(AuctionsData);
-            setFilteredData(AuctionsData);
+            setAuctionData(response.data);
         } catch (error) {
             message.error("Failed to fetch auctions data.");
         }
@@ -51,12 +50,7 @@ const AuctionManagement = () => {
         if (isNaN(date.getTime())) {
             return "";
         }
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, "0");
-        const day = String(date.getDate()).padStart(2, "0");
-        const hours = String(date.getHours()).padStart(2, "0");
-        const minutes = String(date.getMinutes()).padStart(2, "0");
-        return `${year}-${month}-${day} ${hours}:${minutes}`;
+        return moment(date).format("YYYY-MM-DD HH:mm");
     };
 
     const columns = [
@@ -130,7 +124,7 @@ const AuctionManagement = () => {
             render: (text, record) => (
                 <Space size="middle">
                     <Button onClick={() => handleEdit(record)}>Edit</Button>
-                    <Button onClick={() => handleDelete(record.auctionId)} type="danger">
+                    <Button onClick={() => handleDelete(record.id)} type="danger">
                         Cancel
                     </Button>
                     <Dropdown overlay={menu(record)} trigger={["click"]}>
@@ -196,7 +190,6 @@ const AuctionManagement = () => {
                     }
                 }
                 setAuctionData(newData);
-                setFilteredData(newData);
                 form.resetFields();
                 setModalVisible(false);
                 setEditingItem(null);
@@ -205,14 +198,30 @@ const AuctionManagement = () => {
                 console.log("Validate Failed:", errorInfo);
             });
     };
-
-    const onSearch = (value) => {
-        const filtered = AuctionsData.filter((item) =>
-            Object.values(item).some(
-                (val) => typeof val === "string" && val.toLowerCase().includes(value.toLowerCase())
-            )
-        );
-        setFilteredData(filtered);
+    const onSearch = async (value) => {
+        try {
+            if (!value) {
+                // Nếu giá trị nhập vào là rỗng, gọi API để lấy tất cả các Auction
+                const response = await getAllAuctions();
+                const { data } = response;
+                setAuctionData(data);
+                setSearchStatus(null);
+            } else {
+                const response = await getAuctionById(value);
+                const data = response.data;
+                if (Array.isArray(data) && data.length === 0) {
+                    setSearchStatus("No data found");
+                    setAuctionData([]);
+                } else {
+                    setSearchStatus(null);
+                    setAuctionData(Array.isArray(data) ? data : [data]);
+                }
+            }
+        } catch (error) {
+            message.error("Failed to search Auction, Id does not exist!");
+            setSearchStatus("No data found");
+            setAuctionData([]);
+        }
     };
 
     const handleOpenSearchModal = () => {
@@ -235,8 +244,7 @@ const AuctionManagement = () => {
                 searchParams.status,
                 searchParams.sex
             );
-            const AuctionsData = response.content;
-            setAuctionData(AuctionsData);
+            setAuctionData(response.content);
             setSearchModalVisible(false);
         } catch (error) {
             message.error("Failed to search auctions.");
@@ -251,7 +259,7 @@ const AuctionManagement = () => {
                     Advanced Search
                 </Button>
             </Space>
-            <Table columns={columns} dataSource={filteredData} rowKey="id" />
+            <Table columns={columns} dataSource={AuctionsData} rowKey="id" />
             <Modal
                 title={editingItem ? "Edit Auction" : "Add New Auction"}
                 open={modalVisible}

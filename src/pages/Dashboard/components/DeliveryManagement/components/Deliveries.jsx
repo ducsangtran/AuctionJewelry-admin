@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Form, Input, DatePicker, Switch, Button, Table, Space, Modal, Image, message } from "antd";
-import { getAllDeliveries } from "../../../../../services/api/DeliveryApi";
+import { getAllDeliveries, getDeliveryById } from "../../../../../services/api/DeliveryApi";
 
 const DeliveryManagement = () => {
     const [form] = Form.useForm();
@@ -8,6 +8,7 @@ const DeliveryManagement = () => {
     const [filteredData, setFilteredData] = useState([]);
     const [modalVisible, setModalVisible] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
+    const [searchStatus, setSearchStatus] = useState(null);
     useEffect(() => {
         fetchAllDeliveries();
     }, []);
@@ -143,13 +144,30 @@ const DeliveryManagement = () => {
             });
     };
 
-    const onSearch = (value) => {
-        const filtered = data.filter((item) =>
-            Object.values(item).some(
-                (val) => typeof val === "string" && val.toLowerCase().includes(value.toLowerCase())
-            )
-        );
-        setFilteredData(filtered);
+    const onSearch = async (value) => {
+        try {
+            if (!value) {
+                // Nếu giá trị nhập vào là rỗng, gọi API để lấy tất cả các Delivery
+                const response = await getAllDeliveries();
+                const { data } = response;
+                setDeliveriesData(data);
+                setSearchStatus(null);
+            } else {
+                const response = await getDeliveryById(value);
+                const data = response.data;
+                if (Array.isArray(data) && data.length === 0) {
+                    setSearchStatus("No data found");
+                    setDeliveriesData([]);
+                } else {
+                    setSearchStatus(null);
+                    setDeliveriesData(Array.isArray(data) ? data : [data]);
+                }
+            }
+        } catch (error) {
+            message.error("Failed to search Delivery, Id does not exist!");
+            setSearchStatus("No data found");
+            setDeliveriesData([]);
+        }
     };
 
     return (
@@ -157,7 +175,12 @@ const DeliveryManagement = () => {
             <Space style={{ marginBottom: 16 }}>
                 <Input.Search placeholder="Search deliveries" onSearch={onSearch} enterButton />
             </Space>
-            <Table columns={columns} dataSource={DeliveriesData} rowKey="id" />
+            <Table
+                columns={columns}
+                dataSource={DeliveriesData}
+                rowKey="id"
+                pagination={{ pageSize: 7 }}
+            />
 
             <Modal
                 title={editingItem ? "Edit Delivery" : "Add New Delivery"}

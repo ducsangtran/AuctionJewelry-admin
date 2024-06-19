@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Table, Button, Modal, Form, Input, DatePicker, message } from "antd";
+import { Table, Button, Modal, Form, Input, DatePicker, message, Space } from "antd";
 import {
     createCategory,
     deleteCategory,
     getAllCategories,
+    getCategoryById,
     updateCategory,
 } from "../../../../../../services/api/Categories";
 
@@ -12,7 +13,7 @@ const CategoriesManagement = () => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [editingCategory, setEditingCategory] = useState(null);
     const [form] = Form.useForm();
-
+    const [searchStatus, setSearchStatus] = useState(null);
     useEffect(() => {
         fetchCategories();
     }, []);
@@ -126,13 +127,52 @@ const CategoriesManagement = () => {
             ),
         },
     ];
-
+    const onSearch = async (value) => {
+        try {
+            if (!value) {
+                // Nếu giá trị nhập vào là rỗng, gọi API để lấy tất cả các Category
+                const response = await getAllCategories();
+                const { data } = response;
+                setCategories(data);
+                setSearchStatus(null);
+            } else {
+                const response = await getCategoryById(value);
+                const data = response.data;
+                if (Array.isArray(data) && data.length === 0) {
+                    setSearchStatus("No data found");
+                    setCategories([]);
+                } else {
+                    setSearchStatus(null);
+                    setCategories(Array.isArray(data) ? data : [data]);
+                }
+            }
+        } catch (error) {
+            message.error("Failed to search Category, Id does not exist!");
+            setSearchStatus("No data found");
+            setCategories([]);
+        }
+    };
     return (
         <div>
-            <Button type="primary" onClick={handleAdd}>
-                Add Category
-            </Button>
-            <Table dataSource={categories} columns={columns} rowKey="id" />
+            <Space style={{ margin: 15 }}>
+                <Button type="primary" onClick={handleAdd}>
+                    Add Category
+                </Button>
+
+                <Input.Search
+                    placeholder="Search Category By Id"
+                    onSearch={onSearch}
+                    enterButton
+                    style={{ marginLeft: 20 }}
+                />
+            </Space>
+
+            <Table
+                dataSource={categories}
+                columns={columns}
+                rowKey="id"
+                pagination={{ pageSize: 7 }}
+            />
             <Modal
                 title={editingCategory ? "Edit Category" : "Add Category"}
                 visible={isModalVisible}

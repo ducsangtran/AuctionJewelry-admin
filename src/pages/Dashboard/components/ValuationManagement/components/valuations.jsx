@@ -1,16 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { Form, Input, DatePicker, Switch, Button, Table, Space, Modal } from "antd";
-import { getAllValuations } from "../../../../../services/api/ValuationApi";
+import { Form, Input, DatePicker, Switch, Button, Table, Space, Modal, message } from "antd";
+import {
+    editValuating,
+    getAllValuations,
+    searchValuationById,
+} from "../../../../../services/api/ValuationApi";
 
 const ValuationManagement = () => {
     const [form] = Form.useForm();
     const [ValuationsData, setValuationsData] = useState([]);
-    const [filteredData, setFilteredData] = useState([]);
+
     const [modalVisible, setModalVisible] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
+    const [searchStatus, setSearchStatus] = useState(null);
     useEffect(() => {
         fetchAllValuations();
     }, []);
+
     const fetchAllValuations = async () => {
         try {
             const response = await getAllValuations();
@@ -99,9 +105,9 @@ const ValuationManagement = () => {
             render: (text, record) => (
                 <Space size="middle">
                     <Button onClick={() => handleEdit(record)}>Edit</Button>
-                    <Button onClick={() => handleAcceptValuating(record.id)} type="primary">
+                    {/* <Button onClick={() => handleAcceptValuating(record.id)} type="primary">
                         Accept
-                    </Button>
+                    </Button> */}
                     <Button onClick={() => handleDelete(record.id)} type="primary" danger>
                         Cancel
                     </Button>
@@ -131,7 +137,6 @@ const ValuationManagement = () => {
     const handleDelete = (id) => {
         const newData = data.filter((item) => item.id !== id);
         setData(newData);
-        setFilteredData(newData);
     };
 
     const handleAcceptValuating = (id) => {
@@ -146,38 +151,74 @@ const ValuationManagement = () => {
         setEditingItem(null);
     };
 
-    const handleModalOk = () => {
-        form.validateFields()
-            .then((values) => {
-                const newData = [...data];
-                if (editingItem) {
-                    const index = newData.findIndex((item) => item.id === editingItem.id);
-                    if (index > -1) {
-                        newData[index] = {
-                            ...editingItem,
-                            ...values,
-                            updatedAt: new Date().toISOString(),
-                        };
-                    }
-                }
-                setData(newData);
-                setFilteredData(newData);
-                form.resetFields();
-                setModalVisible(false);
-                setEditingItem(null);
-            })
-            .catch((errorInfo) => {
-                console.log("Validate Failed:", errorInfo);
-            });
+    const handleModalOk = async () => {
+        try {
+            const values = await form.validateFields();
+            const {
+                id,
+                address,
+                staffId,
+                valuation_value,
+                notes,
+                status,
+                desiredPrice,
+                paymentMethod,
+                valuatingMethod,
+            } = values;
+
+            const UpdatedItem = await editValuating(
+                editingItem.id,
+                address,
+                staffId,
+                valuation_value,
+                notes,
+                status,
+                desiredPrice,
+                paymentMethod,
+                valuatingMethod
+            );
+
+            const updatedData = ValuationsData.map((item) =>
+                item.id === UpdatedItem.id ? UpdatedItem : item
+            );
+
+            setValuationsData(updatedData);
+
+            form.resetFields();
+            setModalVisible(false);
+            setEditingItem(null);
+            fetchAllValuations();
+            message.success("Success to update valuation.");
+        } catch (error) {
+            console.log("Failed to update valuation:", error);
+            message.error("Failed to update valuation.");
+        }
     };
 
-    const onSearch = (value) => {
-        const filtered = data.filter((item) =>
-            Object.values(item).some(
-                (val) => typeof val === "string" && val.toLowerCase().includes(value.toLowerCase())
-            )
-        );
-        setFilteredData(filtered);
+    const onSearch = async (value) => {
+        try {
+            if (!value) {
+                // Nếu giá trị nhập vào là rỗng, gọi API để lấy tất cả các Valuation
+                const response = await getAllValuations();
+                const { data } = response;
+                setValuationsData(data);
+                setSearchStatus(null);
+            } else {
+                const response = await searchValuationById(value);
+                const data = response.data;
+                if (Array.isArray(data) && data.length === 0) {
+                    setSearchStatus("No data found");
+                    setValuationsData([]);
+                } else {
+                    setSearchStatus(null);
+                    setValuationsData(Array.isArray(data) ? data : [data]);
+                }
+            }
+        } catch (error) {
+            message.error("Failed to search Valuation, Id does not exist!");
+            setSearchStatus("No data found");
+            setValuationsData([]);
+        }
     };
 
     return (
@@ -188,43 +229,35 @@ const ValuationManagement = () => {
             <Table columns={columns} dataSource={ValuationsData} rowKey="id" />
 
             <Modal
-                title={editingItem ? "Edit Valuation" : "Add New Valuation"}
+                title="Edit Valuation"
                 visible={modalVisible}
                 onOk={handleModalOk}
                 onCancel={handleModalCancel}
             >
                 <Form form={form} onFinish={handleModalOk} initialValues={editingItem}>
-                    <Form.Item label="Staff Name" name="staffName" rules={[{ required: true }]}>
+                    <Form.Item label="Address" name="address">
                         <Input />
                     </Form.Item>
-                    <Form.Item
-                        label="Phone Number"
-                        name="phone_number"
-                        rules={[{ required: true }]}
-                    >
+                    <Form.Item label="Staff ID" name="staffId">
                         <Input />
                     </Form.Item>
-                    <Form.Item
-                        label="Email"
-                        name="email"
-                        rules={[{ required: true, type: "email" }]}
-                    >
+                    <Form.Item label="Valuation Value" name="valuation_value">
                         <Input />
                     </Form.Item>
-                    <Form.Item label="Address" name="address" rules={[{ required: true }]}>
+                    <Form.Item label="Notes" name="notes">
                         <Input />
                     </Form.Item>
-                    <Form.Item label="Date of Birth" name="date_of_birth">
-                        <DatePicker />
-                    </Form.Item>
-                    <Form.Item label="Role Name" name="roleName">
+                    <Form.Item label="Status" name="status">
                         <Input />
                     </Form.Item>
-                    <Form.Item label="Email Verified" name="email_verified" valuePropName="checked">
-                        <Switch />
+                    <Form.Item label="Desired Price" name="desiredPrice">
+                        <Input />
                     </Form.Item>
-                    <Form.Item label="Active" name="is_active" valuePropName="checked">
-                        <Switch />
+                    <Form.Item label="Payment Method" name="paymentMethod">
+                        <Input />
+                    </Form.Item>
+                    <Form.Item label="Valuating Method" name="valuatingMethod">
+                        <Input />
                     </Form.Item>
                 </Form>
             </Modal>

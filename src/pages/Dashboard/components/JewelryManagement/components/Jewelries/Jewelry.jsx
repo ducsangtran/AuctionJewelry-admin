@@ -1,6 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { Table, Button, Modal, Form, Input, Select, InputNumber, Row, Col } from "antd";
-import { getAllJewelries } from "../../../../../../services/api/JewelryApi";
+import {
+    Table,
+    Button,
+    Modal,
+    Form,
+    Input,
+    Select,
+    InputNumber,
+    Row,
+    Col,
+    Space,
+    message,
+} from "antd";
+import { getAllJewelries, getJewelryById } from "../../../../../../services/api/JewelryApi";
 
 const { Option } = Select;
 
@@ -32,7 +44,7 @@ const JewelryAdmin = () => {
     const [visible, setVisible] = useState(false);
     const [form] = Form.useForm();
     const [jewelryData, setJewelryData] = useState([]);
-
+    const [searchStatus, setSearchStatus] = useState(null);
     useEffect(() => {
         fetchJewelryData();
     }, []);
@@ -63,13 +75,45 @@ const JewelryAdmin = () => {
         setVisible(false);
         form.resetFields();
     };
-
+    const onSearch = async (value) => {
+        try {
+            if (!value) {
+                // Nếu giá trị nhập vào là rỗng, gọi API để lấy tất cả các Jewelry
+                const response = await getAllJewelries();
+                const { data } = response;
+                setJewelryData(data);
+                setSearchStatus(null);
+            } else {
+                const response = await getJewelryById(value);
+                const data = response.data;
+                if (Array.isArray(data) && data.length === 0) {
+                    setSearchStatus("No data found");
+                    setJewelryData([]);
+                } else {
+                    setSearchStatus(null);
+                    setJewelryData(Array.isArray(data) ? data : [data]);
+                }
+            }
+        } catch (error) {
+            message.error("Failed to search Jewelry, Id does not exist!");
+            setSearchStatus("No data found");
+            setJewelryData([]);
+        }
+    };
     return (
         <div>
+            <Space style={{ marginBottom: 16 }}>
+                <Input.Search placeholder="Search Jewelry By Id" onSearch={onSearch} enterButton />
+            </Space>
             {/* <Button type="primary" onClick={handleAdd} style={{ marginBottom: 16 }}>
                 Add Jewelry
             </Button> */}
-            <Table columns={jewelryColumns} dataSource={jewelryData} rowKey="id" />
+            <Table
+                columns={jewelryColumns}
+                dataSource={jewelryData}
+                rowKey="id"
+                pagination={{ pageSize: 7 }}
+            />
             <Modal
                 title="Add/Edit Jewelry"
                 visible={visible}

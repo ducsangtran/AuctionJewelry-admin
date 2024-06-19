@@ -95,7 +95,7 @@ export const AppLayout = ({ components }) => {
                         background: colorBgContainer,
                     }}
                 >
-                    {/* <AppHeader /> */}
+                    <AppHeader />
                 </Header>
 
                 <Content

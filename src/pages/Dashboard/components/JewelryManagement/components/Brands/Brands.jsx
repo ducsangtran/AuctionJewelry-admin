@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Table, Button, Modal, Form, Input, DatePicker, message } from "antd";
+import { Table, Button, Modal, Form, Input, DatePicker, message, Space } from "antd";
 import {
     createBrand,
     deleteBrand,
     getAllBrands,
+    getBrandById,
     updateBrand,
 } from "../../../../../../services/api/BrandApi";
 
@@ -12,7 +13,7 @@ const BrandsManagement = () => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [editingBrand, setEditingBrand] = useState(null);
     const [form] = Form.useForm();
-
+    const [searchStatus, setSearchStatus] = useState(null);
     useEffect(() => {
         fetchBrands();
     }, []);
@@ -50,7 +51,9 @@ const BrandsManagement = () => {
             setBrands(brands.filter((item) => item.id !== id));
             message.success("Brand deleted successfully.");
         } catch (error) {
-            message.error("Failed to delete brand.");
+            if (error.response && error.response.data && error.response.data.message) {
+                message.error(error.response.data.message);
+            }
         }
     };
 
@@ -131,13 +134,46 @@ const BrandsManagement = () => {
             ),
         },
     ];
-
+    const onSearch = async (value) => {
+        try {
+            if (!value) {
+                // Nếu giá trị nhập vào là rỗng, gọi API để lấy tất cả các Brand
+                const response = await getAllBrands();
+                const { data } = response;
+                setBrands(data);
+                setSearchStatus(null);
+            } else {
+                const response = await getBrandById(value);
+                const data = response.data;
+                if (Array.isArray(data) && data.length === 0) {
+                    setSearchStatus("No data found");
+                    setBrands([]);
+                } else {
+                    setSearchStatus(null);
+                    setBrands(Array.isArray(data) ? data : [data]);
+                }
+            }
+        } catch (error) {
+            message.error("Failed to search Category, Id does not exist!");
+            setSearchStatus("No data found");
+            setBrands([]);
+        }
+    };
     return (
         <div>
-            <Button type="primary" onClick={handleAdd}>
-                Add Brand
-            </Button>
-            <Table dataSource={brands} columns={columns} rowKey="id" />
+            <Space style={{ margin: 15 }}>
+                <Button type="primary" onClick={handleAdd}>
+                    Add Category
+                </Button>
+
+                <Input.Search
+                    placeholder="Search Brand By Id"
+                    onSearch={onSearch}
+                    enterButton
+                    style={{ marginLeft: 20 }}
+                />
+            </Space>
+            <Table dataSource={brands} columns={columns} rowKey="id" pagination={{ pageSize: 7 }} />
             <Modal
                 title={editingBrand ? "Edit Brand" : "Add Brand"}
                 visible={isModalVisible}

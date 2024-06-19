@@ -5,6 +5,7 @@ import {
     getAllMaterials,
     updateMaterial,
     deleteMaterial,
+    getMaterialById,
 } from "../../../../../../services/api/MaterialApi";
 
 export const MaterialsManagement = () => {
@@ -12,7 +13,7 @@ export const MaterialsManagement = () => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [editingMaterial, setEditingMaterial] = useState(null);
     const [form] = Form.useForm();
-
+    const [searchStatus, setSearchStatus] = useState(null);
     useEffect(() => {
         fetchMaterials();
     }, []);
@@ -132,13 +133,52 @@ export const MaterialsManagement = () => {
             ),
         },
     ];
+    const onSearch = async (value) => {
+        try {
+            if (!value) {
+                // Nếu giá trị nhập vào là rỗng, gọi API để lấy tất cả các vật liệu
+                const response = await getAllMaterials();
+                const { data } = response;
+                setMaterials(data);
+                setSearchStatus(null);
+            } else {
+                const response = await getMaterialById(value);
+                const data = response.data;
+                if (Array.isArray(data) && data.length === 0) {
+                    setSearchStatus("No data found");
+                    setMaterials([]);
+                } else {
+                    setSearchStatus(null);
+                    setMaterials(Array.isArray(data) ? data : [data]);
+                }
+            }
+        } catch (error) {
+            message.error("Failed to search Material, Id does not exist!");
+            setSearchStatus("No data found");
+            setMaterials([]);
+        }
+    };
 
     return (
         <div>
-            <Button type="primary" onClick={handleAdd} style={{ marginBottom: 16 }}>
-                Add Material
-            </Button>
-            <Table dataSource={materials} columns={columns} rowKey="id" />
+            <Space style={{ margin: 15 }}>
+                <Button type="primary" onClick={handleAdd}>
+                    Add Material
+                </Button>
+
+                <Input.Search
+                    placeholder="Search Materials By Id"
+                    onSearch={onSearch}
+                    enterButton
+                    style={{ marginLeft: 20 }}
+                />
+            </Space>
+            <Table
+                dataSource={materials}
+                columns={columns}
+                rowKey="id"
+                pagination={{ pageSize: 7 }}
+            />
             <Modal
                 title={editingMaterial ? "Edit Material" : "Add Material"}
                 visible={isModalVisible}

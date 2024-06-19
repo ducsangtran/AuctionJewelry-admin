@@ -1,5 +1,5 @@
 import axios from "axios";
-const API_BASE_URL = "http://167.71.212.203:8080";
+const API_BASE_URL = "http://apijewelryauction.techx.id.vn:8081";
 const createBrand = async (name) => {
     try {
         const response = await axios.post(`${API_BASE_URL}/api/v1/brand`, {
