@@ -11,43 +11,27 @@ import {
     Col,
     Space,
     message,
+    Menu,
+    Dropdown,
 } from "antd";
 import { getAllJewelries, getJewelryById } from "../../../../../../services/api/JewelryApi";
+import JewelryDetails from "./JewelryDetails";
+import { MoreOutlined } from "@ant-design/icons";
 
 const { Option } = Select;
-
-const jewelryColumns = [
-    { title: "ID", dataIndex: "id", key: "id" },
-    { title: "Seller", dataIndex: "sellerName", key: "seller_id" },
-    { title: "Name", dataIndex: "name", key: "name" },
-    { title: "Description", dataIndex: "description", key: "description" },
-    { title: "Category", dataIndex: ["category", "name"], key: "category_id" },
-    { title: "Brand", dataIndex: ["brand", "name"], key: "brandName" },
-    { title: "Material", dataIndex: "jewelryCondition", key: "condition" },
-    { title: "Collection", dataIndex: ["collection", "name"], key: "collection_id" },
-    { title: "Weight", dataIndex: "weight", key: "weight" },
-    { title: "Size", dataIndex: "size", key: "size" },
-    { title: "Color", dataIndex: "color", key: "color" },
-    { title: "Sex", dataIndex: "sex", key: "sex" },
-
-    { title: "Condition", dataIndex: "jewelryCondition", key: "condition" },
-
-    {
-        title: "Starting Price",
-        dataIndex: "staringPrice",
-        key: "starting_price",
-    },
-    { title: "Status", dataIndex: "status", key: "status" },
-];
 
 const JewelryAdmin = () => {
     const [visible, setVisible] = useState(false);
     const [form] = Form.useForm();
     const [jewelryData, setJewelryData] = useState([]);
     const [searchStatus, setSearchStatus] = useState(null);
+    const [detailModalVisible, setDetailModalVisible] = useState(false);
+    const [detailItem, setDetailItem] = useState(null);
+
     useEffect(() => {
         fetchJewelryData();
     }, []);
+
     const fetchJewelryData = async () => {
         try {
             const response = await getAllJewelries();
@@ -75,6 +59,7 @@ const JewelryAdmin = () => {
         setVisible(false);
         form.resetFields();
     };
+
     const onSearch = async (value) => {
         try {
             if (!value) {
@@ -100,14 +85,59 @@ const JewelryAdmin = () => {
             setJewelryData([]);
         }
     };
+
+    const menu = (record) => (
+        <Menu>
+            <Menu.Item key="1" onClick={() => showDetailModal(record)}>
+                View Details
+            </Menu.Item>
+        </Menu>
+    );
+
+    const showDetailModal = (record) => {
+        setDetailItem(record);
+        setDetailModalVisible(true);
+    };
+
+    const handleDetailModalCancel = () => {
+        setDetailModalVisible(false);
+        setDetailItem(null);
+    };
+
+    const jewelryColumns = [
+        { title: "ID", dataIndex: "id", key: "id" },
+        { title: "Seller", dataIndex: "sellerName", key: "seller_id" },
+        { title: "Name", dataIndex: "name", key: "name" },
+        { title: "Description", dataIndex: "description", key: "description" },
+        { title: "Category", dataIndex: ["category", "name"], key: "category_id" },
+        { title: "Brand", dataIndex: ["brand", "name"], key: "brandName" },
+        { title: "Material", dataIndex: "jewelryCondition", key: "condition" },
+        { title: "Collection", dataIndex: ["collection", "name"], key: "collection_id" },
+        { title: "Weight", dataIndex: "weight", key: "weight" },
+        { title: "Size", dataIndex: "size", key: "size" },
+        { title: "Color", dataIndex: "color", key: "color" },
+        { title: "Sex", dataIndex: "sex", key: "sex" },
+        { title: "Condition", dataIndex: "jewelryCondition", key: "condition" },
+        { title: "Starting Price", dataIndex: "staringPrice", key: "starting_price" },
+        { title: "Status", dataIndex: "status", key: "status" },
+        {
+            title: "",
+            key: "action",
+            render: (text, record) => (
+                <Space size="middle">
+                    <Dropdown overlay={menu(record)} trigger={["click"]}>
+                        <Button icon={<MoreOutlined />} />
+                    </Dropdown>
+                </Space>
+            ),
+        },
+    ];
+
     return (
         <div>
             <Space style={{ marginBottom: 16 }}>
                 <Input.Search placeholder="Search Jewelry By Id" onSearch={onSearch} enterButton />
             </Space>
-            {/* <Button type="primary" onClick={handleAdd} style={{ marginBottom: 16 }}>
-                Add Jewelry
-            </Button> */}
             <Table
                 columns={jewelryColumns}
                 dataSource={jewelryData}
@@ -239,6 +269,11 @@ const JewelryAdmin = () => {
                     </Row>
                 </Form>
             </Modal>
+            <JewelryDetails
+                visible={detailModalVisible}
+                onCancel={handleDetailModalCancel}
+                jewelry={detailItem} // Assuming you pass 'jewelry' as prop to JewelryDetails
+            />
         </div>
     );
 };

@@ -1,86 +1,89 @@
 import React from "react";
-import { Badge, Descriptions } from "antd";
-const items = [
-    {
-        key: "1",
-        label: "Product",
-        children: "Cloud Database",
-    },
-    {
-        key: "2",
-        label: "Billing Mode",
-        children: "Prepaid",
-    },
-    {
-        key: "3",
-        label: "Automatic Renewal",
-        children: "YES",
-    },
-    {
-        key: "4",
-        label: "Order time",
-        children: "2018-04-24 18:00:00",
-    },
-    {
-        key: "5",
-        label: "Usage Time",
-        children: "2019-04-24 18:00:00",
-        span: 2,
-    },
-    {
-        key: "6",
-        label: "Status",
-        children: <Badge status="processing" text="Running" />,
-        span: 3,
-    },
-    {
-        key: "7",
-        label: "Negotiated Amount",
-        children: "$80.00",
-    },
-    {
-        key: "8",
-        label: "Discount",
-        children: "$20.00",
-    },
-    {
-        key: "9",
-        label: "Official Receipts",
-        children: "$60.00",
-    },
-    {
-        key: "10",
-        label: "Config Info",
-        children: (
-            <>
-                Data disk type: MongoDB
-                <br />
-                Database version: 3.4
-                <br />
-                Package: dds.mongo.mid
-                <br />
-                Storage space: 10 GB
-                <br />
-                Replication factor: 3
-                <br />
-                Region: East China 1
-                <br />
-            </>
-        ),
-    },
-];
-const formatDateTime = (dateString) => {
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) {
-        // Check if the date is invalid
-        return ""; // Return an empty string if the date is invalid
-    }
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    const hours = String(date.getHours()).padStart(2, "0");
-    const minutes = String(date.getMinutes()).padStart(2, "0");
-    return `${year}-${month}-${day} ${hours}:${minutes}`;
+import { Descriptions, Modal, Row, Col } from "antd";
+import moment from "moment";
+
+const formatDateTime = (dateTime) => {
+    return moment(dateTime).isValid() ? moment(dateTime).format("YY-MM-DD HH:mm") : "Invalid Date";
 };
-const App = () => <Descriptions title="User Info" bordered items={items} />;
-export default App;
+
+const JewelryDetails = ({ visible, onCancel, jewelry }) => (
+    <Modal open={visible} onCancel={onCancel} footer={null} width={1500}>
+        {jewelry && (
+            <Row gutter={16}>
+                <Col span={12}>
+                    <Descriptions title="Jewelry Details" bordered column={4}>
+                        <Descriptions.Item label="Id" span={2}>
+                            {jewelry.id}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Name" span={2}>
+                            {jewelry.name}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Created At" span={2}>
+                            {formatDateTime(jewelry.createdAt)}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Updated At" span={2}>
+                            {formatDateTime(jewelry.updatedAt)}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Color" span={2}>
+                            {jewelry.color}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Description" span={2}>
+                            {jewelry.description}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Jewelry Condition" span={2}>
+                            {jewelry.jewelryCondition}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Sex" span={2}>
+                            {jewelry.sex}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Starting Price" span={2}>
+                            {jewelry.staringPrice}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Status " span={2}>
+                            {jewelry.status}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Weight" span={2}>
+                            {jewelry.weight}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Brand" span={2}>
+                            {jewelry.brand.name}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Category" span={2}>
+                            {jewelry.category.name}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Collection" span={2}>
+                            {jewelry.collection.name}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Material" span={2}>
+                            {jewelry.jewelryMaterials[0]?.material.name}
+                        </Descriptions.Item>
+                    </Descriptions>
+                </Col>
+                <Col span={12}>
+                    <Descriptions title="Seller Details" bordered column={2}>
+                        <Descriptions.Item label="Name" span={2}>
+                            {jewelry.sellerId.full_name}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Address" span={2}>
+                            {jewelry.sellerId.address}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Date Of Birth" span={2}>
+                            {jewelry.sellerId.date_of_birth}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Email" span={2}>
+                            {jewelry.sellerId.email}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Phone Number" span={2}>
+                            {jewelry.sellerId.phone_number}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Role" span={2}>
+                            {jewelry.sellerId.role_id.name}
+                        </Descriptions.Item>
+                    </Descriptions>
+                </Col>
+            </Row>
+        )}
+    </Modal>
+);
+
+export default JewelryDetails;
