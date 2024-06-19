@@ -100,7 +100,7 @@ const AuctionManagement = () => {
         },
         {
             title: "Starting Price",
-            dataIndex: ["jewelry", "staringPrice"],
+            dataIndex: ["jewelry", "startingPrice"],
             key: "startingPrice",
         },
         {
@@ -205,17 +205,8 @@ const AuctionManagement = () => {
                 console.log("Validate Failed:", errorInfo);
             });
     };
-    const searchAuctionById = async (auctionId) => {
-        try {
-            const response = await searchAuctionById(auctionId);
-            const AuctionData = response.data;
-            setAuctionData(AuctionData);
-            setFilteredData(AuctionData);
-        } catch (error) {
-            message.error("Failed to search auction by ID.");
-        }
-    };
-    onSearch = (value) => {
+
+    const onSearch = (value) => {
         const filtered = AuctionsData.filter((item) =>
             Object.values(item).some(
                 (val) => typeof val === "string" && val.toLowerCase().includes(value.toLowerCase())
@@ -260,7 +251,7 @@ const AuctionManagement = () => {
                     Advanced Search
                 </Button>
             </Space>
-            <Table columns={columns} dataSource={AuctionsData} rowKey="id" />
+            <Table columns={columns} dataSource={filteredData} rowKey="id" />
             <Modal
                 title={editingItem ? "Edit Auction" : "Add New Auction"}
                 open={modalVisible}

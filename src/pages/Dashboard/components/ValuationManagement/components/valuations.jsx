@@ -37,12 +37,12 @@ const ValuationManagement = () => {
             title: "Created At",
             dataIndex: "createdAt",
             key: "createdAt",
+            render: (text) => formatDateTime(text),
         },
         {
             title: "Desired Price",
             dataIndex: "desiredPrice",
             key: "createdAt",
-            render: (text) => formatDateTime(text),
         },
         {
             title: "Jewelry",
@@ -99,11 +99,11 @@ const ValuationManagement = () => {
             render: (text, record) => (
                 <Space size="middle">
                     <Button onClick={() => handleEdit(record)}>Edit</Button>
-                    <Button onClick={() => handleDelete(record.id)} type="danger">
-                        Delete
-                    </Button>
                     <Button onClick={() => handleAcceptValuating(record.id)} type="primary">
-                        Accept Valuating
+                        Accept
+                    </Button>
+                    <Button onClick={() => handleDelete(record.id)} type="primary" danger>
+                        Cancel
                     </Button>
                 </Space>
             ),
