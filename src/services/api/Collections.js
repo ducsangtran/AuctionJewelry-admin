@@ -49,7 +49,7 @@ const updateCollection = async (id, name, brand) => {
 };
 const deleteCollection = async (id) => {
     try {
-        const response = await axios.delete(`${API_BASE_URL}/api/v1/brand/${id}`);
+        const response = await axios.delete(`${API_BASE_URL}/api/v1/collection/${id}`);
         return response.data;
     } catch (error) {
         // Handle error

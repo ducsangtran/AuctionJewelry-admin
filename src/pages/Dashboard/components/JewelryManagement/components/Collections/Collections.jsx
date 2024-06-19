@@ -68,7 +68,9 @@ const CollectionsManagement = () => {
             message.success("Collection deleted successfully");
             fetchCollections();
         } catch (error) {
-            message.error("Failed to delete collection.");
+            if (error.response && error.response.data && error.response.data.message) {
+                message.error(error.response.data.message);
+            }
         }
     };
 
