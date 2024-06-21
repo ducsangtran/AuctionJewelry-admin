@@ -52,4 +52,14 @@ const searchValuationById = async (id) => {
         throw error;
     }
 };
-export { getAllValuations, editValuating, searchValuationById };
+const deleteValuation = async (id) => {
+    try {
+        const response = await axios.delete(`${API_BASE_URL}/api/v1/valuating/${id}`);
+        return response.data;
+    } catch (error) {
+        // Handle error
+        console.error(error);
+        throw error;
+    }
+};
+export { getAllValuations, editValuating, searchValuationById, deleteValuation };

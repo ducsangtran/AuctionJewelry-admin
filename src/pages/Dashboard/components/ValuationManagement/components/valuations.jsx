@@ -12,11 +12,14 @@ import {
     Select,
 } from "antd";
 import {
+    deleteValuation,
     editValuating,
     getAllValuations,
     searchValuationById,
 } from "../../../../../services/api/ValuationApi";
 import { useSelector } from "react-redux";
+import moment from "moment";
+import ConfirmDeleteModal from "../../../../../components/form/ConfirmDeleteModal";
 
 const ValuationManagement = () => {
     const [form] = Form.useForm();
@@ -24,6 +27,8 @@ const ValuationManagement = () => {
 
     const [modalVisible, setModalVisible] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
+    const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+    const [deleteId, setDeleteId] = useState(null);
     const [searchStatus, setSearchStatus] = useState(null);
 
     // Fetch user role from Redux store
@@ -58,7 +63,7 @@ const ValuationManagement = () => {
             title: "Created At",
             dataIndex: "createdAt",
             key: "createdAt",
-            render: (text) => formatDateTime(text),
+            render: (text) => moment(text).format("YY-MM-DD HH:mm"),
         },
         {
             title: "Desired Price",
@@ -76,28 +81,15 @@ const ValuationManagement = () => {
             key: "notes",
         },
         {
-            title: "Online",
-            dataIndex: "online",
-            key: "online",
-            render: (text) => (text ? "True" : "False"),
-        },
-
-        {
             title: "Payment Method",
             dataIndex: "paymentMethod",
             key: "paymentMethod",
-        },
-
-        {
-            title: "Status",
-            dataIndex: "status",
-            key: "status",
         },
         {
             title: "Updated At",
             dataIndex: "updatedAt",
             key: "updatedAt",
-            render: (text) => formatDateTime(text),
+            render: (text) => moment(text).format("YY-MM-DD HH:mm"),
         },
         {
             title: "Valuating Fee",
@@ -115,49 +107,67 @@ const ValuationManagement = () => {
             key: "valuation_value",
         },
         {
+            title: "Online",
+            dataIndex: "online",
+            key: "online",
+            render: (text) => (text ? "True" : "False"),
+        },
+        {
+            title: "Status",
+            dataIndex: "status",
+            key: "status",
+        },
+        {
             title: "Action",
             key: "action",
             render: (text, record) => (
                 <Space size="middle">
-                    <Button onClick={() => handleEdit(record)}>Edit</Button>
+                    <Button
+                        onClick={() => handleEdit(record)}
+                        disabled={record.online}
+                        type="primary"
+                    >
+                        Edit
+                    </Button>
                     {/* <Button onClick={() => handleAcceptValuating(record.id)} type="primary">
                         Accept
                     </Button> */}
-                    <Button onClick={() => handleDelete(record.id)} type="primary" danger>
-                        Cancel
+                    <Button onClick={() => showDeleteModal(record.id)} type="primary" danger>
+                        Delete
                     </Button>
                 </Space>
             ),
         },
     ];
-    const formatDateTime = (dateString) => {
-        const date = new Date(dateString);
-        if (isNaN(date.getTime())) {
-            // Check if the date is invalid
-            return ""; // Return an empty string if the date is invalid
-        }
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, "0");
-        const day = String(date.getDate()).padStart(2, "0");
-        const hours = String(date.getHours()).padStart(2, "0");
-        const minutes = String(date.getMinutes()).padStart(2, "0");
-        return `${year}-${month}-${day} ${hours}:${minutes}`;
-    };
+
     const handleEdit = (record) => {
         setEditingItem(record);
         form.setFieldsValue(record);
         setModalVisible(true);
     };
 
-    const handleDelete = (id) => {
-        const newData = data.filter((item) => item.id !== id);
-        setData(newData);
+    const handleDelete = async (id) => {
+        try {
+            await deleteValuation(id);
+            setValuationsData(ValuationsData.filter((item) => item.id !== id));
+            message.success("Valuation deleted successfully.");
+        } catch (error) {
+            console.error("Failed to delete valuation:", error);
+            message.error("Failed to delete valuation.");
+        }
+    };
+    const showDeleteModal = (id) => {
+        setDeleteId(id);
+        setDeleteModalVisible(true);
     };
 
-    const handleAcceptValuating = (id) => {
-        // Implement logic for accepting valuating
-        console.log(`Accept valuation with ID: ${id}`);
-        // You can update the status or perform other actions here
+    const handleConfirmDelete = () => {
+        handleDelete(deleteId);
+        setDeleteModalVisible(false);
+    };
+
+    const handleCancelDelete = () => {
+        setDeleteModalVisible(false);
     };
 
     const handleModalCancel = () => {
@@ -288,6 +298,11 @@ const ValuationManagement = () => {
                     </Form.Item> */}
                 </Form>
             </Modal>
+            <ConfirmDeleteModal
+                visible={deleteModalVisible}
+                onConfirm={handleConfirmDelete}
+                onCancel={handleCancelDelete}
+            />
         </div>
     );
 };
