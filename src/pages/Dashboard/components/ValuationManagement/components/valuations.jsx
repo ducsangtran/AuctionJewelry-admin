@@ -279,12 +279,13 @@ const ValuationManagement = () => {
                     >
                         <Select placeholder="Select your status">
                             {userRole === "Staff" && <Option value="VALUATING">VALUATING</Option>}
-                            {userRole === "Admin" && (
-                                <>
-                                    <Option value="VALUATED">VALUATED</Option>
-                                    <Option value="REJECTED">REJECTED</Option>
-                                </>
-                            )}
+                            {userRole === "Admin" ||
+                                ("Manager" && (
+                                    <>
+                                        <Option value="VALUATED">VALUATED</Option>
+                                        <Option value="REJECTED">REJECTED</Option>
+                                    </>
+                                ))}
                         </Select>
                     </Form.Item>
                     {/* <Form.Item label="Desired Price" name="desiredPrice">
