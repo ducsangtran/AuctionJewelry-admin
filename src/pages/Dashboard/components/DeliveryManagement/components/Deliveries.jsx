@@ -80,8 +80,10 @@ const DeliveryManagement = () => {
             key: "action",
             render: (text, record) => (
                 <Space size="middle">
-                    <Button onClick={() => handleEdit(record)}>Edit</Button>
-                    <Button onClick={() => handleDelete(record.id)} type="danger">
+                    <Button onClick={() => handleEdit(record)} type="primary">
+                        Edit
+                    </Button>
+                    <Button onClick={() => handleDelete(record.id)} type="primary" danger>
                         Delete
                     </Button>
                 </Space>

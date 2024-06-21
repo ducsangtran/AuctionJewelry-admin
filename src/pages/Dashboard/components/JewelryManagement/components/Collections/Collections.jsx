@@ -134,12 +134,14 @@ const CollectionsManagement = () => {
             key: "action",
             render: (_, record) => (
                 <>
-                    <Button type="link" onClick={() => handleEdit(record)}>
-                        Edit
-                    </Button>
-                    <Button type="link" danger onClick={() => handleDelete(record.id)}>
-                        Delete
-                    </Button>
+                    <Space size={"middle"}>
+                        <Button type="primary" onClick={() => handleEdit(record)}>
+                            Edit
+                        </Button>
+                        <Button type="primary" danger onClick={() => handleDelete(record.id)}>
+                            Delete
+                        </Button>
+                    </Space>
                 </>
             ),
         },

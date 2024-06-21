@@ -123,9 +123,11 @@ const AuctionManagement = () => {
             key: "action",
             render: (text, record) => (
                 <Space size="middle">
-                    <Button onClick={() => handleEdit(record)}>Edit</Button>
-                    <Button onClick={() => handleDelete(record.id)} type="danger">
-                        Cancel
+                    <Button onClick={() => handleEdit(record)} type="primary">
+                        Edit
+                    </Button>
+                    <Button onClick={() => handleDelete(record.id)} type="primary" danger>
+                        Delete
                     </Button>
                     <Dropdown overlay={menu(record)} trigger={["click"]}>
                         <Button icon={<MoreOutlined />} />

@@ -56,7 +56,7 @@ const ValuationManagement = () => {
         },
         {
             title: "Staff Name",
-            dataIndex: "staff",
+            dataIndex: ["staff", "full_name"],
             key: "staffName",
         },
         {
@@ -255,7 +255,7 @@ const ValuationManagement = () => {
 
             <Modal
                 title="Edit Valuation"
-                visible={modalVisible}
+                open={modalVisible}
                 onOk={handleModalOk}
                 onCancel={handleModalCancel}
             >
@@ -263,9 +263,11 @@ const ValuationManagement = () => {
                     <Form.Item label="Address" name="address">
                         <Input />
                     </Form.Item>
-                    <Form.Item label="Staff ID" name="staffId">
-                        <Input />
-                    </Form.Item>
+                    {userRole === "Manager" && (
+                        <Form.Item label="Staff ID" name="staffId">
+                            <Input />
+                        </Form.Item>
+                    )}
                     <Form.Item label="Valuation Value" name="valuation_value">
                         <Input />
                     </Form.Item>
@@ -279,13 +281,14 @@ const ValuationManagement = () => {
                     >
                         <Select placeholder="Select your status">
                             {userRole === "Staff" && <Option value="VALUATING">VALUATING</Option>}
-                            {userRole === "Admin" ||
-                                ("Manager" && (
-                                    <>
-                                        <Option value="VALUATED">VALUATED</Option>
-                                        <Option value="REJECTED">REJECTED</Option>
-                                    </>
-                                ))}
+                            {userRole === "Admin" || userRole === "Manager" ? (
+                                <>
+                                    <Option value="VALUATED">VALUATED</Option>
+                                    <Option value="REJECTED">REJECTED</Option>
+                                </>
+                            ) : (
+                                <Option value="VALUATING">VALUATING</Option>
+                            )}
                         </Select>
                     </Form.Item>
                     {/* <Form.Item label="Desired Price" name="desiredPrice">

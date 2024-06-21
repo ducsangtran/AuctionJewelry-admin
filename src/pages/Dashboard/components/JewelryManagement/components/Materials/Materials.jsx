@@ -123,10 +123,10 @@ export const MaterialsManagement = () => {
             key: "action",
             render: (_, record) => (
                 <Space size="middle">
-                    <Button type="link" primary onClick={() => handleEdit(record)}>
+                    <Button type="primary" primary onClick={() => handleEdit(record)}>
                         Edit
                     </Button>
-                    <Button type="link" danger onClick={() => handleDelete(record.id)}>
+                    <Button type="primary" danger onClick={() => handleDelete(record.id)}>
                         Delete
                     </Button>
                 </Space>
