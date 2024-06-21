@@ -1,53 +1,93 @@
 import React, { useState, useEffect } from "react";
-import {
-    Form,
-    Input,
-    DatePicker,
-    Switch,
-    Button,
-    Table,
-    Space,
-    Modal,
-    message,
-    Select,
-} from "antd";
+import { Form, Input, Button, Table, Space, Modal, message, Select } from "antd";
 import {
     deleteValuation,
     editValuating,
     getAllValuations,
+    getMyValuations,
     searchValuationById,
 } from "../../../../../services/api/ValuationApi";
 import { useSelector } from "react-redux";
 import moment from "moment";
 import ConfirmDeleteModal from "../../../../../components/form/ConfirmDeleteModal";
 
+const { Option } = Select;
+
 const ValuationManagement = () => {
     const [form] = Form.useForm();
     const [ValuationsData, setValuationsData] = useState([]);
-
+    const [MyValuationsData, setMyValuationsData] = useState([]);
     const [modalVisible, setModalVisible] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
     const [deleteModalVisible, setDeleteModalVisible] = useState(false);
     const [deleteId, setDeleteId] = useState(null);
     const [searchStatus, setSearchStatus] = useState(null);
+    const [staffIdFilter, setStaffIdFilter] = useState(null);
 
     // Fetch user role from Redux store
     const userRole = useSelector((state) => state.auth.roleName);
+    const userId = useSelector((state) => state.auth.userId);
+    const userRoleId = useSelector((state) => state.auth.roleId);
+
     useEffect(() => {
-        fetchAllValuations();
+        if (userRole === "Manager" || userRole === "Admin") {
+            fetchAllValuations();
+        } else {
+            fetchMyValuations();
+        }
     }, []);
 
     const fetchAllValuations = async () => {
         try {
             const response = await getAllValuations();
             const ValuationsData = response.data;
-
             setValuationsData(ValuationsData);
             console.log(response.data);
         } catch (error) {
-            message.error("Failed to fetch auctions data.");
+            message.error("Failed to fetch valuations data.");
         }
     };
+
+    const fetchMyValuations = async () => {
+        try {
+            const response = await getMyValuations();
+            const MyValuationsData = response.data;
+            setMyValuationsData(MyValuationsData);
+            console.log(response.data);
+        } catch (error) {
+            message.error("Failed to fetch valuations data.");
+        }
+    };
+
+    const handleStaffIdFilterChange = (value) => {
+        setStaffIdFilter(value);
+        filterValuationsByStaffId(value);
+    };
+
+    const filterValuationsByStaffId = async (staffId) => {
+        if (!staffId) {
+            if (userRole === "Manager" || userRole === "Admin") {
+                fetchAllValuations();
+            } else {
+                fetchMyValuations();
+            }
+            return;
+        }
+
+        try {
+            const filteredData = (
+                userRole === "Manager" || userRole === "Admin" ? ValuationsData : MyValuationsData
+            ).filter((item) => item.staff && item.staff.id === staffId);
+            if (userRole === "Manager" || userRole === "Admin") {
+                setValuationsData(filteredData);
+            } else {
+                setMyValuationsData(filteredData);
+            }
+        } catch (error) {
+            message.error("Failed to filter valuations data.");
+        }
+    };
+
     const columns = [
         {
             title: "ID",
@@ -60,6 +100,11 @@ const ValuationManagement = () => {
             key: "staffName",
         },
         {
+            title: "Staff Id",
+            dataIndex: ["staff", "id"],
+            key: "staffId",
+        },
+        {
             title: "Created At",
             dataIndex: "createdAt",
             key: "createdAt",
@@ -68,12 +113,12 @@ const ValuationManagement = () => {
         {
             title: "Desired Price",
             dataIndex: "desiredPrice",
-            key: "createdAt",
+            key: "desiredPrice",
         },
         {
             title: "Jewelry",
             dataIndex: ["jewelry", "name"],
-            key: "createdAt",
+            key: "jewelry",
         },
         {
             title: "Notes",
@@ -129,9 +174,6 @@ const ValuationManagement = () => {
                     >
                         Edit
                     </Button>
-                    {/* <Button onClick={() => handleAcceptValuating(record.id)} type="primary">
-                        Accept
-                    </Button> */}
                     <Button onClick={() => showDeleteModal(record.id)} type="primary" danger>
                         Delete
                     </Button>
@@ -149,13 +191,18 @@ const ValuationManagement = () => {
     const handleDelete = async (id) => {
         try {
             await deleteValuation(id);
-            setValuationsData(ValuationsData.filter((item) => item.id !== id));
+            if (userRole === "Manager" || userRole === "Admin") {
+                setValuationsData(ValuationsData.filter((item) => item.id !== id));
+            } else {
+                setMyValuationsData(MyValuationsData.filter((item) => item.id !== id));
+            }
             message.success("Valuation deleted successfully.");
         } catch (error) {
             console.error("Failed to delete valuation:", error);
             message.error("Failed to delete valuation.");
         }
     };
+
     const showDeleteModal = (id) => {
         setDeleteId(id);
         setDeleteModalVisible(true);
@@ -203,16 +250,24 @@ const ValuationManagement = () => {
                 valuatingMethod
             );
 
-            const updatedData = ValuationsData.map((item) =>
-                item.id === UpdatedItem.id ? UpdatedItem : item
-            );
+            const updatedData = (
+                userRole === "Manager" || userRole === "Admin" ? ValuationsData : MyValuationsData
+            ).map((item) => (item.id === UpdatedItem.id ? UpdatedItem : item));
 
-            setValuationsData(updatedData);
+            if (userRole === "Manager" || userRole === "Admin") {
+                setValuationsData(updatedData);
+            } else {
+                setMyValuationsData(updatedData);
+            }
 
             form.resetFields();
             setModalVisible(false);
             setEditingItem(null);
-            fetchAllValuations();
+            if (userRole === "Manager" || userRole === "Admin") {
+                fetchAllValuations();
+            } else {
+                fetchMyValuations();
+            }
             message.success("Success to update valuation.");
         } catch (error) {
             console.log("Failed to update valuation:", error);
@@ -223,26 +278,40 @@ const ValuationManagement = () => {
     const onSearch = async (value) => {
         try {
             if (!value) {
-                // Nếu giá trị nhập vào là rỗng, gọi API để lấy tất cả các Valuation
-                const response = await getAllValuations();
-                const { data } = response;
-                setValuationsData(data);
+                // If the search value is empty, fetch all valuations or my valuations based on role
+                if (userRole === "Manager" || userRole === "Admin") {
+                    fetchAllValuations();
+                } else {
+                    fetchMyValuations();
+                }
                 setSearchStatus(null);
             } else {
                 const response = await searchValuationById(value);
                 const data = response.data;
                 if (Array.isArray(data) && data.length === 0) {
                     setSearchStatus("No data found");
-                    setValuationsData([]);
+                    if (userRole === "Manager" || userRole === "Admin") {
+                        setValuationsData([]);
+                    } else {
+                        setMyValuationsData([]);
+                    }
                 } else {
                     setSearchStatus(null);
-                    setValuationsData(Array.isArray(data) ? data : [data]);
+                    if (userRole === "Manager" || userRole === "Admin") {
+                        setValuationsData(Array.isArray(data) ? data : [data]);
+                    } else {
+                        setMyValuationsData(Array.isArray(data) ? data : [data]);
+                    }
                 }
             }
         } catch (error) {
             message.error("Failed to search Valuation, Id does not exist!");
             setSearchStatus("No data found");
-            setValuationsData([]);
+            if (userRoleId === 1 || userRole === "Admin") {
+                setValuationsData([]);
+            } else {
+                setMyValuationsData([]);
+            }
         }
     };
 
@@ -250,8 +319,33 @@ const ValuationManagement = () => {
         <div>
             <Space style={{ marginBottom: 16 }}>
                 <Input.Search placeholder="Search valuations" onSearch={onSearch} enterButton />
+                <Select
+                    placeholder="Filter by Staff ID"
+                    onChange={handleStaffIdFilterChange}
+                    allowClear
+                    style={{ width: 200 }}
+                >
+                    {(userRole === "Manager" || userRole === "Admin"
+                        ? ValuationsData
+                        : MyValuationsData
+                    )
+                        .filter((valuation) => valuation.staff)
+                        .map((valuation) => (
+                            <Option key={valuation.staff.id} value={valuation.staff.id}>
+                                {valuation.staff.full_name}
+                            </Option>
+                        ))}
+                </Select>
             </Space>
-            <Table columns={columns} dataSource={ValuationsData} rowKey="id" />
+            <Table
+                columns={columns}
+                dataSource={
+                    userRole === "Manager" || userRole === "Admin"
+                        ? ValuationsData
+                        : MyValuationsData
+                }
+                rowKey="id"
+            />
 
             <Modal
                 title="Edit Valuation"
@@ -291,15 +385,9 @@ const ValuationManagement = () => {
                             )}
                         </Select>
                     </Form.Item>
-                    {/* <Form.Item label="Desired Price" name="desiredPrice">
-                        <Input />
-                    </Form.Item> */}
                     <Form.Item label="Payment Method" name="paymentMethod">
                         <Input />
                     </Form.Item>
-                    {/* <Form.Item label="Valuating Method" name="valuatingMethod">
-                        <Input />
-                    </Form.Item> */}
                 </Form>
             </Modal>
             <ConfirmDeleteModal

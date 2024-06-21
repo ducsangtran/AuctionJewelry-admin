@@ -1,10 +1,20 @@
-import axios from "axios";
+import api from "../../config/axios";
 
 const API_BASE_URL = "http://apijewelryauction.techx.id.vn:8081";
 
 const getAllValuations = async () => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/api/v1/valuating`);
+        const response = await api.get(`${API_BASE_URL}/api/v1/valuating`);
+        return response.data;
+    } catch (error) {
+        // Handle error
+        console.error(error);
+        throw error;
+    }
+};
+const getMyValuations = async () => {
+    try {
+        const response = await api.get(`valuating/me`);
         return response.data;
     } catch (error) {
         // Handle error
@@ -25,7 +35,7 @@ const editValuating = async (
     valuatingMethod
 ) => {
     try {
-        const response = await axios.put(`${API_BASE_URL}/api/v1/valuating/${id}`, {
+        const response = await api.put(`${API_BASE_URL}/api/v1/valuating/${id}`, {
             address,
             staffId,
             valuation_value,
@@ -44,7 +54,7 @@ const editValuating = async (
 };
 const searchValuationById = async (id) => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/api/v1/valuating/${id}`);
+        const response = await api.get(`${API_BASE_URL}/api/v1/valuating/${id}`);
         return response.data;
     } catch (error) {
         // Handle error
@@ -54,7 +64,7 @@ const searchValuationById = async (id) => {
 };
 const deleteValuation = async (id) => {
     try {
-        const response = await axios.delete(`${API_BASE_URL}/api/v1/valuating/${id}`);
+        const response = await api.delete(`${API_BASE_URL}/api/v1/valuating/${id}`);
         return response.data;
     } catch (error) {
         // Handle error
@@ -62,4 +72,4 @@ const deleteValuation = async (id) => {
         throw error;
     }
 };
-export { getAllValuations, editValuating, searchValuationById, deleteValuation };
+export { getAllValuations, editValuating, searchValuationById, deleteValuation, getMyValuations };

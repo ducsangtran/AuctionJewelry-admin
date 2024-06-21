@@ -1,11 +1,10 @@
-// src/services/api.js
-import axios from "axios";
+import api from "../../config/axios";
 
 const API_BASE_URL = "http://localhost:8080/user/api/v1";
 
 export const fetchUsers = async () => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/users`);
+        const response = await api.get(`${API_BASE_URL}/users`);
         return response.data;
     } catch (error) {
         console.error("Error fetching users:", error);
@@ -14,7 +13,7 @@ export const fetchUsers = async () => {
 };
 export const fetchTotalUsers = async () => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/users`);
+        const response = await api.get(`${API_BASE_URL}/users`);
         return response.data.length;
     } catch (error) {
         console.error("Error fetching total users:", error);
@@ -23,7 +22,7 @@ export const fetchTotalUsers = async () => {
 };
 export const updateUser = async (user) => {
     try {
-        const response = await axios.put(`${API_BASE_URL}/users/${user.id}`, user);
+        const response = await api.put(`${API_BASE_URL}/users/${user.id}`, user);
         return response.data;
     } catch (error) {
         console.error("Error updating user:", error);
@@ -32,7 +31,7 @@ export const updateUser = async (user) => {
 };
 export const addUser = async (user) => {
     try {
-        const response = await axios.post(`${API_BASE_URL}/users`, user);
+        const response = await api.post(`${API_BASE_URL}/users`, user);
         return response.data;
     } catch (error) {
         console.error("Error adding user:", error);
@@ -42,7 +41,7 @@ export const addUser = async (user) => {
 
 export const deleteUser = async (userId) => {
     try {
-        const response = await axios.delete(`${API_BASE_URL}/users/${userId}`);
+        const response = await api.delete(`${API_BASE_URL}/users/${userId}`);
         return response.data;
     } catch (error) {
         console.error("Error deleting user:", error);

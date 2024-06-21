@@ -3,7 +3,7 @@ import axios from "axios";
 // import { setTokens } from '@/core/store/auth/authenticate';
 
 const api = axios.create({
-    baseURL: "http://localhost:8080/api/v1/",
+    baseURL: "http://apijewelryauction.techx.id.vn:8081/api/v1/",
 });
 
 const openNotificationWithIcon = (type, title) => {
@@ -32,7 +32,10 @@ const refreshToken = async () => {
     if (!refresh) {
         throw new Error("No refresh token available");
     }
-    const response = await axios.post("http://localhost:8080/api/v1/user/refresh", { refresh });
+    const response = await axios.post(
+        "http://apijewelryauction.techx.id.vn:8081/api/v1/user/refresh",
+        { refresh }
+    );
     const { accessToken } = response.data;
     localStorage.setItem("accessToken", accessToken);
     return accessToken;
