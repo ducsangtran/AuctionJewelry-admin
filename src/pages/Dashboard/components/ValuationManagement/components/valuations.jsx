@@ -1,10 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { Form, Input, DatePicker, Switch, Button, Table, Space, Modal, message } from "antd";
+import {
+    Form,
+    Input,
+    DatePicker,
+    Switch,
+    Button,
+    Table,
+    Space,
+    Modal,
+    message,
+    Select,
+} from "antd";
 import {
     editValuating,
     getAllValuations,
     searchValuationById,
 } from "../../../../../services/api/ValuationApi";
+import { useSelector } from "react-redux";
 
 const ValuationManagement = () => {
     const [form] = Form.useForm();
@@ -13,6 +25,9 @@ const ValuationManagement = () => {
     const [modalVisible, setModalVisible] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
     const [searchStatus, setSearchStatus] = useState(null);
+
+    // Fetch user role from Redux store
+    const userRole = useSelector((state) => state.auth.roleName);
     useEffect(() => {
         fetchAllValuations();
     }, []);
@@ -247,18 +262,30 @@ const ValuationManagement = () => {
                     <Form.Item label="Notes" name="notes">
                         <Input />
                     </Form.Item>
-                    <Form.Item label="Status" name="status">
-                        <Input />
+                    <Form.Item
+                        label="Status"
+                        name="status"
+                        rules={[{ required: true, message: "Please select your status!" }]}
+                    >
+                        <Select placeholder="Select your status">
+                            {userRole === "Staff" && <Option value="VALUATING">VALUATING</Option>}
+                            {userRole === "Admin" && (
+                                <>
+                                    <Option value="VALUATED">VALUATED</Option>
+                                    <Option value="REJECTED">REJECTED</Option>
+                                </>
+                            )}
+                        </Select>
                     </Form.Item>
-                    <Form.Item label="Desired Price" name="desiredPrice">
+                    {/* <Form.Item label="Desired Price" name="desiredPrice">
                         <Input />
-                    </Form.Item>
+                    </Form.Item> */}
                     <Form.Item label="Payment Method" name="paymentMethod">
                         <Input />
                     </Form.Item>
-                    <Form.Item label="Valuating Method" name="valuatingMethod">
+                    {/* <Form.Item label="Valuating Method" name="valuatingMethod">
                         <Input />
-                    </Form.Item>
+                    </Form.Item> */}
                 </Form>
             </Modal>
         </div>

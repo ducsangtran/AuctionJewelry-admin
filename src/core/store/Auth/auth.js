@@ -3,6 +3,7 @@ const initialState = {
     accessToken: localStorage.getItem("accessToken") || "",
     refreshToken: localStorage.getItem("refreshToken") || "",
     fullName: localStorage.getItem("fullName") || "",
+    roleName: localStorage.getItem("roleName") || "",
 };
 
 const authSlice = createSlice({
@@ -10,13 +11,14 @@ const authSlice = createSlice({
     initialState,
     reducers: {
         setToken: (state, action) => {
-            const { accessToken, refreshToken, fullName } = action.payload;
+            const { accessToken, refreshToken, fullName, roleName } = action.payload;
             state.accessToken = accessToken;
             state.refreshToken = refreshToken;
             state.fullName = fullName;
             localStorage.setItem("accessToken", accessToken);
             localStorage.setItem("refreshToken", refreshToken);
             localStorage.setItem("fullName", fullName);
+            localStorage.setItem("roleName", roleName);
         },
         clearToken: (state) => {
             state.accessToken = "";
@@ -25,6 +27,7 @@ const authSlice = createSlice({
             localStorage.removeItem("accessToken");
             localStorage.removeItem("refreshToken");
             localStorage.removeItem("fullName");
+            localStorage.removeItem("roleName");
         },
     },
 });

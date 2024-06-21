@@ -23,8 +23,8 @@ export const Login = () => {
             setLoading(true);
             const response = await LoginAPI(values);
             console.log(response);
-            const { accessToken, refreshToken, fullName } = response.data;
-            dispatch(setToken({ accessToken, refreshToken, fullName }));
+            const { accessToken, refreshToken, fullName, roleName } = response.data;
+            dispatch(setToken({ accessToken, refreshToken, fullName, roleName }));
             navigate("/");
         } catch (error) {
             console.log(error);
