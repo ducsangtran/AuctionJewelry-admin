@@ -5,7 +5,7 @@ export const JewelryManagement = () => {
     return (
         <div>
             <h1>Jewelry Management</h1>
-            <Outlet />3
+            <Outlet />
         </div>
     );
 };

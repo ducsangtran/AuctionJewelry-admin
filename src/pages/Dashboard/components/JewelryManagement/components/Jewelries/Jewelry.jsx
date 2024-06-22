@@ -108,7 +108,14 @@ const JewelryAdmin = () => {
         { title: "ID", dataIndex: "id", key: "id" },
         { title: "Seller", dataIndex: "sellerName", key: "seller_id" },
         { title: "Name", dataIndex: "name", key: "name" },
-        { title: "Description", dataIndex: "description", key: "description" },
+        {
+            title: "Description",
+            dataIndex: "description",
+            key: "description",
+            render: (text) => (
+                <span title={text}>{text.length > 35 ? `${text.substring(0, 35)}...` : text}</span>
+            ),
+        },
         { title: "Category", dataIndex: ["category", "name"], key: "category_id" },
         { title: "Brand", dataIndex: ["brand", "name"], key: "brandName" },
         { title: "Material", dataIndex: "jewelryCondition", key: "condition" },

@@ -10,13 +10,14 @@ import {
 import { useSelector } from "react-redux";
 import moment from "moment";
 import ConfirmDeleteModal from "../../../../../components/form/ConfirmDeleteModal";
+import TextArea from "antd/es/input/TextArea";
 
 const { Option } = Select;
 
 const ValuationManagement = () => {
     const [form] = Form.useForm();
-    const [ValuationsData, setValuationsData] = useState([]);
-    const [MyValuationsData, setMyValuationsData] = useState([]);
+    const [valuationsData, setValuationsData] = useState([]);
+    const [myValuationsData, setMyValuationsData] = useState([]);
     const [modalVisible, setModalVisible] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
     const [deleteModalVisible, setDeleteModalVisible] = useState(false);
@@ -40,10 +41,11 @@ const ValuationManagement = () => {
     const fetchAllValuations = async () => {
         try {
             const response = await getAllValuations();
-            const ValuationsData = response.data;
-            setValuationsData(ValuationsData);
+            const valuationsData = response.data;
+            setValuationsData(valuationsData);
             console.log(response.data);
         } catch (error) {
+            console.error("Failed to fetch all valuations data:", error);
             message.error("Failed to fetch valuations data.");
         }
     };
@@ -51,10 +53,11 @@ const ValuationManagement = () => {
     const fetchMyValuations = async () => {
         try {
             const response = await getMyValuations();
-            const MyValuationsData = response.data;
-            setMyValuationsData(MyValuationsData);
+            const myValuationsData = response.data;
+            setMyValuationsData(myValuationsData);
             console.log(response.data);
         } catch (error) {
+            console.error("Failed to fetch my valuations data:", error);
             message.error("Failed to fetch valuations data.");
         }
     };
@@ -76,7 +79,7 @@ const ValuationManagement = () => {
 
         try {
             const filteredData = (
-                userRole === "Manager" || userRole === "Admin" ? ValuationsData : MyValuationsData
+                userRole === "Manager" || userRole === "Admin" ? valuationsData : myValuationsData
             ).filter((item) => item.staff && item.staff.id === staffId);
             if (userRole === "Manager" || userRole === "Admin") {
                 setValuationsData(filteredData);
@@ -95,14 +98,9 @@ const ValuationManagement = () => {
             key: "id",
         },
         {
-            title: "Staff Name",
-            dataIndex: ["staff", "full_name"],
-            key: "staffName",
-        },
-        {
-            title: "Staff Id",
-            dataIndex: ["staff", "id"],
-            key: "staffId",
+            title: "Jewelry",
+            dataIndex: ["jewelry", "name"],
+            key: "jewelry",
         },
         {
             title: "Created At",
@@ -115,27 +113,13 @@ const ValuationManagement = () => {
             dataIndex: "desiredPrice",
             key: "desiredPrice",
         },
-        {
-            title: "Jewelry",
-            dataIndex: ["jewelry", "name"],
-            key: "jewelry",
-        },
-        {
-            title: "Notes",
-            dataIndex: "notes",
-            key: "notes",
-        },
+
         {
             title: "Payment Method",
             dataIndex: "paymentMethod",
             key: "paymentMethod",
         },
-        {
-            title: "Updated At",
-            dataIndex: "updatedAt",
-            key: "updatedAt",
-            render: (text) => moment(text).format("YY-MM-DD HH:mm"),
-        },
+
         {
             title: "Valuating Fee",
             dataIndex: "valuatingFee",
@@ -158,9 +142,33 @@ const ValuationManagement = () => {
             render: (text) => (text ? "True" : "False"),
         },
         {
+            title: "Updated At",
+            dataIndex: "updatedAt",
+            key: "updatedAt",
+            render: (text) => moment(text).format("YY-MM-DD HH:mm"),
+        },
+        {
+            title: "Staff Name",
+            dataIndex: ["staff", "full_name"],
+            key: "staffName",
+        },
+        {
+            title: "Staff Id",
+            dataIndex: ["staff", "id"],
+            key: "staffId",
+        },
+        {
             title: "Status",
             dataIndex: "status",
             key: "status",
+        },
+        {
+            title: "Notes               ",
+            dataIndex: "notes",
+            key: "notes",
+            render: (text) => (
+                <span title={text}>{text.length > 30 ? `${text.substring(0, 30)}...` : text}</span>
+            ),
         },
         {
             title: "Action",
@@ -169,7 +177,7 @@ const ValuationManagement = () => {
                 <Space size="middle">
                     <Button
                         onClick={() => handleEdit(record)}
-                        disabled={record.online}
+                        // disabled={record.online}
                         type="primary"
                     >
                         Edit
@@ -192,9 +200,9 @@ const ValuationManagement = () => {
         try {
             await deleteValuation(id);
             if (userRole === "Manager" || userRole === "Admin") {
-                setValuationsData(ValuationsData.filter((item) => item.id !== id));
+                setValuationsData(valuationsData.filter((item) => item.id !== id));
             } else {
-                setMyValuationsData(MyValuationsData.filter((item) => item.id !== id));
+                setMyValuationsData(myValuationsData.filter((item) => item.id !== id));
             }
             message.success("Valuation deleted successfully.");
         } catch (error) {
@@ -251,7 +259,7 @@ const ValuationManagement = () => {
             );
 
             const updatedData = (
-                userRole === "Manager" || userRole === "Admin" ? ValuationsData : MyValuationsData
+                userRole === "Manager" || userRole === "Admin" ? valuationsData : myValuationsData
             ).map((item) => (item.id === UpdatedItem.id ? UpdatedItem : item));
 
             if (userRole === "Manager" || userRole === "Admin") {
@@ -270,7 +278,7 @@ const ValuationManagement = () => {
             }
             message.success("Success to update valuation.");
         } catch (error) {
-            console.log("Failed to update valuation:", error);
+            console.error("Failed to update valuation:", error);
             message.error("Failed to update valuation.");
         }
     };
@@ -305,7 +313,8 @@ const ValuationManagement = () => {
                 }
             }
         } catch (error) {
-            message.error("Failed to search Valuation, Id does not exist!");
+            console.error("Failed to search valuation by ID:", error);
+            message.error("Failed to search valuation, Id does not exist!");
             setSearchStatus("No data found");
             if (userRoleId === 1 || userRole === "Admin") {
                 setValuationsData([]);
@@ -326,8 +335,8 @@ const ValuationManagement = () => {
                     style={{ width: 200 }}
                 >
                     {(userRole === "Manager" || userRole === "Admin"
-                        ? ValuationsData
-                        : MyValuationsData
+                        ? valuationsData
+                        : myValuationsData
                     )
                         .filter((valuation) => valuation.staff)
                         .map((valuation) => (
@@ -341,8 +350,8 @@ const ValuationManagement = () => {
                 columns={columns}
                 dataSource={
                     userRole === "Manager" || userRole === "Admin"
-                        ? ValuationsData
-                        : MyValuationsData
+                        ? valuationsData
+                        : myValuationsData
                 }
                 rowKey="id"
             />
@@ -357,16 +366,17 @@ const ValuationManagement = () => {
                     <Form.Item label="Address" name="address">
                         <Input />
                     </Form.Item>
-                    {userRole === "Manager" && (
-                        <Form.Item label="Staff ID" name="staffId">
-                            <Input />
-                        </Form.Item>
-                    )}
+                    {userRole === "Manager" ||
+                        (userRole === "Admin" && (
+                            <Form.Item label="Staff ID" name="staffId">
+                                <Input />
+                            </Form.Item>
+                        ))}
                     <Form.Item label="Valuation Value" name="valuation_value">
                         <Input />
                     </Form.Item>
                     <Form.Item label="Notes" name="notes">
-                        <Input />
+                        <TextArea rows={4} />
                     </Form.Item>
                     <Form.Item
                         label="Status"

@@ -1,10 +1,10 @@
 import React from "react";
 import { Outlet } from "react-router-dom";
 
-export const AuctionManagement = () => {
+export const AccountManagement = () => {
     return (
         <div>
-            <h1>Auction Management</h1>
+            <h1>Account Management</h1>
             <Outlet />
         </div>
     );

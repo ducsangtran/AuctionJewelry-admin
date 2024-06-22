@@ -4,7 +4,7 @@ const API_BASE_URL = "http://apijewelryauction.techx.id.vn:8081";
 
 const getAllValuations = async () => {
     try {
-        const response = await api.get(`${API_BASE_URL}/api/v1/valuating`);
+        const response = await api.get(`valuating`);
         return response.data;
     } catch (error) {
         // Handle error
@@ -35,7 +35,7 @@ const editValuating = async (
     valuatingMethod
 ) => {
     try {
-        const response = await api.put(`${API_BASE_URL}/api/v1/valuating/${id}`, {
+        const response = await api.put(`valuating/${id}`, {
             address,
             staffId,
             valuation_value,
@@ -54,7 +54,7 @@ const editValuating = async (
 };
 const searchValuationById = async (id) => {
     try {
-        const response = await api.get(`${API_BASE_URL}/api/v1/valuating/${id}`);
+        const response = await api.get(`valuating/${id}`);
         return response.data;
     } catch (error) {
         // Handle error
@@ -64,7 +64,7 @@ const searchValuationById = async (id) => {
 };
 const deleteValuation = async (id) => {
     try {
-        const response = await api.delete(`${API_BASE_URL}/api/v1/valuating/${id}`);
+        const response = await api.delete(`valuating/${id}`);
         return response.data;
     } catch (error) {
         // Handle error

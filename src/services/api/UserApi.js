@@ -11,6 +11,16 @@ export const fetchUsers = async () => {
         throw error;
     }
 };
+export const getAllStaff = async () => {
+    try {
+        const response = await api.get(`account/users/staff`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching users:", error);
+        throw error;
+    }
+};
+
 export const fetchTotalUsers = async () => {
     try {
         const response = await api.get(`${API_BASE_URL}/users`);

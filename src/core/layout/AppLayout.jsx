@@ -26,13 +26,13 @@ const items = [
     //     icon: <UserOutlined />,
     //     label: <Link to="/usermanagement">User Management</Link>,
     // },
-    getItem("Account", "sub1", <UserOutlined />, [
-        getItem("User", "1", <Link to="/usermanagement"></Link>),
+    getItem("AccountManagement", "sub1", <UserOutlined />, [
+        getItem("User", "1", <Link to="/users"></Link>),
         getItem("Total User", "2", <Link to="/statistics/totaluser"></Link>),
-        getItem("Staff", "3"),
-        getItem("Total Staff", "4"),
-        getItem("Manager", "5"),
-        getItem("Total Manager", "6"),
+        getItem("Staff", "3", <Link to="/staffs"></Link>),
+        getItem("Total Staff", "4", <Link to="/statistics/totalStaffs"></Link>),
+        getItem("Manager", "5", <Link to="/managers"></Link>),
+        getItem("Total Manager", "6", <Link to="/statistics/totalManagers"></Link>),
     ]),
     // {
     //     key: "2",

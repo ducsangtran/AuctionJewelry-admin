@@ -19,7 +19,11 @@ const AppHeader = () => {
                 <p>{fullName}</p>
             </Menu.Item>
             <Menu.Item key="2">
-                <Button type="text" onClick={handleLogout} style={{ fontWeight: "bold" }}>
+                <Button
+                    type="text"
+                    onClick={handleLogout}
+                    style={{ fontWeight: "bold", width: "100%" }}
+                >
                     Logout
                 </Button>
             </Menu.Item>
