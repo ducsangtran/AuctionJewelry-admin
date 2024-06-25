@@ -27,7 +27,7 @@ const ValuationManagement = () => {
 
     // Fetch user role from Redux store
     const userRole = useSelector((state) => state.auth.roleName);
-    const userId = useSelector((state) => state.auth.userId);
+
     const userRoleId = useSelector((state) => state.auth.roleId);
 
     useEffect(() => {

@@ -1,19 +1,8 @@
 import api from "../../config/axios";
 
-const API_BASE_URL = "http://localhost:8080/user/api/v1";
-
-export const fetchUsers = async () => {
+export const getAllUsers = async () => {
     try {
-        const response = await api.get(`${API_BASE_URL}/users`);
-        return response.data;
-    } catch (error) {
-        console.error("Error fetching users:", error);
-        throw error;
-    }
-};
-export const getAllStaff = async () => {
-    try {
-        const response = await api.get(`account/users/staff`);
+        const response = await api.get(`/account `);
         return response.data;
     } catch (error) {
         console.error("Error fetching users:", error);
@@ -23,16 +12,33 @@ export const getAllStaff = async () => {
 
 export const fetchTotalUsers = async () => {
     try {
-        const response = await api.get(`${API_BASE_URL}/users`);
+        const response = await api.get(`/users`);
         return response.data.length;
     } catch (error) {
         console.error("Error fetching total users:", error);
         throw error;
     }
 };
-export const updateUser = async (user) => {
+export const updateUser = async (
+    id,
+    full_name,
+    email,
+    password,
+    role_id,
+    phoneNumber,
+    address,
+    date_of_birth
+) => {
     try {
-        const response = await api.put(`${API_BASE_URL}/users/${user.id}`, user);
+        const response = await api.put(`account/${id}`, {
+            full_name,
+            email,
+            password,
+            role_id,
+            phoneNumber,
+            address,
+            date_of_birth,
+        });
         return response.data;
     } catch (error) {
         console.error("Error updating user:", error);
@@ -49,9 +55,9 @@ export const addUser = async (user) => {
     }
 };
 
-export const deleteUser = async (userId) => {
+export const banUser = async (id) => {
     try {
-        const response = await api.delete(`${API_BASE_URL}/users/${userId}`);
+        const response = await api.put(`account/${id}/ban`);
         return response.data;
     } catch (error) {
         console.error("Error deleting user:", error);

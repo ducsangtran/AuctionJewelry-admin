@@ -1,23 +1,24 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button, Modal, Form, Input, message, Space } from "antd";
-import { getAllStaff } from "../../../../../../services/api/UserApi";
-
+import { Table, Button, Modal, Form, Input, message, Space, DatePicker } from "antd";
+import { addStaff, getAllStaff } from "../../../../../../services/api/StaffApi";
+import { useSelector, useDispatch } from "react-redux";
+import { fetchAllStaffs } from "../../../../../../core/store/slices/staffSlice";
+import TotalStaff from "./totalStaff";
+import moment from "moment";
 const StaffManagement = () => {
-    const [staffData, setStaffData] = useState([]);
+    // const [staffData, setStaffData] = useState([]);
     const [isModalVisible, setIsModalVisible] = useState(false);
 
-    useEffect(() => {
-        fetchAllStaffs();
-    }, []);
+    const dispatch = useDispatch();
+    const staffData = useSelector((state) => state.staff);
 
-    const fetchAllStaffs = async () => {
-        try {
-            const response = await getAllStaff();
-            setStaffData(response.data);
-        } catch (error) {
-            message.error("Failed to fetch staff data.");
-        }
-    };
+    useEffect(() => {
+        dispatch(fetchAllStaffs());
+    }, [dispatch]);
+
+    useEffect(() => {
+        console.log("Staff Data:", staffData);
+    }, [staffData]);
 
     const columns = [
         {
@@ -30,11 +31,7 @@ const StaffManagement = () => {
             dataIndex: "full_name",
             key: "full_name",
         },
-        // {
-        //     title: "Role",
-        //     dataIndex: ["role_id", "name"],
-        //     key: "roleName",
-        // },
+
         {
             title: "Phone Number",
             dataIndex: "phone_number",
@@ -81,22 +78,38 @@ const StaffManagement = () => {
         // Implement delete logic here
         console.log("Delete staff:", record);
     };
-    const handleAdd = () => {
+    const handleAdd = async () => {
         setIsModalVisible(true);
     };
 
-    const handleSave = (values) => {
-        // Implement save logic here
-        console.log("New staff:", values);
-        setIsModalVisible(false);
+    const handleSave = async (values) => {
+        try {
+            await addStaff(
+                values.full_name,
+                values.email,
+                values.password,
+                values.role_id,
+                values.phone_number,
+                values.address,
+                values.date_of_birth.format("YYYY-MM-DD") // Định dạng lại ngày tháng
+            );
+            message.success("Staff added successfully.");
+            setIsModalVisible(false);
+            dispatch(fetchAllStaffs()); // Refresh the staff list
+        } catch (error) {
+            message.error("Failed to add staff.");
+        }
     };
+    // Kiểm tra staffData.staffs là một mảng
+    const dataSource = Array.isArray(staffData.staffs.data) ? staffData.staffs.data : [];
 
     return (
         <div>
             <Button type="primary" onClick={handleAdd}>
                 Add Staff
             </Button>
-            <Table dataSource={staffData} columns={columns} />
+            <TotalStaff />
+            <Table dataSource={dataSource} columns={columns} loading={staffData.loading} />
 
             <Modal
                 title="Add Staff"
@@ -113,11 +126,40 @@ const StaffManagement = () => {
                         <Input />
                     </Form.Item>
                     <Form.Item
+                        label="Email"
+                        name="email"
+                        rules={[{ required: true, message: "Please enter an email" }]}
+                    >
+                        <Input />
+                    </Form.Item>
+                    <Form.Item
+                        label="Password"
+                        name="password"
+                        rules={[{ required: true, message: "Please enter a password" }]}
+                    >
+                        <Input />
+                    </Form.Item>
+
+                    <Form.Item
                         label="Phone Number"
                         name="phone_number"
                         rules={[{ required: true, message: "Please enter a phone number" }]}
                     >
                         <Input />
+                    </Form.Item>
+                    <Form.Item
+                        label="Address"
+                        name="address"
+                        rules={[{ required: true, message: "Please enter an address" }]}
+                    >
+                        <Input />
+                    </Form.Item>
+                    <Form.Item
+                        label="Date Of Birth"
+                        name="date_of_birth"
+                        rules={[{ required: true, message: "Please enter date of birth" }]}
+                    >
+                        <DatePicker />
                     </Form.Item>
                     {/* Add more form fields as needed */}
                     <Form.Item>

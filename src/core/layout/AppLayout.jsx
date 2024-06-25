@@ -7,10 +7,12 @@ import {
     MonitorOutlined,
 } from "@ant-design/icons";
 import { Link } from "react-router-dom";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import AppHeader from "./AppHeader";
+import { useSelector } from "react-redux"; // Import useSelector để lấy thông tin người dùng
 
 const { Header, Content, Footer, Sider } = Layout;
+
 function getItem(label, key, icon, children) {
     return {
         key,
@@ -19,60 +21,59 @@ function getItem(label, key, icon, children) {
         label,
     };
 }
-// Cái này đổi thành danh mục ở sider bar nha a sang
-const items = [
-    // {
-    //     key: "1",
-    //     icon: <UserOutlined />,
-    //     label: <Link to="/usermanagement">User Management</Link>,
-    // },
-    getItem("AccountManagement", "sub1", <UserOutlined />, [
-        getItem("User", "1", <Link to="/users"></Link>),
-        getItem("Total User", "2", <Link to="/statistics/totaluser"></Link>),
-        getItem("Staff", "3", <Link to="/staffs"></Link>),
-        getItem("Total Staff", "4", <Link to="/statistics/totalStaffs"></Link>),
-        getItem("Manager", "5", <Link to="/managers"></Link>),
-        getItem("Total Manager", "6", <Link to="/statistics/totalManagers"></Link>),
-    ]),
-    // {
-    //     key: "2",
-    //     icon: <VideoCameraOutlined />,
-    //     label: <Link to="/statistics/totaluser">Total User</Link>,
-    // },
-    // {
-    //     key: "3",
-    //     icon: <UploadOutlined />,
-    //     label: <Link to="/jewelrymanagement">Jewelry Management</Link>,
-    // },
-    getItem("jewelryManagement ", "sub2", <CrownOutlined />, [
-        getItem("Materials", "7", <Link to="/materials"></Link>),
-        getItem("Categories", "8", <Link to="/categories"></Link>),
-        getItem("Brands", "9", <Link to="/brands"></Link>),
-        getItem("Collections", "10", <Link to="/collections"></Link>),
-        getItem("Jewelries", "11", <Link to="/jewelries"></Link>),
-    ]),
-
-    {
-        key: "12",
-        icon: <ShoppingOutlined />,
-        label: <Link to="/auctions">Auction Management</Link>,
-    },
-    {
-        key: "13",
-        icon: <RocketOutlined />,
-        label: <Link to="/deliveries">Delivery Management</Link>,
-    },
-    {
-        key: "14",
-        icon: <MonitorOutlined />,
-        label: <Link to="/valuations">Valuating Management</Link>,
-    },
-];
 
 export const AppLayout = ({ components }) => {
     const {
         token: { colorBgContainer, borderRadiusLG },
     } = theme.useToken();
+
+    // Giả sử bạn có thông tin người dùng trong Redux store
+    const roleName = useSelector((state) => state.auth.roleName); // Lấy thông tin roleName từ Redux store
+    const [menuItems, setMenuItems] = useState([]);
+
+    useEffect(() => {
+        // Điều kiện hóa việc hiển thị mục AccountManagement dựa trên vai trò người dùng
+        const items = [
+            ...(roleName === "Admin"
+                ? [
+                      // Chỉ thêm mục này nếu người dùng là Admin
+                      getItem("AccountManagement", "sub1", <UserOutlined />, [
+                          getItem("User", "1", <Link to="/users"></Link>),
+                          getItem("Total User", "2", <Link to="/totalUser"></Link>),
+                          getItem("Staff", "3", <Link to="/staffs"></Link>),
+                          getItem("Total Staff", "4", <Link to="/totalStaffs"></Link>),
+                          getItem("Manager", "5", <Link to="/managers"></Link>),
+                          getItem("Total Manager", "6", <Link to="/totalManagers"></Link>),
+                      ]),
+                  ]
+                : []), // Nếu không phải Admin thì không thêm gì vào đây
+            getItem("Jewelry Management", "sub2", <CrownOutlined />, [
+                getItem("Materials", "7", <Link to="/materials"></Link>),
+                getItem("Categories", "8", <Link to="/categories"></Link>),
+                getItem("Brands", "9", <Link to="/brands"></Link>),
+                getItem("Collections", "10", <Link to="/collections"></Link>),
+                getItem("Jewelries", "11", <Link to="/jewelries"></Link>),
+            ]),
+            {
+                key: "12",
+                icon: <ShoppingOutlined />,
+                label: <Link to="/auctions">Auction Management</Link>,
+            },
+            {
+                key: "13",
+                icon: <RocketOutlined />,
+                label: <Link to="/deliveries">Delivery Management</Link>,
+            },
+            {
+                key: "14",
+                icon: <MonitorOutlined />,
+                label: <Link to="/valuations">Valuating Management</Link>,
+            },
+        ];
+
+        setMenuItems(items);
+    }, [roleName]); // Chạy lại effect này mỗi khi roleName thay đổi
+
     return (
         <Layout>
             <Sider
@@ -86,7 +87,7 @@ export const AppLayout = ({ components }) => {
                 }}
             >
                 <div className="demo-logo-vertical" />
-                <Menu theme="dark" mode="inline" defaultSelectedKeys={["4"]} items={items} />
+                <Menu theme="dark" mode="inline" defaultSelectedKeys={["4"]} items={menuItems} />
             </Sider>
             <Layout>
                 <Header
@@ -97,7 +98,6 @@ export const AppLayout = ({ components }) => {
                 >
                     <AppHeader />
                 </Header>
-
                 <Content
                     style={{
                         margin: "24px 16px 0",

@@ -1,8 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 import { Dashboard } from "@pages/Dashboard";
-// import { Statistics } from "@pages/Dashboard/components/Statistics";
-// import { TotalUserList } from "@pages/Dashboard/components/Statistics/TotalUserList/TotalUserList";
-// import { UserManagement } from "../../pages/Dashboard/components/UserManagement";
+
 import { MaterialsManagement } from "../../pages/Dashboard/components/JewelryManagement/components/Materials/Materials";
 import CategoriesManagement from "../../pages/Dashboard/components/JewelryManagement/components/Categories/Categories";
 import BrandsManagement from "../../pages/Dashboard/components/JewelryManagement/components/Brands/Brands";
@@ -16,6 +14,11 @@ import DeliveryManagement from "../../pages/Dashboard/components/DeliveryManagem
 
 import ValuationManagement from "../../pages/Dashboard/components/ValuationManagement/components/valuations";
 import StaffManagement from "../../pages/Dashboard/components/AccountManagement/components/StaffList/StaffList";
+import UserManagement from "../../pages/Dashboard/components/AccountManagement/components/UserList/UserList";
+import ManagerManagement from "../../pages/Dashboard/components/AccountManagement/components/ManagerList/ManagerList";
+import TotalUser from "../../pages/Dashboard/components/AccountManagement/components/UserList/totalUsers";
+import TotalStaff from "../../pages/Dashboard/components/AccountManagement/components/StaffList/totalStaff";
+import TotalManager from "../../pages/Dashboard/components/AccountManagement/components/ManagerList/totalManager";
 
 const AppRouting = () => {
     const Auth = localStorage.getItem("fullName");
@@ -25,11 +28,12 @@ const AppRouting = () => {
             <Route path="/login" element={<Login />} />
 
             <Route exact path="/" element={<ProtectedRoute element={<Dashboard />} />}>
-                {/* <Route path="statistics" element={<Statistics />}>
-                    <Route path="totaluser" element={<TotalUserList />} />
-                </Route> */}
-
+                <Route path="users" element={<UserManagement />} />
+                <Route path="totalUser" element={<TotalUser />} />
                 <Route path="staffs" element={<StaffManagement />} />
+                <Route path="totalStaffs" element={<TotalStaff />} />
+                <Route path="managers" element={<ManagerManagement />} />
+                <Route path="totalManagers" element={<TotalManager />} />
                 <Route path="materials" element={<MaterialsManagement />} />
                 <Route path="categories" element={<CategoriesManagement />} />
                 <Route path="brands" element={<BrandsManagement />} />
