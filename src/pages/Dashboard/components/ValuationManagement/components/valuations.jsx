@@ -366,12 +366,11 @@ const ValuationManagement = () => {
                     <Form.Item label="Address" name="address">
                         <Input />
                     </Form.Item>
-                    {userRole === "Manager" ||
-                        (userRole === "Admin" && (
-                            <Form.Item label="Staff ID" name="staffId">
-                                <Input />
-                            </Form.Item>
-                        ))}
+                    {userRole === "Manager" || userRole === "Admin" ? (
+                        <Form.Item label="Staff ID" name="staffId">
+                            <Input />
+                        </Form.Item>
+                    ) : null}
                     <Form.Item label="Valuation Value" name="valuation_value">
                         <Input />
                     </Form.Item>

@@ -32,6 +32,8 @@ export const AppLayout = ({ components }) => {
     const [menuItems, setMenuItems] = useState([]);
 
     useEffect(() => {
+        console.log("Current roleName:", roleName); // Thêm log để kiểm tra roleName
+
         // Điều kiện hóa việc hiển thị mục AccountManagement dựa trên vai trò người dùng
         const items = [
             ...(roleName === "Admin"

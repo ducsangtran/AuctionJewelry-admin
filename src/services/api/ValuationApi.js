@@ -23,27 +23,10 @@ const getMyValuations = async () => {
     }
 };
 
-const editValuating = async (
-    id,
-    address,
-    staffId,
-    valuation_value,
-    notes,
-    status,
-    desiredPrice,
-    paymentMethod,
-    valuatingMethod
-) => {
+const editValuating = async (id, data) => {
     try {
         const response = await api.put(`valuating/${id}`, {
-            address,
-            staffId,
-            valuation_value,
-            notes,
-            status,
-            desiredPrice,
-            paymentMethod,
-            valuatingMethod,
+            data,
         });
         return response.data;
     } catch (error) {

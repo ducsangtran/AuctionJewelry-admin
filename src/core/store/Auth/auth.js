@@ -15,6 +15,7 @@ const authSlice = createSlice({
             state.accessToken = accessToken;
             state.refreshToken = refreshToken;
             state.fullName = fullName;
+            state.roleName = roleName;
             localStorage.setItem("accessToken", accessToken);
             localStorage.setItem("refreshToken", refreshToken);
             localStorage.setItem("fullName", fullName);
@@ -24,6 +25,7 @@ const authSlice = createSlice({
             state.accessToken = "";
             state.refreshToken = "";
             state.fullName = "";
+            state.roleName = "";
             localStorage.removeItem("accessToken");
             localStorage.removeItem("refreshToken");
             localStorage.removeItem("fullName");

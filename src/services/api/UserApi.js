@@ -19,25 +19,10 @@ export const fetchTotalUsers = async () => {
         throw error;
     }
 };
-export const updateUser = async (
-    id,
-    full_name,
-    email,
-    password,
-    role_id,
-    phoneNumber,
-    address,
-    date_of_birth
-) => {
+export const updateUser = async (id, data) => {
     try {
         const response = await api.put(`account/${id}`, {
-            full_name,
-            email,
-            password,
-            role_id,
-            phoneNumber,
-            address,
-            date_of_birth,
+            data,
         });
         return response.data;
     } catch (error) {
