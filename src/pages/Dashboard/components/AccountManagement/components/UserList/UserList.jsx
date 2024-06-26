@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button, Modal, Form, Input, message, Space } from "antd";
+import { Table, Button, Modal, Form, Input, message, Space, DatePicker } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 import { fetchUsers } from "../../../../../../core/store/slices/userSlice";
 import { addUser, updateUser, banUser } from "../../../../../../services/api/UserApi";
@@ -45,6 +45,14 @@ const UserManagement = () => {
             title: "Role",
             dataIndex: ["role_id", "name"],
             key: "roleName",
+
+            filters: [
+                { text: "Admin", value: "Admin" },
+                { text: "Manager", value: "Manager" },
+                { text: "Staff", value: "Staff" },
+                { text: "User", value: "User" },
+            ],
+            onFilter: (value, record) => record.role_id.name === value,
         },
         {
             title: "Role ID",
@@ -56,6 +64,11 @@ const UserManagement = () => {
             dataIndex: "is_active",
             key: "is_active",
             render: (isActive) => (isActive ? "Active" : "Banned"),
+            filters: [
+                { text: "Active", value: true },
+                { text: "Banned", value: null },
+            ],
+            onFilter: (value, record) => record.is_active === value,
         },
         {
             title: "Actions",
@@ -65,7 +78,12 @@ const UserManagement = () => {
                     <Button type="primary" onClick={() => handleEdit(record)}>
                         Edit
                     </Button>
-                    <Button type="primary" danger onClick={() => handleBan(record.id)}>
+                    <Button
+                        type="primary"
+                        danger
+                        onClick={() => handleBan(record.id)}
+                        disabled={record.is_active === null}
+                    >
                         Ban
                     </Button>
                 </Space>
@@ -74,12 +92,10 @@ const UserManagement = () => {
     ];
 
     const handleEdit = (record) => {
-        setSelectedUser(record);
+        setSelectedUser({
+            record,
+        });
         setIsEditModalVisible(true);
-    };
-
-    const handleAdd = () => {
-        setIsAddModalVisible(true);
     };
 
     const handleSaveAdd = async (values) => {
@@ -111,7 +127,7 @@ const UserManagement = () => {
                 { id: values.role_id }, // Chuyển đổi giá trị role_id sang đối tượng
                 values.phone_number,
                 values.address,
-                values.date_of_birth
+                values.date_of_birth.format("YYYY-MM-DD")
             );
             message.success("User updated successfully.");
             setIsEditModalVisible(false);
@@ -130,11 +146,13 @@ const UserManagement = () => {
             message.error("Failed to ban user.");
         }
     };
+
     // Đặt lại selectedUser về null khi đóng modal
     const handleEditModalCancel = () => {
         setIsEditModalVisible(false);
         setSelectedUser(null);
     };
+
     // Kiểm tra userData.users.data là một mảng
     const dataSource = Array.isArray(userData.users.data) ? userData.users.data : [];
 
@@ -145,7 +163,12 @@ const UserManagement = () => {
             </Button> */}
             {/* Hiển thị TotalUser */}
             <TotalUsers />
-            <Table dataSource={dataSource} columns={columns} loading={userData.loading} />
+            <Table
+                dataSource={dataSource}
+                columns={columns}
+                loading={userData.loading}
+                pagination={{ pageSize: 7 }}
+            />
 
             <Modal
                 title="Add Account"
@@ -161,11 +184,7 @@ const UserManagement = () => {
                     >
                         <Input />
                     </Form.Item>
-                    <Form.Item
-                        label="Phone Number"
-                        name="phone_number"
-                        rules={[{ required: true, message: "Please enter a phone number" }]}
-                    >
+                    <Form.Item label="Phone Number" name="phone_number">
                         <Input />
                     </Form.Item>
                     {/* Add more form fields as needed */}
@@ -191,54 +210,26 @@ const UserManagement = () => {
                         }} // Đặt giá trị role_id.id vào trường role_id
                         onFinish={handleSaveEdit}
                     >
-                        <Form.Item
-                            label="Name"
-                            name="full_name"
-                            rules={[{ required: true, message: "Please enter a name" }]}
-                        >
+                        <Form.Item label="Name" name="full_name">
                             <Input />
                         </Form.Item>
-                        <Form.Item
-                            label="Email"
-                            name="email"
-                            rules={[{ required: true, message: "Please enter an email" }]}
-                        >
+                        <Form.Item label="Email" name="email">
                             <Input />
                         </Form.Item>
-                        <Form.Item
-                            label="Password"
-                            name="password"
-                            rules={[{ required: true, message: "Please enter a password" }]}
-                        >
+                        <Form.Item label="Password" name="password">
                             <Input.Password />
                         </Form.Item>
-                        <Form.Item
-                            label="Role ID"
-                            name="role_id"
-                            rules={[{ required: true, message: "Please enter a role ID" }]}
-                        >
+                        <Form.Item label="Role ID" name="role_id">
                             <Input />
                         </Form.Item>
-                        <Form.Item
-                            label="Phone Number"
-                            name="phone_number"
-                            rules={[{ required: true, message: "Please enter a phone number" }]}
-                        >
+                        <Form.Item label="Phone Number" name="phone_number">
                             <Input />
                         </Form.Item>
-                        <Form.Item
-                            label="Address"
-                            name="address"
-                            rules={[{ required: true, message: "Please enter an address" }]}
-                        >
+                        <Form.Item label="Address" name="address">
                             <Input />
                         </Form.Item>
-                        <Form.Item
-                            label="Date of Birth"
-                            name="date_of_birth"
-                            rules={[{ required: true, message: "Please enter a date of birth" }]}
-                        >
-                            <Input />
+                        <Form.Item label="Date of Birth" name="date_of_birth">
+                            <DatePicker />
                         </Form.Item>
                         <Form.Item>
                             <Button type="primary" htmlType="submit">

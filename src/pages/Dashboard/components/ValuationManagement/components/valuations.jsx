@@ -161,6 +161,12 @@ const ValuationManagement = () => {
             title: "Status",
             dataIndex: "status",
             key: "status",
+            filters: [
+                { text: "VALUATING", value: "VALUATING" },
+                { text: "VALUATED", value: "VALUATED" },
+                { text: "REQUEST", value: "REQUEST" },
+            ],
+            onFilter: (value, record) => record.status === value,
         },
         {
             title: "Notes               ",
