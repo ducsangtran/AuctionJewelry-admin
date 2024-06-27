@@ -4,7 +4,7 @@ import { addStaff, getAllStaff } from "../../../../../../services/api/StaffApi";
 import { useSelector, useDispatch } from "react-redux";
 import { fetchAllStaffs } from "../../../../../../core/store/slices/staffSlice";
 import TotalStaff from "./totalStaff";
-import moment from "moment";
+
 const StaffManagement = () => {
     // const [staffData, setStaffData] = useState([]);
     const [isModalVisible, setIsModalVisible] = useState(false);

@@ -41,11 +41,11 @@ export const AppLayout = ({ components }) => {
                       // Chỉ thêm mục này nếu người dùng là Admin
                       getItem("AccountManagement", "sub1", <UserOutlined />, [
                           getItem("User", "1", <Link to="/users"></Link>),
-                          getItem("Total User", "2", <Link to="/totalUser"></Link>),
+                          //   getItem("Total User", "2", <Link to="/totalUser"></Link>),
                           getItem("Staff", "3", <Link to="/staffs"></Link>),
-                          getItem("Total Staff", "4", <Link to="/totalStaffs"></Link>),
+                          //   getItem("Total Staff", "4", <Link to="/totalStaffs"></Link>),
                           getItem("Manager", "5", <Link to="/managers"></Link>),
-                          getItem("Total Manager", "6", <Link to="/totalManagers"></Link>),
+                          //   getItem("Total Manager", "6", <Link to="/totalManagers"></Link>),
                       ]),
                   ]
                 : []), // Nếu không phải Admin thì không thêm gì vào đây

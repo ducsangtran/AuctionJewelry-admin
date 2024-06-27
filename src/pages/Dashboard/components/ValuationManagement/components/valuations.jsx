@@ -1,5 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { Form, Input, Button, Table, Space, Modal, message, Select } from "antd";
+import {
+    Form,
+    Input,
+    Button,
+    Table,
+    Space,
+    Modal,
+    message,
+    Select,
+    Descriptions,
+    Row,
+    Col,
+    Typography,
+} from "antd";
 import {
     deleteValuation,
     editValuating,
@@ -11,9 +24,10 @@ import { useSelector } from "react-redux";
 import moment from "moment";
 import ConfirmDeleteModal from "../../../../../components/form/ConfirmDeleteModal";
 import TextArea from "antd/es/input/TextArea";
+import { getAllStaff } from "../../../../../services/api/StaffApi";
 
 const { Option } = Select;
-
+const { Title } = Typography;
 const ValuationManagement = () => {
     const [form] = Form.useForm();
     const [valuationsData, setValuationsData] = useState([]);
@@ -24,7 +38,7 @@ const ValuationManagement = () => {
     const [deleteId, setDeleteId] = useState(null);
     const [searchStatus, setSearchStatus] = useState(null);
     const [staffIdFilter, setStaffIdFilter] = useState(null);
-
+    const [staffsData, setStaffsData] = useState([]);
     // Fetch user role from Redux store
     const userRole = useSelector((state) => state.auth.roleName);
 
@@ -36,8 +50,18 @@ const ValuationManagement = () => {
         } else {
             fetchMyValuations();
         }
+        fetchAllStaffs();
     }, []);
 
+    const fetchAllStaffs = async () => {
+        try {
+            const response = await getAllStaff();
+            const staffsData = response.data;
+            setStaffsData(staffsData);
+        } catch (error) {
+            message.error("Failed to fetch staff data.");
+        }
+    };
     const fetchAllValuations = async () => {
         try {
             const response = await getAllValuations();
@@ -181,11 +205,7 @@ const ValuationManagement = () => {
             key: "action",
             render: (text, record) => (
                 <Space size="middle">
-                    <Button
-                        onClick={() => handleEdit(record)}
-                        // disabled={record.online}
-                        type="primary"
-                    >
+                    <Button onClick={() => handleEdit(record)} type="primary">
                         Edit
                     </Button>
                     <Button onClick={() => showDeleteModal(record.id)} type="primary" danger>
@@ -198,7 +218,11 @@ const ValuationManagement = () => {
 
     const handleEdit = (record) => {
         setEditingItem(record);
-        form.setFieldsValue(record);
+        form.setFieldsValue({
+            ...record,
+            staffId: record.staff?.id,
+            full_name: record.staff?.full_name,
+        });
         setModalVisible(true);
     };
 
@@ -363,48 +387,104 @@ const ValuationManagement = () => {
             />
 
             <Modal
-                title="Edit Valuation"
+                width={800}
                 open={modalVisible}
                 onOk={handleModalOk}
                 onCancel={handleModalCancel}
             >
-                <Form form={form} onFinish={handleModalOk} initialValues={editingItem}>
-                    <Form.Item label="Address" name="address">
-                        <Input />
-                    </Form.Item>
-                    {userRole === "Manager" || userRole === "Admin" ? (
-                        <Form.Item label="Staff ID" name="staffId">
-                            <Input />
-                        </Form.Item>
-                    ) : null}
-                    <Form.Item label="Valuation Value" name="valuation_value">
-                        <Input />
-                    </Form.Item>
-                    <Form.Item label="Notes" name="notes">
-                        <TextArea rows={4} />
-                    </Form.Item>
-                    <Form.Item
-                        label="Status"
-                        name="status"
-                        rules={[{ required: true, message: "Please select your status!" }]}
-                    >
-                        <Select placeholder="Select your status">
-                            {userRole === "Staff" && <Option value="VALUATING">VALUATING</Option>}
-                            {userRole === "Admin" || userRole === "Manager" ? (
-                                <>
-                                    <Option value="VALUATED">VALUATED</Option>
-                                    <Option value="REJECTED">REJECTED</Option>
-                                </>
-                            ) : (
-                                <Option value="VALUATING">VALUATING</Option>
-                            )}
-                        </Select>
-                    </Form.Item>
-                    <Form.Item label="Payment Method" name="paymentMethod">
-                        <Input />
-                    </Form.Item>
-                </Form>
+                {editingItem && editingItem.jewelry && (
+                    <Row gutter={16}>
+                        <Col span={12}>
+                            <Descriptions title="Jewelry Details" bordered column={2}>
+                                <Descriptions.Item label="Name" span={2}>
+                                    {editingItem.jewelry.name}
+                                </Descriptions.Item>
+                                {/* <Descriptions.Item label="Image" span={2}>
+                                    {editingItem.jewelry.jewelryImages.url}
+                                </Descriptions.Item> */}
+                                <Descriptions.Item label="Material" span={2}>
+                                    {editingItem.jewelry.jewelryMaterials[0]?.material.name}
+                                </Descriptions.Item>
+                                <Descriptions.Item label="Material Weight" span={2}>
+                                    {editingItem.jewelry.jewelryMaterials[0]?.weight}
+                                </Descriptions.Item>
+                                <Descriptions.Item label="Description" span={2}>
+                                    {editingItem.jewelry.description}
+                                </Descriptions.Item>
+                                <Descriptions.Item label="Jewelry Condition" span={2}>
+                                    {editingItem.jewelry.jewelryCondition}
+                                </Descriptions.Item>
+                                <Descriptions.Item label="Sex" span={2}>
+                                    {editingItem.jewelry.sex}
+                                </Descriptions.Item>
+
+                                <Descriptions.Item label="Status " span={2}>
+                                    {editingItem.jewelry.status}
+                                </Descriptions.Item>
+                                <Descriptions.Item label="Jewelry Weight" span={2}>
+                                    {editingItem.jewelry.weight}
+                                </Descriptions.Item>
+                                <Descriptions.Item label="Brand" span={2}>
+                                    {editingItem.jewelry.brand.name}
+                                </Descriptions.Item>
+                                <Descriptions.Item label="Category" span={2}>
+                                    {editingItem.jewelry.category.name}
+                                </Descriptions.Item>
+                                <Descriptions.Item label="Collection" span={2}>
+                                    {editingItem.jewelry.collection.name}
+                                </Descriptions.Item>
+                            </Descriptions>
+                        </Col>
+                        <Col span={12}>
+                            <Title level={4}>Edit Valuation</Title>
+                            <Form form={form} onFinish={handleModalOk} initialValues={editingItem}>
+                                {userRole === "Manager" || userRole === "Admin" ? (
+                                    <Form.Item label="Staff" name="staffId">
+                                        <Select placeholder="Select a Staff">
+                                            {staffsData.map((staff) => (
+                                                <Option key={staff.id} value={staff.id}>
+                                                    {staff.full_name}
+                                                </Option>
+                                            ))}
+                                        </Select>
+                                    </Form.Item>
+                                ) : null}
+                                <Form.Item label="Valuation Value" name="valuation_value">
+                                    <Input />
+                                </Form.Item>
+                                <Form.Item label="Notes" name="notes">
+                                    <TextArea rows={4} />
+                                </Form.Item>
+                                <Form.Item
+                                    label="Status"
+                                    name="status"
+                                    rules={[
+                                        { required: true, message: "Please select your status!" },
+                                    ]}
+                                >
+                                    <Select placeholder="Select your status">
+                                        {userRole === "Staff" && (
+                                            <Option value="VALUATING">VALUATING</Option>
+                                        )}
+                                        {userRole === "Admin" || userRole === "Manager" ? (
+                                            <>
+                                                <Option value="VALUATED">VALUATED</Option>
+                                                <Option value="REJECTED">REJECTED</Option>
+                                            </>
+                                        ) : (
+                                            <Option value="VALUATING">VALUATING</Option>
+                                        )}
+                                    </Select>
+                                </Form.Item>
+                                <Form.Item label="Payment Method" name="paymentMethod">
+                                    <Input />
+                                </Form.Item>
+                            </Form>
+                        </Col>
+                    </Row>
+                )}
             </Modal>
+
             <ConfirmDeleteModal
                 visible={deleteModalVisible}
                 onConfirm={handleConfirmDelete}
