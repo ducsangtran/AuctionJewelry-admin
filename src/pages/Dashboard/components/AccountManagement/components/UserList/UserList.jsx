@@ -62,11 +62,7 @@ const UserManagement = () => {
             filters: rolesData.map((role) => ({ text: role.name, value: role.name })),
             onFilter: (value, record) => record.role_id.name === value,
         },
-        {
-            title: "Role ID",
-            dataIndex: ["role_id", "id"],
-            key: "role_id",
-        },
+
         {
             title: "Is Active",
             dataIndex: "is_active",
@@ -86,12 +82,7 @@ const UserManagement = () => {
                     <Button type="primary" onClick={() => handleEdit(record)}>
                         Edit
                     </Button>
-                    <Button
-                        type="primary"
-                        danger
-                        onClick={() => handleBan(record.id)}
-                        disabled={record.is_active === false}
-                    >
+                    <Button type="primary" danger onClick={() => handleBan(record.id)} disabled={record.is_active === false}>
                         Ban
                     </Button>
                 </Space>
@@ -107,15 +98,7 @@ const UserManagement = () => {
 
     const handleSaveAdd = async (values) => {
         try {
-            await addUser(
-                values.full_name,
-                values.email,
-                values.password,
-                values.roleId,
-                values.phone_number,
-                values.address,
-                values.date_of_birth.format("YYYY-MM-DD")
-            );
+            await addUser(values.full_name, values.email, values.password, values.roleId, values.phone_number, values.address, values.date_of_birth.format("YYYY-MM-DD"));
             message.success("User added successfully.");
             setIsAddModalVisible(false);
             dispatch(fetchUsers()); // Refresh the user list
@@ -165,27 +148,15 @@ const UserManagement = () => {
     return (
         <div>
             <TotalUsers />
-            <Table
-                dataSource={dataSource}
-                columns={columns}
-                loading={userData.loading}
-                pagination={{ pageSize: 7 }}
-            />
+            <Table dataSource={dataSource} columns={columns} loading={userData.loading} pagination={{ pageSize: 7 }} />
 
             {selectedUser && (
-                <Modal
-                    title="Edit Account"
-                    visible={isEditModalVisible}
-                    onCancel={() => handleEditModalCancel()}
-                    footer={null}
-                >
+                <Modal title="Edit Account" visible={isEditModalVisible} onCancel={() => handleEditModalCancel()} footer={null}>
                     <Form
                         initialValues={{
                             ...selectedUser,
                             roleId: selectedUser.role_id ? selectedUser.role_id.id : null,
-                            date_of_birth: selectedUser.date_of_birth
-                                ? dayjs(selectedUser.date_of_birth)
-                                : null,
+                            date_of_birth: selectedUser.date_of_birth ? dayjs(selectedUser.date_of_birth) : null,
                         }}
                         onFinish={handleSaveEdit}
                     >
