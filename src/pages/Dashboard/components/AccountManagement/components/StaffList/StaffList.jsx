@@ -4,7 +4,7 @@ import { addStaff, getAllStaff } from "../../../../../../services/api/StaffApi";
 import { useSelector, useDispatch } from "react-redux";
 import { fetchAllStaffs } from "../../../../../../core/store/slices/staffSlice";
 import TotalStaff from "./totalStaff";
-import moment from "moment";
+
 const StaffManagement = () => {
     // const [staffData, setStaffData] = useState([]);
     const [isModalVisible, setIsModalVisible] = useState(false);
@@ -54,20 +54,20 @@ const StaffManagement = () => {
         },
 
         // Add more columns as needed (e.g., email, role, etc.)
-        {
-            title: "Actions",
-            key: "actions",
-            render: (_, record) => (
-                <Space size="middle">
-                    <Button type="primary" onClick={() => handleEdit(record)}>
-                        Edit
-                    </Button>
-                    <Button type="primary" danger onClick={() => handleDelete(record)}>
-                        Delete
-                    </Button>
-                </Space>
-            ),
-        },
+        // {
+        //     title: "Actions",
+        //     key: "actions",
+        //     render: (_, record) => (
+        //         <Space size="middle">
+        //             {/* <Button type="primary" onClick={() => handleEdit(record)}>
+        //                 Edit
+        //             </Button> */}
+        //             <Button type="primary" danger onClick={() => handleDelete(record)}>
+        //                 Delete
+        //             </Button>
+        //         </Space>
+        //     ),
+        // },
     ];
 
     const handleEdit = (record) => {
@@ -137,7 +137,7 @@ const StaffManagement = () => {
                         name="password"
                         rules={[{ required: true, message: "Please enter a password" }]}
                     >
-                        <Input />
+                        <Input.Password />
                     </Form.Item>
 
                     <Form.Item

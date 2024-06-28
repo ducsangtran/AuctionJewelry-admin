@@ -106,6 +106,7 @@ export const MaterialsManagement = () => {
     const columns = [
         { title: "ID", dataIndex: "id", key: "id" },
         { title: "Name", dataIndex: "name", key: "name" },
+        { title: "Unit", dataIndex: "unit", key: "unit" },
         {
             title: "Created At",
             dataIndex: "createdAt",

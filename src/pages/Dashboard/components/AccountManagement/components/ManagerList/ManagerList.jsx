@@ -33,15 +33,16 @@ const ManagerManagement = () => {
             key: "full_name",
         },
         {
+            title: "Email",
+            dataIndex: "email",
+            key: "email",
+        },
+        {
             title: "Phone Number",
             dataIndex: "phone_number",
             key: "phone_number",
         },
-        {
-            title: "Email",
-            dataIndex: "phone_number",
-            key: "phone_number",
-        },
+
         {
             title: "Role",
             dataIndex: ["role_id", "name"],
@@ -53,15 +54,15 @@ const ManagerManagement = () => {
             key: "roleName",
         },
 
-        {
-            title: "Actions",
-            key: "actions",
-            render: (_, record) => (
-                <Button type="link" onClick={() => handleEdit(record)}>
-                    Edit
-                </Button>
-            ),
-        },
+        // {
+        //     title: "Actions",
+        //     key: "actions",
+        //     render: (_, record) => (
+        //         <Button type="link" onClick={() => handleEdit(record)}>
+        //             Edit
+        //         </Button>
+        //     ),
+        // },
     ];
 
     const handleEdit = (record) => {
@@ -128,7 +129,7 @@ const ManagerManagement = () => {
                         name="password"
                         rules={[{ required: true, message: "Please enter a password" }]}
                     >
-                        <Input />
+                        <Input.Password />
                     </Form.Item>
 
                     <Form.Item

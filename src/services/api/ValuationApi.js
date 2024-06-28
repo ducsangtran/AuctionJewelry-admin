@@ -1,7 +1,5 @@
 import api from "../../config/axios";
 
-const API_BASE_URL = "http://apijewelryauction.techx.id.vn:8081";
-
 const getAllValuations = async () => {
     try {
         const response = await api.get(`valuating`);
@@ -23,10 +21,27 @@ const getMyValuations = async () => {
     }
 };
 
-const editValuating = async (id, data) => {
+const editValuating = async (
+    id,
+    address,
+    staffId,
+    valuation_value,
+    notes,
+    status,
+    desiredPrice,
+    paymentMethod,
+    valuatingMethod
+) => {
     try {
         const response = await api.put(`valuating/${id}`, {
-            data,
+            address,
+            staffId,
+            valuation_value,
+            notes,
+            status,
+            desiredPrice,
+            paymentMethod,
+            valuatingMethod,
         });
         return response.data;
     } catch (error) {

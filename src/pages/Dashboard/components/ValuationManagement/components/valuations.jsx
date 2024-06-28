@@ -1,19 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Form, Input, Button, Table, Space, Modal, message, Select } from "antd";
-import {
-    deleteValuation,
-    editValuating,
-    getAllValuations,
-    getMyValuations,
-    searchValuationById,
-} from "../../../../../services/api/ValuationApi";
+import { Form, Input, Button, Table, Space, Modal, message, Select, Descriptions, Row, Col, Typography } from "antd";
+import { deleteValuation, editValuating, getAllValuations, getMyValuations, searchValuationById } from "../../../../../services/api/ValuationApi";
 import { useSelector } from "react-redux";
 import moment from "moment";
 import ConfirmDeleteModal from "../../../../../components/form/ConfirmDeleteModal";
 import TextArea from "antd/es/input/TextArea";
+import { getAllStaff } from "../../../../../services/api/StaffApi";
 
 const { Option } = Select;
-
+const { Title } = Typography;
 const ValuationManagement = () => {
     const [form] = Form.useForm();
     const [valuationsData, setValuationsData] = useState([]);
@@ -24,7 +19,7 @@ const ValuationManagement = () => {
     const [deleteId, setDeleteId] = useState(null);
     const [searchStatus, setSearchStatus] = useState(null);
     const [staffIdFilter, setStaffIdFilter] = useState(null);
-
+    const [staffsData, setStaffsData] = useState([]);
     // Fetch user role from Redux store
     const userRole = useSelector((state) => state.auth.roleName);
 
@@ -36,8 +31,18 @@ const ValuationManagement = () => {
         } else {
             fetchMyValuations();
         }
+        fetchAllStaffs();
     }, []);
 
+    const fetchAllStaffs = async () => {
+        try {
+            const response = await getAllStaff();
+            const staffsData = response.data;
+            setStaffsData(staffsData);
+        } catch (error) {
+            message.error("Failed to fetch staff data.");
+        }
+    };
     const fetchAllValuations = async () => {
         try {
             const response = await getAllValuations();
@@ -78,9 +83,7 @@ const ValuationManagement = () => {
         }
 
         try {
-            const filteredData = (
-                userRole === "Manager" || userRole === "Admin" ? valuationsData : myValuationsData
-            ).filter((item) => item.staff && item.staff.id === staffId);
+            const filteredData = (userRole === "Manager" || userRole === "Admin" ? valuationsData : myValuationsData).filter((item) => item.staff && item.staff.id === staffId);
             if (userRole === "Manager" || userRole === "Admin") {
                 setValuationsData(filteredData);
             } else {
@@ -161,25 +164,25 @@ const ValuationManagement = () => {
             title: "Status",
             dataIndex: "status",
             key: "status",
+            filters: [
+                { text: "VALUATING", value: "VALUATING" },
+                { text: "VALUATED", value: "VALUATED" },
+                { text: "REQUEST", value: "REQUEST" },
+            ],
+            onFilter: (value, record) => record.status === value,
         },
         {
             title: "Notes               ",
             dataIndex: "notes",
             key: "notes",
-            render: (text) => (
-                <span title={text}>{text.length > 30 ? `${text.substring(0, 30)}...` : text}</span>
-            ),
+            render: (text) => <span title={text}>{text.length > 30 ? `${text.substring(0, 30)}...` : text}</span>,
         },
         {
             title: "Action",
             key: "action",
             render: (text, record) => (
                 <Space size="middle">
-                    <Button
-                        onClick={() => handleEdit(record)}
-                        // disabled={record.online}
-                        type="primary"
-                    >
+                    <Button onClick={() => handleEdit(record)} type="primary">
                         Edit
                     </Button>
                     <Button onClick={() => showDeleteModal(record.id)} type="primary" danger>
@@ -192,7 +195,11 @@ const ValuationManagement = () => {
 
     const handleEdit = (record) => {
         setEditingItem(record);
-        form.setFieldsValue(record);
+        form.setFieldsValue({
+            ...record,
+            staffId: record.staff?.id,
+            full_name: record.staff?.full_name,
+        });
         setModalVisible(true);
     };
 
@@ -234,33 +241,11 @@ const ValuationManagement = () => {
     const handleModalOk = async () => {
         try {
             const values = await form.validateFields();
-            const {
-                id,
-                address,
-                staffId,
-                valuation_value,
-                notes,
-                status,
-                desiredPrice,
-                paymentMethod,
-                valuatingMethod,
-            } = values;
+            const { id, address, staffId, valuation_value, notes, status, desiredPrice, paymentMethod, valuatingMethod } = values;
 
-            const UpdatedItem = await editValuating(
-                editingItem.id,
-                address,
-                staffId,
-                valuation_value,
-                notes,
-                status,
-                desiredPrice,
-                paymentMethod,
-                valuatingMethod
-            );
+            const UpdatedItem = await editValuating(editingItem.id, address, staffId, valuation_value, notes, status, desiredPrice, paymentMethod, valuatingMethod);
 
-            const updatedData = (
-                userRole === "Manager" || userRole === "Admin" ? valuationsData : myValuationsData
-            ).map((item) => (item.id === UpdatedItem.id ? UpdatedItem : item));
+            const updatedData = (userRole === "Manager" || userRole === "Admin" ? valuationsData : myValuationsData).map((item) => (item.id === UpdatedItem.id ? UpdatedItem : item));
 
             if (userRole === "Manager" || userRole === "Admin") {
                 setValuationsData(updatedData);
@@ -328,16 +313,8 @@ const ValuationManagement = () => {
         <div>
             <Space style={{ marginBottom: 16 }}>
                 <Input.Search placeholder="Search valuations" onSearch={onSearch} enterButton />
-                <Select
-                    placeholder="Filter by Staff ID"
-                    onChange={handleStaffIdFilterChange}
-                    allowClear
-                    style={{ width: 200 }}
-                >
-                    {(userRole === "Manager" || userRole === "Admin"
-                        ? valuationsData
-                        : myValuationsData
-                    )
+                <Select placeholder="Filter by Staff ID" onChange={handleStaffIdFilterChange} allowClear style={{ width: 200 }}>
+                    {(userRole === "Manager" || userRole === "Admin" ? valuationsData : myValuationsData)
                         .filter((valuation) => valuation.staff)
                         .map((valuation) => (
                             <Option key={valuation.staff.id} value={valuation.staff.id}>
@@ -346,64 +323,95 @@ const ValuationManagement = () => {
                         ))}
                 </Select>
             </Space>
-            <Table
-                columns={columns}
-                dataSource={
-                    userRole === "Manager" || userRole === "Admin"
-                        ? valuationsData
-                        : myValuationsData
-                }
-                rowKey="id"
-            />
+            <Table columns={columns} dataSource={userRole === "Manager" || userRole === "Admin" ? valuationsData : myValuationsData} rowKey="id" />
 
-            <Modal
-                title="Edit Valuation"
-                open={modalVisible}
-                onOk={handleModalOk}
-                onCancel={handleModalCancel}
-            >
-                <Form form={form} onFinish={handleModalOk} initialValues={editingItem}>
-                    <Form.Item label="Address" name="address">
-                        <Input />
-                    </Form.Item>
-                    {userRole === "Manager" || userRole === "Admin" ? (
-                        <Form.Item label="Staff ID" name="staffId">
-                            <Input />
-                        </Form.Item>
-                    ) : null}
-                    <Form.Item label="Valuation Value" name="valuation_value">
-                        <Input />
-                    </Form.Item>
-                    <Form.Item label="Notes" name="notes">
-                        <TextArea rows={4} />
-                    </Form.Item>
-                    <Form.Item
-                        label="Status"
-                        name="status"
-                        rules={[{ required: true, message: "Please select your status!" }]}
-                    >
-                        <Select placeholder="Select your status">
-                            {userRole === "Staff" && <Option value="VALUATING">VALUATING</Option>}
-                            {userRole === "Admin" || userRole === "Manager" ? (
-                                <>
-                                    <Option value="VALUATED">VALUATED</Option>
-                                    <Option value="REJECTED">REJECTED</Option>
-                                </>
-                            ) : (
-                                <Option value="VALUATING">VALUATING</Option>
-                            )}
-                        </Select>
-                    </Form.Item>
-                    <Form.Item label="Payment Method" name="paymentMethod">
-                        <Input />
-                    </Form.Item>
-                </Form>
+            <Modal width={800} open={modalVisible} onOk={handleModalOk} onCancel={handleModalCancel}>
+                {editingItem && editingItem.jewelry && (
+                    <Row gutter={16}>
+                        <Col span={12}>
+                            <Descriptions title="Jewelry Details" bordered column={2}>
+                                <Descriptions.Item label="Name" span={2}>
+                                    {editingItem.jewelry.name}
+                                </Descriptions.Item>
+                                {/* <Descriptions.Item label="Image" span={2}>
+                                    {editingItem.jewelry.jewelryImages.url}
+                                </Descriptions.Item> */}
+                                <Descriptions.Item label="Material" span={2}>
+                                    {editingItem.jewelry.jewelryMaterials[0]?.material.name}
+                                </Descriptions.Item>
+                                <Descriptions.Item label="Material Weight" span={2}>
+                                    {editingItem.jewelry.jewelryMaterials[0]?.weight}
+                                </Descriptions.Item>
+                                <Descriptions.Item label="Description" span={2}>
+                                    {editingItem.jewelry.description}
+                                </Descriptions.Item>
+                                <Descriptions.Item label="Jewelry Condition" span={2}>
+                                    {editingItem.jewelry.jewelryCondition}
+                                </Descriptions.Item>
+                                <Descriptions.Item label="Sex" span={2}>
+                                    {editingItem.jewelry.sex}
+                                </Descriptions.Item>
+
+                                <Descriptions.Item label="Status " span={2}>
+                                    {editingItem.jewelry.status}
+                                </Descriptions.Item>
+                                <Descriptions.Item label="Jewelry Weight" span={2}>
+                                    {editingItem.jewelry.weight}
+                                </Descriptions.Item>
+                                <Descriptions.Item label="Brand" span={2}>
+                                    {editingItem.jewelry.brand.name}
+                                </Descriptions.Item>
+                                <Descriptions.Item label="Category" span={2}>
+                                    {editingItem.jewelry.category.name}
+                                </Descriptions.Item>
+                                <Descriptions.Item label="Collection" span={2}>
+                                    {editingItem.jewelry.collection.name}
+                                </Descriptions.Item>
+                            </Descriptions>
+                        </Col>
+                        <Col span={12}>
+                            <Title level={4}>Edit Valuation</Title>
+                            <Form form={form} onFinish={handleModalOk} initialValues={editingItem}>
+                                {userRole === "Manager" || userRole === "Admin" ? (
+                                    <Form.Item label="Staff" name="staffId">
+                                        <Select placeholder="Select a Staff">
+                                            {staffsData.map((staff) => (
+                                                <Option key={staff.id} value={staff.id}>
+                                                    {staff.full_name}
+                                                </Option>
+                                            ))}
+                                        </Select>
+                                    </Form.Item>
+                                ) : null}
+                                <Form.Item label="Valuation Value" name="valuation_value">
+                                    <Input />
+                                </Form.Item>
+                                <Form.Item label="Notes" name="notes">
+                                    <TextArea rows={4} />
+                                </Form.Item>
+                                <Form.Item label="Status" name="status" rules={[{ required: true, message: "Please select your status!" }]}>
+                                    <Select placeholder="Select your status">
+                                        {userRole === "Staff" && <Option value="VALUATING">VALUATING</Option>}
+                                        {userRole === "Admin" || userRole === "Manager" ? (
+                                            <>
+                                                <Option value="VALUATED">VALUATED</Option>
+                                                <Option value="REJECTED">REJECTED</Option>
+                                            </>
+                                        ) : (
+                                            <Option value="VALUATING">VALUATING</Option>
+                                        )}
+                                    </Select>
+                                </Form.Item>
+                                <Form.Item label="Payment Method" name="paymentMethod">
+                                    <Input />
+                                </Form.Item>
+                            </Form>
+                        </Col>
+                    </Row>
+                )}
             </Modal>
-            <ConfirmDeleteModal
-                visible={deleteModalVisible}
-                onConfirm={handleConfirmDelete}
-                onCancel={handleCancelDelete}
-            />
+
+            <ConfirmDeleteModal visible={deleteModalVisible} onConfirm={handleConfirmDelete} onCancel={handleCancelDelete} />
         </div>
     );
 };
