@@ -1,25 +1,6 @@
 import React, { useState, useEffect } from "react";
-import {
-    Form,
-    Input,
-    Button,
-    Table,
-    Space,
-    Modal,
-    message,
-    Select,
-    Descriptions,
-    Row,
-    Col,
-    Typography,
-} from "antd";
-import {
-    deleteValuation,
-    editValuating,
-    getAllValuations,
-    getMyValuations,
-    searchValuationById,
-} from "../../../../../services/api/ValuationApi";
+import { Form, Input, Button, Table, Space, Modal, message, Select, Descriptions, Row, Col, Typography } from "antd";
+import { deleteValuation, editValuating, getAllValuations, getMyValuations, searchValuationById } from "../../../../../services/api/ValuationApi";
 import { useSelector } from "react-redux";
 import moment from "moment";
 import ConfirmDeleteModal from "../../../../../components/form/ConfirmDeleteModal";
@@ -102,9 +83,7 @@ const ValuationManagement = () => {
         }
 
         try {
-            const filteredData = (
-                userRole === "Manager" || userRole === "Admin" ? valuationsData : myValuationsData
-            ).filter((item) => item.staff && item.staff.id === staffId);
+            const filteredData = (userRole === "Manager" || userRole === "Admin" ? valuationsData : myValuationsData).filter((item) => item.staff && item.staff.id === staffId);
             if (userRole === "Manager" || userRole === "Admin") {
                 setValuationsData(filteredData);
             } else {
@@ -196,9 +175,7 @@ const ValuationManagement = () => {
             title: "Notes               ",
             dataIndex: "notes",
             key: "notes",
-            render: (text) => (
-                <span title={text}>{text.length > 30 ? `${text.substring(0, 30)}...` : text}</span>
-            ),
+            render: (text) => <span title={text}>{text.length > 30 ? `${text.substring(0, 30)}...` : text}</span>,
         },
         {
             title: "Action",
@@ -264,33 +241,11 @@ const ValuationManagement = () => {
     const handleModalOk = async () => {
         try {
             const values = await form.validateFields();
-            const {
-                id,
-                address,
-                staffId,
-                valuation_value,
-                notes,
-                status,
-                desiredPrice,
-                paymentMethod,
-                valuatingMethod,
-            } = values;
+            const { id, address, staffId, valuation_value, notes, status, desiredPrice, paymentMethod, valuatingMethod } = values;
 
-            const UpdatedItem = await editValuating(
-                editingItem.id,
-                address,
-                staffId,
-                valuation_value,
-                notes,
-                status,
-                desiredPrice,
-                paymentMethod,
-                valuatingMethod
-            );
+            const UpdatedItem = await editValuating(editingItem.id, address, staffId, valuation_value, notes, status, desiredPrice, paymentMethod, valuatingMethod);
 
-            const updatedData = (
-                userRole === "Manager" || userRole === "Admin" ? valuationsData : myValuationsData
-            ).map((item) => (item.id === UpdatedItem.id ? UpdatedItem : item));
+            const updatedData = (userRole === "Manager" || userRole === "Admin" ? valuationsData : myValuationsData).map((item) => (item.id === UpdatedItem.id ? UpdatedItem : item));
 
             if (userRole === "Manager" || userRole === "Admin") {
                 setValuationsData(updatedData);
@@ -358,16 +313,8 @@ const ValuationManagement = () => {
         <div>
             <Space style={{ marginBottom: 16 }}>
                 <Input.Search placeholder="Search valuations" onSearch={onSearch} enterButton />
-                <Select
-                    placeholder="Filter by Staff ID"
-                    onChange={handleStaffIdFilterChange}
-                    allowClear
-                    style={{ width: 200 }}
-                >
-                    {(userRole === "Manager" || userRole === "Admin"
-                        ? valuationsData
-                        : myValuationsData
-                    )
+                <Select placeholder="Filter by Staff ID" onChange={handleStaffIdFilterChange} allowClear style={{ width: 200 }}>
+                    {(userRole === "Manager" || userRole === "Admin" ? valuationsData : myValuationsData)
                         .filter((valuation) => valuation.staff)
                         .map((valuation) => (
                             <Option key={valuation.staff.id} value={valuation.staff.id}>
@@ -376,22 +323,9 @@ const ValuationManagement = () => {
                         ))}
                 </Select>
             </Space>
-            <Table
-                columns={columns}
-                dataSource={
-                    userRole === "Manager" || userRole === "Admin"
-                        ? valuationsData
-                        : myValuationsData
-                }
-                rowKey="id"
-            />
+            <Table columns={columns} dataSource={userRole === "Manager" || userRole === "Admin" ? valuationsData : myValuationsData} rowKey="id" />
 
-            <Modal
-                width={800}
-                open={modalVisible}
-                onOk={handleModalOk}
-                onCancel={handleModalCancel}
-            >
+            <Modal width={800} open={modalVisible} onOk={handleModalOk} onCancel={handleModalCancel}>
                 {editingItem && editingItem.jewelry && (
                     <Row gutter={16}>
                         <Col span={12}>
@@ -455,17 +389,9 @@ const ValuationManagement = () => {
                                 <Form.Item label="Notes" name="notes">
                                     <TextArea rows={4} />
                                 </Form.Item>
-                                <Form.Item
-                                    label="Status"
-                                    name="status"
-                                    rules={[
-                                        { required: true, message: "Please select your status!" },
-                                    ]}
-                                >
+                                <Form.Item label="Status" name="status" rules={[{ required: true, message: "Please select your status!" }]}>
                                     <Select placeholder="Select your status">
-                                        {userRole === "Staff" && (
-                                            <Option value="VALUATING">VALUATING</Option>
-                                        )}
+                                        {userRole === "Staff" && <Option value="VALUATING">VALUATING</Option>}
                                         {userRole === "Admin" || userRole === "Manager" ? (
                                             <>
                                                 <Option value="VALUATED">VALUATED</Option>
@@ -485,11 +411,7 @@ const ValuationManagement = () => {
                 )}
             </Modal>
 
-            <ConfirmDeleteModal
-                visible={deleteModalVisible}
-                onConfirm={handleConfirmDelete}
-                onCancel={handleCancelDelete}
-            />
+            <ConfirmDeleteModal visible={deleteModalVisible} onConfirm={handleConfirmDelete} onCancel={handleCancelDelete} />
         </div>
     );
 };
