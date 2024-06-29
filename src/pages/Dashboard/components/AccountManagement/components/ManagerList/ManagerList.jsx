@@ -26,6 +26,8 @@ const ManagerManagement = () => {
             title: "ID",
             dataIndex: ["id"],
             key: "id",
+            sorter: (a, b) => a.id - b.id,
+            sortDirections: ["ascend", "descend"],
         },
         {
             title: "Name",
@@ -103,54 +105,25 @@ const ManagerManagement = () => {
             <TotalManager />
             <Table dataSource={dataSource} columns={columns} loading={managerData.loading} />
 
-            <Modal
-                title="Add Account"
-                visible={isModalVisible}
-                onCancel={() => setIsModalVisible(false)}
-                footer={null}
-            >
+            <Modal title="Add Account" visible={isModalVisible} onCancel={() => setIsModalVisible(false)} footer={null}>
                 <Form onFinish={handleSave}>
-                    <Form.Item
-                        label="Name"
-                        name="full_name"
-                        rules={[{ required: true, message: "Please enter a name" }]}
-                    >
+                    <Form.Item label="Name" name="full_name" rules={[{ required: true, message: "Please enter a name" }]}>
                         <Input />
                     </Form.Item>
-                    <Form.Item
-                        label="Email"
-                        name="email"
-                        rules={[{ required: true, message: "Please enter an email" }]}
-                    >
+                    <Form.Item label="Email" name="email" rules={[{ required: true, message: "Please enter an email" }]}>
                         <Input />
                     </Form.Item>
-                    <Form.Item
-                        label="Password"
-                        name="password"
-                        rules={[{ required: true, message: "Please enter a password" }]}
-                    >
+                    <Form.Item label="Password" name="password" rules={[{ required: true, message: "Please enter a password" }]}>
                         <Input.Password />
                     </Form.Item>
 
-                    <Form.Item
-                        label="Phone Number"
-                        name="phone_number"
-                        rules={[{ required: true, message: "Please enter a phone number" }]}
-                    >
+                    <Form.Item label="Phone Number" name="phone_number" rules={[{ required: true, message: "Please enter a phone number" }]}>
                         <Input />
                     </Form.Item>
-                    <Form.Item
-                        label="Address"
-                        name="address"
-                        rules={[{ required: true, message: "Please enter an address" }]}
-                    >
+                    <Form.Item label="Address" name="address" rules={[{ required: true, message: "Please enter an address" }]}>
                         <Input />
                     </Form.Item>
-                    <Form.Item
-                        label="Date Of Birth"
-                        name="date_of_birth"
-                        rules={[{ required: true, message: "Please enter date of birth" }]}
-                    >
+                    <Form.Item label="Date Of Birth" name="date_of_birth" rules={[{ required: true, message: "Please enter date of birth" }]}>
                         <DatePicker />
                     </Form.Item>
                     {/* Add more form fields as needed */}

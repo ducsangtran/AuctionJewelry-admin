@@ -97,7 +97,7 @@ const BrandsManagement = () => {
         return `${year}-${month}-${day} ${hours}:${minutes}`;
     };
     const columns = [
-        { title: "ID", dataIndex: "id", key: "id" },
+        { title: "ID", dataIndex: "id", key: "id", sorter: (a, b) => a.id - b.id, sortDirections: ["ascend", "descend"] },
         { title: "Name", dataIndex: "name", key: "name" },
         {
             title: "Created At",
@@ -111,7 +111,7 @@ const BrandsManagement = () => {
             dataIndex: "updatedAt",
             key: "updatedAt",
             render: (text) => formatDateTime(text),
-            sorter: (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
+            sorter: (a, b) => new Date(a.updatedAt) - new Date(b.updatedAt),
         },
         {
             title: "Action",

@@ -43,12 +43,15 @@ const AuctionManagement = () => {
             title: "ID",
             dataIndex: "id",
             key: "id",
+            sorter: (a, b) => a.id - b.id,
+            sortDirections: ["ascend", "descend"],
         },
         {
             title: "Created At",
             dataIndex: "createdAt",
             key: "createdAt",
             render: (text) => formatDateTime(text),
+            sorter: (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
         },
         {
             title: "Jewelry",
@@ -59,18 +62,22 @@ const AuctionManagement = () => {
             title: "Current Price",
             dataIndex: "currentPrice",
             key: "currentPrice",
+            sorter: (a, b) => a.currentPrice - b.currentPrice,
+            sortDirections: ["ascend", "descend"],
         },
         {
             title: "Start Time",
             dataIndex: "startTime",
             key: "startTime",
             render: (text) => formatDateTime(text),
+            sorter: (a, b) => new Date(a.startTime) - new Date(b.startTime),
         },
         {
             title: "End Time",
             dataIndex: "endTime",
             key: "endTime",
             render: (text) => formatDateTime(text),
+            sorter: (a, b) => new Date(a.endTime) - new Date(b.endTime),
         },
         {
             title: "Status",
@@ -97,6 +104,7 @@ const AuctionManagement = () => {
             dataIndex: "updatedAt",
             key: "updatedAt",
             render: (text) => formatDateTime(text),
+            sorter: (a, b) => new Date(a.updatedAt) - new Date(b.updatedAt),
         },
         {
             title: "Winner",

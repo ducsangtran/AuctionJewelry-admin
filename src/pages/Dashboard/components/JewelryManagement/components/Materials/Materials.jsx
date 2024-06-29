@@ -111,7 +111,7 @@ export const MaterialsManagement = () => {
             dataIndex: "updatedAt",
             key: "updatedAt",
             render: (text) => formatDateTime(text),
-            sorter: (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
+            sorter: (a, b) => new Date(a.updatedAt) - new Date(b.updatedAt),
         },
         {
             title: "Action",

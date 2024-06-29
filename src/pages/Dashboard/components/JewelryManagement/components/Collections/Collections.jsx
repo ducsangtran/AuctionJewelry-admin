@@ -123,7 +123,7 @@ const CollectionsManagement = () => {
             dataIndex: "updatedAt",
             key: "updated_at",
             render: (text) => formatDateTime(text),
-            sorter: (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
+            sorter: (a, b) => new Date(a.updatedAt) - new Date(b.updatedAt),
         },
         {
             title: "Action",
