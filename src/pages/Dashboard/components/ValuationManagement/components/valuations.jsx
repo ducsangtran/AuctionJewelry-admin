@@ -164,10 +164,13 @@ const ValuationManagement = () => {
             title: "Staff Name",
             dataIndex: ["staff", "full_name"],
             key: "staffName",
-            filters: staffsData.map((staff) => ({
-                text: staff.full_name,
-                value: staff.id,
-            })),
+            filters:
+                userRole === "Admin" || userRole === "Manager"
+                    ? staffsData.map((staff) => ({
+                          text: staff.full_name,
+                          value: staff.id,
+                      }))
+                    : [],
             onFilter: (value, record) => record.staff && record.staff.id === value,
         },
         // {
