@@ -1,12 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Table, Button, Modal, Form, Input, Select, message, Space } from "antd";
-import {
-    getAllCollections,
-    createCollection,
-    updateCollection,
-    deleteCollection,
-    getCollectionById,
-} from "../../../../../../services/api/Collections";
+import { getAllCollections, createCollection, updateCollection, deleteCollection, getCollectionById } from "../../../../../../services/api/Collections";
 import { getAllBrands } from "../../../../../../services/api/BrandApi";
 
 const CollectionsManagement = () => {
@@ -114,7 +108,7 @@ const CollectionsManagement = () => {
         return `${year}-${month}-${day} ${hours}:${minutes}`;
     };
     const columns = [
-        { title: "ID", dataIndex: "id", key: "id" },
+        { title: "ID", dataIndex: "id", key: "id", sorter: (a, b) => a.id - b.id, sortDirections: ["ascend", "descend"] },
         { title: "Name", dataIndex: "name", key: "name" },
         { title: "Brand", dataIndex: ["brand", "name"], key: "brand_name" },
         {
@@ -122,12 +116,14 @@ const CollectionsManagement = () => {
             dataIndex: "createdAt",
             key: "created_at",
             render: (text) => formatDateTime(text),
+            sorter: (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
         },
         {
             title: "Updated At",
             dataIndex: "updatedAt",
             key: "updated_at",
             render: (text) => formatDateTime(text),
+            sorter: (a, b) => new Date(a.updatedAt) - new Date(b.updatedAt),
         },
         {
             title: "Action",
@@ -175,28 +171,13 @@ const CollectionsManagement = () => {
         <div>
             <Space style={{ margin: 15 }}>
                 <Button type="primary" onClick={handleAdd}>
-                    Add Category
+                    Add Collection
                 </Button>
 
-                <Input.Search
-                    placeholder="Search Category By Id"
-                    onSearch={onSearch}
-                    enterButton
-                    style={{ marginLeft: 20 }}
-                />
+                <Input.Search placeholder="Search Category By Id" onSearch={onSearch} enterButton style={{ marginLeft: 20 }} />
             </Space>
-            <Table
-                dataSource={collections}
-                columns={columns}
-                rowKey="id"
-                pagination={{ pageSize: 7 }}
-            />
-            <Modal
-                title={editingCollection ? "Edit Collection" : "Add Collection"}
-                visible={isModalVisible}
-                onOk={() => form.submit()}
-                onCancel={handleCancel}
-            >
+            <Table dataSource={collections} columns={columns} rowKey="id" pagination={{ pageSize: 7 }} />
+            <Modal title={editingCollection ? "Edit Collection" : "Add Collection"} visible={isModalVisible} onOk={() => form.submit()} onCancel={handleCancel}>
                 <Form form={form} layout="vertical" onFinish={handleFormSubmit}>
                     <Form.Item
                         name="name"

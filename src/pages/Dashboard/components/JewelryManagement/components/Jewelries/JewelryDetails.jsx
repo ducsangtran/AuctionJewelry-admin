@@ -46,13 +46,13 @@ const JewelryDetails = ({ visible, onCancel, jewelry }) => (
                             {jewelry.weight}
                         </Descriptions.Item>
                         <Descriptions.Item label="Brand" span={2}>
-                            {jewelry.brand.name}
+                            {jewelry.brand?.name}
                         </Descriptions.Item>
                         <Descriptions.Item label="Category" span={2}>
-                            {jewelry.category.name}
+                            {jewelry.category?.name}
                         </Descriptions.Item>
                         <Descriptions.Item label="Collection" span={2}>
-                            {jewelry.collection.name}
+                            {jewelry.collection?.name}
                         </Descriptions.Item>
                         <Descriptions.Item label="Material" span={2}>
                             {jewelry.jewelryMaterials[0]?.material.name}

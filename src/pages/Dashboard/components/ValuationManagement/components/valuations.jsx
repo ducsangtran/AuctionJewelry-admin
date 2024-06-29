@@ -99,6 +99,8 @@ const ValuationManagement = () => {
             title: "ID",
             dataIndex: "id",
             key: "id",
+            sorter: (a, b) => a.id - b.id,
+            sortDirections: ["ascend", "descend"],
         },
         {
             title: "Jewelry",
@@ -110,11 +112,14 @@ const ValuationManagement = () => {
             dataIndex: "createdAt",
             key: "createdAt",
             render: (text) => moment(text).format("YY-MM-DD HH:mm"),
+            sorter: (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
         },
         {
             title: "Desired Price",
             dataIndex: "desiredPrice",
             key: "desiredPrice",
+            sorter: (a, b) => a.desiredPrice - b.desiredPrice,
+            sortDirections: ["ascend", "descend"],
         },
 
         {
@@ -127,6 +132,8 @@ const ValuationManagement = () => {
             title: "Valuating Fee",
             dataIndex: "valuatingFee",
             key: "valuatingFee",
+            sorter: (a, b) => a.valuatingFee - b.valuatingFee,
+            sortDirections: ["ascend", "descend"],
         },
         {
             title: "Valuating Method",
@@ -137,6 +144,8 @@ const ValuationManagement = () => {
             title: "Valuation Value",
             dataIndex: "valuation_value",
             key: "valuation_value",
+            sorter: (a, b) => a.valuation_value - b.valuation_value,
+            sortDirections: ["ascend", "descend"],
         },
         {
             title: "Online",
@@ -149,17 +158,23 @@ const ValuationManagement = () => {
             dataIndex: "updatedAt",
             key: "updatedAt",
             render: (text) => moment(text).format("YY-MM-DD HH:mm"),
+            sorter: (a, b) => new Date(a.updatedAt) - new Date(b.updatedAt),
         },
         {
             title: "Staff Name",
             dataIndex: ["staff", "full_name"],
             key: "staffName",
+            filters: staffsData.map((staff) => ({
+                text: staff.full_name,
+                value: staff.id,
+            })),
+            onFilter: (value, record) => record.staff && record.staff.id === value,
         },
-        {
-            title: "Staff Id",
-            dataIndex: ["staff", "id"],
-            key: "staffId",
-        },
+        // {
+        //     title: "Staff Id",
+        //     dataIndex: ["staff", "id"],
+        //     key: "staffId",
+        // },
         {
             title: "Status",
             dataIndex: "status",
@@ -312,8 +327,8 @@ const ValuationManagement = () => {
     return (
         <div>
             <Space style={{ marginBottom: 16 }}>
-                <Input.Search placeholder="Search valuations" onSearch={onSearch} enterButton />
-                <Select placeholder="Filter by Staff ID" onChange={handleStaffIdFilterChange} allowClear style={{ width: 200 }}>
+                <Input.Search placeholder="Search valuations by ID" onSearch={onSearch} enterButton />
+                {/* <Select placeholder="Filter by Staff ID" onChange={handleStaffIdFilterChange} allowClear style={{ width: 200 }}>
                     {(userRole === "Manager" || userRole === "Admin" ? valuationsData : myValuationsData)
                         .filter((valuation) => valuation.staff)
                         .map((valuation) => (
@@ -321,7 +336,7 @@ const ValuationManagement = () => {
                                 {valuation.staff.full_name}
                             </Option>
                         ))}
-                </Select>
+                </Select> */}
             </Space>
             <Table columns={columns} dataSource={userRole === "Manager" || userRole === "Admin" ? valuationsData : myValuationsData} rowKey="id" />
 

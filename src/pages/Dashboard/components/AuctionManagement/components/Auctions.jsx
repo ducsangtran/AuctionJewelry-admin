@@ -1,22 +1,6 @@
 import React, { useEffect, useState } from "react";
-import {
-    Form,
-    Input,
-    DatePicker,
-    Button,
-    Table,
-    Space,
-    Modal,
-    message,
-    Dropdown,
-    Menu,
-} from "antd";
-import {
-    cancelAuction,
-    getAllAuctions,
-    getAuctionById,
-    searchAuctionByAdmin,
-} from "../../../../../services/api/AuctionApi";
+import { Form, Input, DatePicker, Button, Table, Space, Modal, message, Dropdown, Menu } from "antd";
+import { getAllAuctions, getAuctionById, searchAuctionByAdmin } from "../../../../../services/api/AuctionApi";
 import SearchModal from "./searchModal";
 import moment from "moment";
 import DetailAuctions from "./DetailAuctions";
@@ -31,6 +15,7 @@ const AuctionManagement = () => {
     const [detailModalVisible, setDetailModalVisible] = useState(false);
     const [detailItem, setDetailItem] = useState(null);
     const [searchStatus, setSearchStatus] = useState(null);
+
     // Fetch all auctions on component mount
     useEffect(() => {
         fetchAllAuctions();
@@ -58,12 +43,15 @@ const AuctionManagement = () => {
             title: "ID",
             dataIndex: "id",
             key: "id",
+            sorter: (a, b) => a.id - b.id,
+            sortDirections: ["ascend", "descend"],
         },
         {
             title: "Created At",
             dataIndex: "createdAt",
             key: "createdAt",
             render: (text) => formatDateTime(text),
+            sorter: (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
         },
         {
             title: "Jewelry",
@@ -74,18 +62,22 @@ const AuctionManagement = () => {
             title: "Current Price",
             dataIndex: "currentPrice",
             key: "currentPrice",
+            sorter: (a, b) => a.currentPrice - b.currentPrice,
+            sortDirections: ["ascend", "descend"],
         },
         {
             title: "Start Time",
             dataIndex: "startTime",
             key: "startTime",
             render: (text) => formatDateTime(text),
+            sorter: (a, b) => new Date(a.startTime) - new Date(b.startTime),
         },
         {
             title: "End Time",
             dataIndex: "endTime",
             key: "endTime",
             render: (text) => formatDateTime(text),
+            sorter: (a, b) => new Date(a.endTime) - new Date(b.endTime),
         },
         {
             title: "Status",
@@ -94,7 +86,7 @@ const AuctionManagement = () => {
         },
         {
             title: "Starting Price",
-            dataIndex: ["jewelry", "staringPrice"],
+            dataIndex: ["jewelry", "startingPrice"],
             key: "startingPrice",
         },
         {
@@ -112,6 +104,7 @@ const AuctionManagement = () => {
             dataIndex: "updatedAt",
             key: "updatedAt",
             render: (text) => formatDateTime(text),
+            sorter: (a, b) => new Date(a.updatedAt) - new Date(b.updatedAt),
         },
         {
             title: "Winner",
@@ -123,12 +116,6 @@ const AuctionManagement = () => {
             key: "action",
             render: (text, record) => (
                 <Space size="middle">
-                    <Button onClick={() => handleEdit(record)} type="primary">
-                        Edit
-                    </Button>
-                    <Button onClick={() => handleDelete(record.id)} type="primary" danger>
-                        Delete
-                    </Button>
                     <Dropdown overlay={menu(record)} trigger={["click"]}>
                         <Button icon={<MoreOutlined />} />
                     </Dropdown>
@@ -139,40 +126,22 @@ const AuctionManagement = () => {
 
     const menu = (record) => (
         <Menu>
-            <Menu.Item key="1" onClick={() => showDetailModal(record)}>
+            <Menu.Item key="1" onClick={() => handleShowDetailModal(record)}>
                 View Details
             </Menu.Item>
         </Menu>
     );
 
-    const showDetailModal = (record) => {
-        setDetailItem(record);
-        setDetailModalVisible(true);
+    const handleShowDetailModal = (record) => {
+        if (record) {
+            setDetailItem(record);
+            setDetailModalVisible(true);
+        }
     };
 
     const handleDetailModalCancel = () => {
         setDetailModalVisible(false);
         setDetailItem(null);
-    };
-
-    const handleEdit = (record) => {
-        setEditingItem(record);
-        form.setFieldsValue({
-            ...record,
-            startTime: moment(record.startTime),
-            endTime: moment(record.endTime),
-        });
-        setModalVisible(true);
-    };
-
-    const handleDelete = async (auctionId) => {
-        try {
-            await cancelAuction(auctionId);
-            message.success("Auction cancelled successfully.");
-            fetchAllAuctions();
-        } catch (error) {
-            message.error("Failed to cancel auction.");
-        }
     };
 
     const handleModalCancel = () => {
@@ -200,10 +169,10 @@ const AuctionManagement = () => {
                 console.log("Validate Failed:", errorInfo);
             });
     };
+
     const onSearch = async (value) => {
         try {
             if (!value) {
-                // Nếu giá trị nhập vào là rỗng, gọi API để lấy tất cả các Auction
                 const response = await getAllAuctions();
                 const { data } = response;
                 setAuctionData(data);
@@ -262,12 +231,7 @@ const AuctionManagement = () => {
                 </Button>
             </Space>
             <Table columns={columns} dataSource={AuctionsData} rowKey="id" />
-            <Modal
-                title={editingItem ? "Edit Auction" : "Add New Auction"}
-                open={modalVisible}
-                onOk={handleModalOk}
-                onCancel={handleModalCancel}
-            >
+            <Modal title={editingItem ? "Edit Auction" : "Add New Auction"} visible={modalVisible} onOk={handleModalOk} onCancel={handleModalCancel}>
                 <Form form={form}>
                     <Form.Item label="Start Time" name="startTime" rules={[{ required: true }]}>
                         <DatePicker showTime />
@@ -278,16 +242,8 @@ const AuctionManagement = () => {
                 </Form>
             </Modal>
 
-            <SearchModal
-                visible={searchModalVisible}
-                onCancel={handleCancelSearchModal}
-                onSearch={handleSearch}
-            />
-            <DetailAuctions
-                visible={detailModalVisible}
-                onCancel={handleDetailModalCancel}
-                auction={detailItem}
-            />
+            <SearchModal visible={searchModalVisible} onCancel={handleCancelSearchModal} onSearch={handleSearch} />
+            <DetailAuctions visible={detailModalVisible} onCancel={handleDetailModalCancel} auction={detailItem} />
         </div>
     );
 };

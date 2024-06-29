@@ -2,14 +2,14 @@ import React, { useEffect, useState } from "react";
 import { Table, Button, Modal, Form, Input, message, Space, DatePicker, Select } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 import { fetchUsers } from "../../../../../../core/store/slices/userSlice";
-import { addUser, updateUser, banUser, getRoles } from "../../../../../../services/api/UserApi";
+import { updateUser, banUser, getRoles } from "../../../../../../services/api/UserApi";
 import TotalUsers from "./totalUsers";
 import dayjs from "dayjs";
 
 const { Option } = Select;
 
 const UserManagement = () => {
-    const [isAddModalVisible, setIsAddModalVisible] = useState(false);
+    // const [isAddModalVisible, setIsAddModalVisible] = useState(false);
     const [isEditModalVisible, setIsEditModalVisible] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
     const [rolesData, setRolesData] = useState([]);
@@ -39,6 +39,8 @@ const UserManagement = () => {
             title: "ID",
             dataIndex: "id",
             key: "id",
+            sorter: (a, b) => a.id - b.id,
+            sortDirections: ["ascend", "descend"],
         },
         {
             title: "Name",
@@ -96,16 +98,16 @@ const UserManagement = () => {
         setIsEditModalVisible(true);
     };
 
-    const handleSaveAdd = async (values) => {
-        try {
-            await addUser(values.full_name, values.email, values.password, values.roleId, values.phone_number, values.address, values.date_of_birth.format("YYYY-MM-DD"));
-            message.success("User added successfully.");
-            setIsAddModalVisible(false);
-            dispatch(fetchUsers()); // Refresh the user list
-        } catch (error) {
-            message.error("Failed to add user.");
-        }
-    };
+    // const handleSaveAdd = async (values) => {
+    //     try {
+    //         await addUser(values.full_name, values.email, values.password, values.roleId, values.phone_number, values.address, values.date_of_birth.format("YYYY-MM-DD"));
+    //         message.success("User added successfully.");
+    //         setIsAddModalVisible(false);
+    //         dispatch(fetchUsers()); // Refresh the user list
+    //     } catch (error) {
+    //         message.error("Failed to add user.");
+    //     }
+    // };
 
     const handleSaveEdit = async (values) => {
         try {

@@ -1,12 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Table, Button, Modal, Form, Input, DatePicker, message, Space } from "antd";
-import {
-    createCategory,
-    deleteCategory,
-    getAllCategories,
-    getCategoryById,
-    updateCategory,
-} from "../../../../../../services/api/Categories";
+import { createCategory, deleteCategory, getAllCategories, getCategoryById, updateCategory } from "../../../../../../services/api/Categories";
 
 const CategoriesManagement = () => {
     const [categories, setCategories] = useState([]);
@@ -59,9 +53,7 @@ const CategoriesManagement = () => {
                 // Update category in API
                 await updateCategory(editingCategory.id, name); // Replace with your API endpoint
 
-                const updatedCategories = categories.map((item) =>
-                    item.id === editingCategory.id ? { ...item } : item
-                );
+                const updatedCategories = categories.map((item) => (item.id === editingCategory.id ? { ...item } : item));
                 setCategories(updatedCategories);
                 message.success("Category updated successfully.");
                 setIsModalVisible(false);
@@ -98,19 +90,21 @@ const CategoriesManagement = () => {
         return `${year}-${month}-${day} ${hours}:${minutes}`;
     };
     const columns = [
-        { title: "ID", dataIndex: "id", key: "id" },
+        { title: "ID", dataIndex: "id", key: "id", sorter: (a, b) => a.id - b.id, sortDirections: ["ascend", "descend"] },
         { title: "Name", dataIndex: "name", key: "name" },
         {
             title: "Created At",
             dataIndex: "createdAt",
             key: "createdAt",
             render: (text) => formatDateTime(text),
+            sorter: (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
         },
         {
             title: "Updated At",
             dataIndex: "updatedAt",
             key: "updatedAt",
             render: (text) => formatDateTime(text),
+            sorter: (a, b) => new Date(a.updatedAt) - new Date(b.updatedAt),
         },
         {
             title: "Action",
@@ -161,26 +155,11 @@ const CategoriesManagement = () => {
                     Add Category
                 </Button>
 
-                <Input.Search
-                    placeholder="Search Category By Id"
-                    onSearch={onSearch}
-                    enterButton
-                    style={{ marginLeft: 20 }}
-                />
+                <Input.Search placeholder="Search Category By Id" onSearch={onSearch} enterButton style={{ marginLeft: 20 }} />
             </Space>
 
-            <Table
-                dataSource={categories}
-                columns={columns}
-                rowKey="id"
-                pagination={{ pageSize: 7 }}
-            />
-            <Modal
-                title={editingCategory ? "Edit Category" : "Add Category"}
-                visible={isModalVisible}
-                onOk={handleOk}
-                onCancel={handleCancel}
-            >
+            <Table dataSource={categories} columns={columns} rowKey="id" pagination={{ pageSize: 7 }} />
+            <Modal title={editingCategory ? "Edit Category" : "Add Category"} visible={isModalVisible} onOk={handleOk} onCancel={handleCancel}>
                 <Form form={form} layout="vertical">
                     <Form.Item
                         name="name"
