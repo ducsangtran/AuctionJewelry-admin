@@ -177,35 +177,17 @@ const DeliveryManagement = () => {
             <Space style={{ marginBottom: 16 }}>
                 <Input.Search placeholder="Search deliveries" onSearch={onSearch} enterButton />
             </Space>
-            <Table
-                columns={columns}
-                dataSource={DeliveriesData}
-                rowKey="id"
-                pagination={{ pageSize: 7 }}
-            />
+            <Table columns={columns} dataSource={DeliveriesData} rowKey="id" pagination={{ pageSize: 7 }} />
 
-            <Modal
-                title={editingItem ? "Edit Delivery" : "Add New Delivery"}
-                visible={modalVisible}
-                onOk={handleModalOk}
-                onCancel={handleModalCancel}
-            >
+            <Modal title={editingItem ? "Edit Delivery" : "Add New Delivery"} visible={modalVisible} onOk={handleModalOk} onCancel={handleModalCancel}>
                 <Form form={form} onFinish={handleModalOk} initialValues={editingItem}>
                     <Form.Item label="User Name" name="userName" rules={[{ required: true }]}>
                         <Input />
                     </Form.Item>
-                    <Form.Item
-                        label="Phone Number"
-                        name="phone_number"
-                        rules={[{ required: true }]}
-                    >
+                    <Form.Item label="Phone Number" name="phone_number" rules={[{ required: true }]}>
                         <Input />
                     </Form.Item>
-                    <Form.Item
-                        label="Email"
-                        name="email"
-                        rules={[{ required: true, type: "email" }]}
-                    >
+                    <Form.Item label="Email" name="email" rules={[{ required: true, type: "email" }]}>
                         <Input />
                     </Form.Item>
                     <Form.Item label="Address" name="address" rules={[{ required: true }]}>

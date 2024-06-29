@@ -1,12 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Table, Button, Modal, Form, Input, Space, message } from "antd";
-import {
-    createMaterial,
-    getAllMaterials,
-    updateMaterial,
-    deleteMaterial,
-    getMaterialById,
-} from "../../../../../../services/api/MaterialApi";
+import { createMaterial, getAllMaterials, updateMaterial, deleteMaterial, getMaterialById } from "../../../../../../services/api/MaterialApi";
 
 export const MaterialsManagement = () => {
     const [materials, setMaterials] = useState([]);
@@ -60,9 +54,7 @@ export const MaterialsManagement = () => {
                 // Update category in API
                 await updateMaterial(editingMaterial.id, name); // Replace with your API endpoint
 
-                const updatedMaterials = materials.map((item) =>
-                    item.id === editingMaterial.id ? { ...item } : item
-                );
+                const updatedMaterials = materials.map((item) => (item.id === editingMaterial.id ? { ...item } : item));
                 setMaterials(updatedMaterials);
                 message.success("Material updated successfully.");
                 setIsModalVisible(false);
@@ -104,7 +96,7 @@ export const MaterialsManagement = () => {
     };
 
     const columns = [
-        { title: "ID", dataIndex: "id", key: "id" },
+        { title: "ID", dataIndex: "id", key: "id", sorter: (a, b) => a.id - b.id, sortDirections: ["ascend", "descend"] },
         { title: "Name", dataIndex: "name", key: "name" },
         { title: "Unit", dataIndex: "unit", key: "unit" },
         {
@@ -112,12 +104,14 @@ export const MaterialsManagement = () => {
             dataIndex: "createdAt",
             key: "createdAt",
             render: (text) => formatDateTime(text),
+            sorter: (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
         },
         {
             title: "Updated At",
             dataIndex: "updatedAt",
             key: "updatedAt",
             render: (text) => formatDateTime(text),
+            sorter: (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
         },
         {
             title: "Action",
@@ -167,25 +161,10 @@ export const MaterialsManagement = () => {
                     Add Material
                 </Button>
 
-                <Input.Search
-                    placeholder="Search Materials By Id"
-                    onSearch={onSearch}
-                    enterButton
-                    style={{ marginLeft: 20 }}
-                />
+                <Input.Search placeholder="Search Materials By Id" onSearch={onSearch} enterButton style={{ marginLeft: 20 }} />
             </Space>
-            <Table
-                dataSource={materials}
-                columns={columns}
-                rowKey="id"
-                pagination={{ pageSize: 7 }}
-            />
-            <Modal
-                title={editingMaterial ? "Edit Material" : "Add Material"}
-                visible={isModalVisible}
-                onOk={handleOk}
-                onCancel={handleCancel}
-            >
+            <Table dataSource={materials} columns={columns} rowKey="id" pagination={{ pageSize: 7 }} />
+            <Modal title={editingMaterial ? "Edit Material" : "Add Material"} visible={isModalVisible} onOk={handleOk} onCancel={handleCancel}>
                 <Form form={form} layout="vertical">
                     <Form.Item
                         name="name"

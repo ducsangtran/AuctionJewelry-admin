@@ -1,19 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-    Table,
-    Button,
-    Modal,
-    Form,
-    Input,
-    Select,
-    InputNumber,
-    Row,
-    Col,
-    Space,
-    message,
-    Menu,
-    Dropdown,
-} from "antd";
+import { Table, Button, Modal, Form, Input, Select, InputNumber, Row, Col, Space, message, Menu, Dropdown } from "antd";
 import { getAllJewelries, getJewelryById } from "../../../../../../services/api/JewelryApi";
 import JewelryDetails from "./JewelryDetails";
 import { MoreOutlined } from "@ant-design/icons";
@@ -105,16 +91,14 @@ const JewelryAdmin = () => {
     };
 
     const jewelryColumns = [
-        { title: "ID", dataIndex: "id", key: "id" },
+        { title: "ID", dataIndex: "id", key: "id", sorter: (a, b) => a.id - b.id, sortDirections: ["ascend", "descend"] },
         { title: "Seller", dataIndex: "sellerName", key: "seller_id" },
         { title: "Name", dataIndex: "name", key: "name" },
         {
             title: "Description",
             dataIndex: "description",
             key: "description",
-            render: (text) => (
-                <span title={text}>{text.length > 35 ? `${text.substring(0, 35)}...` : text}</span>
-            ),
+            render: (text) => <span title={text}>{text.length > 35 ? `${text.substring(0, 35)}...` : text}</span>,
         },
         { title: "Category", dataIndex: ["category", "name"], key: "category_id" },
         { title: "Brand", dataIndex: ["brand", "name"], key: "brandName" },
@@ -145,26 +129,12 @@ const JewelryAdmin = () => {
             <Space style={{ marginBottom: 16 }}>
                 <Input.Search placeholder="Search Jewelry By Id" onSearch={onSearch} enterButton />
             </Space>
-            <Table
-                columns={jewelryColumns}
-                dataSource={jewelryData}
-                rowKey="id"
-                pagination={{ pageSize: 7 }}
-            />
-            <Modal
-                title="Add/Edit Jewelry"
-                visible={visible}
-                onOk={handleOk}
-                onCancel={handleCancel}
-            >
+            <Table columns={jewelryColumns} dataSource={jewelryData} rowKey="id" pagination={{ pageSize: 7 }} />
+            <Modal title="Add/Edit Jewelry" visible={visible} onOk={handleOk} onCancel={handleCancel}>
                 <Form form={form} layout="vertical">
                     <Row gutter={16}>
                         <Col span={12}>
-                            <Form.Item
-                                name="seller_id"
-                                label="Seller ID"
-                                rules={[{ required: true }]}
-                            >
+                            <Form.Item name="seller_id" label="Seller ID" rules={[{ required: true }]}>
                                 <InputNumber style={{ width: "100%" }} />
                             </Form.Item>
                         </Col>
@@ -176,20 +146,12 @@ const JewelryAdmin = () => {
                     </Row>
                     <Row gutter={16}>
                         <Col span={12}>
-                            <Form.Item
-                                name="description"
-                                label="Description"
-                                rules={[{ required: true }]}
-                            >
+                            <Form.Item name="description" label="Description" rules={[{ required: true }]}>
                                 <Input.TextArea />
                             </Form.Item>
                         </Col>
                         <Col span={12}>
-                            <Form.Item
-                                name="category_id"
-                                label="Category ID"
-                                rules={[{ required: true }]}
-                            >
+                            <Form.Item name="category_id" label="Category ID" rules={[{ required: true }]}>
                                 <InputNumber style={{ width: "100%" }} />
                             </Form.Item>
                         </Col>
@@ -223,20 +185,12 @@ const JewelryAdmin = () => {
                     </Row>
                     <Row gutter={16}>
                         <Col span={12}>
-                            <Form.Item
-                                name="brand_id"
-                                label="Brand ID"
-                                rules={[{ required: true }]}
-                            >
+                            <Form.Item name="brand_id" label="Brand ID" rules={[{ required: true }]}>
                                 <InputNumber style={{ width: "100%" }} />
                             </Form.Item>
                         </Col>
                         <Col span={12}>
-                            <Form.Item
-                                name="condition"
-                                label="Condition"
-                                rules={[{ required: true }]}
-                            >
+                            <Form.Item name="condition" label="Condition" rules={[{ required: true }]}>
                                 <Select>
                                     <Option value="new">New</Option>
                                     <Option value="used">Used</Option>
@@ -246,11 +200,7 @@ const JewelryAdmin = () => {
                     </Row>
                     <Row gutter={16}>
                         <Col span={12}>
-                            <Form.Item
-                                name="starting_price"
-                                label="Starting Price"
-                                rules={[{ required: true }]}
-                            >
+                            <Form.Item name="starting_price" label="Starting Price" rules={[{ required: true }]}>
                                 <InputNumber style={{ width: "100%" }} />
                             </Form.Item>
                         </Col>
@@ -265,11 +215,7 @@ const JewelryAdmin = () => {
                     </Row>
                     <Row gutter={16}>
                         <Col span={12}>
-                            <Form.Item
-                                name="collection_id"
-                                label="Collection ID"
-                                rules={[{ required: true }]}
-                            >
+                            <Form.Item name="collection_id" label="Collection ID" rules={[{ required: true }]}>
                                 <InputNumber style={{ width: "100%" }} />
                             </Form.Item>
                         </Col>

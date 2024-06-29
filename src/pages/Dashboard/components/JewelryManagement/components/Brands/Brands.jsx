@@ -1,12 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Table, Button, Modal, Form, Input, DatePicker, message, Space } from "antd";
-import {
-    createBrand,
-    deleteBrand,
-    getAllBrands,
-    getBrandById,
-    updateBrand,
-} from "../../../../../../services/api/BrandApi";
+import { createBrand, deleteBrand, getAllBrands, getBrandById, updateBrand } from "../../../../../../services/api/BrandApi";
 
 const BrandsManagement = () => {
     const [brands, setBrands] = useState([]);
@@ -65,9 +59,7 @@ const BrandsManagement = () => {
                 // Update brand in API
                 await updateBrand(editingBrand.id, name); // Replace with your API endpoint
 
-                const updatedBrand = brands.map((item) =>
-                    item.id === editingBrand.id ? { ...item } : item
-                );
+                const updatedBrand = brands.map((item) => (item.id === editingBrand.id ? { ...item } : item));
                 setBrands(updatedBrand);
                 message.success("Brand updated successfully.");
                 setIsModalVisible(false);
@@ -112,12 +104,14 @@ const BrandsManagement = () => {
             dataIndex: "createdAt",
             key: "createdAt",
             render: (text) => formatDateTime(text),
+            sorter: (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
         },
         {
             title: "Updated At",
             dataIndex: "updatedAt",
             key: "updatedAt",
             render: (text) => formatDateTime(text),
+            sorter: (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
         },
         {
             title: "Action",
@@ -165,23 +159,13 @@ const BrandsManagement = () => {
         <div>
             <Space style={{ margin: 15 }}>
                 <Button type="primary" onClick={handleAdd}>
-                    Add Category
+                    Add Brand
                 </Button>
 
-                <Input.Search
-                    placeholder="Search Brand By Id"
-                    onSearch={onSearch}
-                    enterButton
-                    style={{ marginLeft: 20 }}
-                />
+                <Input.Search placeholder="Search Brand By Id" onSearch={onSearch} enterButton style={{ marginLeft: 20 }} />
             </Space>
             <Table dataSource={brands} columns={columns} rowKey="id" pagination={{ pageSize: 7 }} />
-            <Modal
-                title={editingBrand ? "Edit Brand" : "Add Brand"}
-                visible={isModalVisible}
-                onOk={handleOk}
-                onCancel={handleCancel}
-            >
+            <Modal title={editingBrand ? "Edit Brand" : "Add Brand"} visible={isModalVisible} onOk={handleOk} onCancel={handleCancel}>
                 <Form form={form} layout="vertical">
                     <Form.Item
                         name="name"
