@@ -325,7 +325,7 @@ const ValuationManagement = () => {
             </Space>
             <Table columns={columns} dataSource={userRole === "Manager" || userRole === "Admin" ? valuationsData : myValuationsData} rowKey="id" />
 
-            <Modal width={800} open={modalVisible} onOk={handleModalOk} onCancel={handleModalCancel}>
+            <Modal width={850} open={modalVisible} onOk={handleModalOk} onCancel={handleModalCancel}>
                 {editingItem && editingItem.jewelry && (
                     <Row gutter={16}>
                         <Col span={12}>
@@ -339,24 +339,28 @@ const ValuationManagement = () => {
                                 <Descriptions.Item label="Material" span={2}>
                                     {editingItem.jewelry.jewelryMaterials[0]?.material.name}
                                 </Descriptions.Item>
-                                <Descriptions.Item label="Material Weight" span={2}>
+
+                                <Descriptions.Item label="Material Weight" span={1}>
                                     {editingItem.jewelry.jewelryMaterials[0]?.weight}
+                                </Descriptions.Item>
+                                <Descriptions.Item label="Unit" span={1}>
+                                    {editingItem.jewelry.jewelryMaterials[0]?.material.unit}
                                 </Descriptions.Item>
                                 <Descriptions.Item label="Description" span={2}>
                                     {editingItem.jewelry.description}
                                 </Descriptions.Item>
-                                <Descriptions.Item label="Jewelry Condition" span={2}>
+                                <Descriptions.Item label="Jewelry Condition" span={1}>
                                     {editingItem.jewelry.jewelryCondition}
                                 </Descriptions.Item>
-                                <Descriptions.Item label="Sex" span={2}>
+                                <Descriptions.Item label="Sex" span={1}>
                                     {editingItem.jewelry.sex}
                                 </Descriptions.Item>
 
-                                <Descriptions.Item label="Status " span={2}>
-                                    {editingItem.jewelry.status}
-                                </Descriptions.Item>
-                                <Descriptions.Item label="Jewelry Weight" span={2}>
+                                <Descriptions.Item label="Jewelry Weight" span={1}>
                                     {editingItem.jewelry.weight}
+                                </Descriptions.Item>
+                                <Descriptions.Item label="Unit" span={1}>
+                                    {editingItem.jewelry.jewelryMaterials[0]?.material.unit}
                                 </Descriptions.Item>
                                 <Descriptions.Item label="Brand" span={2}>
                                     {editingItem.jewelry.brand.name}
@@ -366,6 +370,9 @@ const ValuationManagement = () => {
                                 </Descriptions.Item>
                                 <Descriptions.Item label="Collection" span={2}>
                                     {editingItem.jewelry.collection.name}
+                                </Descriptions.Item>
+                                <Descriptions.Item label="Desired Price" span={2}>
+                                    {editingItem.desiredPrice}
                                 </Descriptions.Item>
                             </Descriptions>
                         </Col>
