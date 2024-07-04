@@ -1,11 +1,6 @@
 import { UserOutlined } from "@ant-design/icons";
 import { Layout, Menu, theme } from "antd";
-import {
-    CrownOutlined,
-    ShoppingOutlined,
-    RocketOutlined,
-    MonitorOutlined,
-} from "@ant-design/icons";
+import { CrownOutlined, ShoppingOutlined, RocketOutlined, MonitorOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import AppHeader from "./AppHeader";
@@ -42,34 +37,44 @@ export const AppLayout = ({ components }) => {
                       getItem("AccountManagement", "sub1", <UserOutlined />, [
                           getItem("User", "1", <Link to="/users"></Link>),
                           //   getItem("Total User", "2", <Link to="/totalUser"></Link>),
-                          getItem("Staff", "3", <Link to="/staffs"></Link>),
+                          getItem("Staff", "2", <Link to="/staffs"></Link>),
                           //   getItem("Total Staff", "4", <Link to="/totalStaffs"></Link>),
-                          getItem("Manager", "5", <Link to="/managers"></Link>),
+                          getItem("Manager", "3", <Link to="/managers"></Link>),
                           //   getItem("Total Manager", "6", <Link to="/totalManagers"></Link>),
+                          getItem("Shipper", "4", <Link to="/shippers"></Link>),
                       ]),
                   ]
                 : []), // Nếu không phải Admin thì không thêm gì vào đây
             getItem("Jewelry Management", "sub2", <CrownOutlined />, [
-                getItem("Materials", "7", <Link to="/materials"></Link>),
-                getItem("Categories", "8", <Link to="/categories"></Link>),
-                getItem("Brands", "9", <Link to="/brands"></Link>),
-                getItem("Collections", "10", <Link to="/collections"></Link>),
-                getItem("Jewelries", "11", <Link to="/jewelries"></Link>),
+                getItem("Materials", "5", <Link to="/materials"></Link>),
+                getItem("Categories", "6", <Link to="/categories"></Link>),
+                getItem("Brands", "7", <Link to="/brands"></Link>),
+                getItem("Collections", "8", <Link to="/collections"></Link>),
+                getItem("Jewelries", "9", <Link to="/jewelries"></Link>),
             ]),
             {
-                key: "12",
+                key: "10",
                 icon: <ShoppingOutlined />,
                 label: <Link to="/auctions">Auction Management</Link>,
             },
+            // {
+            //     key: "13",
+            //     icon: <RocketOutlined />,
+            //     label: <Link to="/deliveries">Delivery Management</Link>,
+            // },
+            getItem("Delivery Management", "sub3", <RocketOutlined />, [
+                getItem("Valuating Delivery", "11", <Link to="/valuatingDelivery"></Link>),
+                getItem("Jewelry Delivery", "12", <Link to="/jewelryDelivery"></Link>),
+            ]),
             {
                 key: "13",
-                icon: <RocketOutlined />,
-                label: <Link to="/deliveries">Delivery Management</Link>,
+                icon: <MonitorOutlined />,
+                label: <Link to="/valuations">Valuating Management</Link>,
             },
             {
                 key: "14",
                 icon: <MonitorOutlined />,
-                label: <Link to="/valuations">Valuating Management</Link>,
+                label: <Link to="/blogs">Blog Management</Link>,
             },
         ];
 
@@ -79,6 +84,8 @@ export const AppLayout = ({ components }) => {
     return (
         <Layout>
             <Sider
+                width={236}
+                className="site-layout-background"
                 breakpoint="lg"
                 collapsedWidth="0"
                 onBreakpoint={(broken) => {

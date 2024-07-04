@@ -20,18 +20,16 @@ const getMyValuations = async () => {
         throw error;
     }
 };
-
-const editValuating = async (
-    id,
-    address,
-    staffId,
-    valuation_value,
-    notes,
-    status,
-    desiredPrice,
-    paymentMethod,
-    valuatingMethod
-) => {
+const getAvailableStaff = async () => {
+    try {
+        const response = await api.get(`valuating/available_staff`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching users:", error);
+        throw error;
+    }
+};
+const editValuating = async (id, address, staffId, valuation_value, notes, status, desiredPrice, paymentMethod, valuatingMethod) => {
     try {
         const response = await api.put(`valuating/${id}`, {
             address,
@@ -70,4 +68,4 @@ const deleteValuation = async (id) => {
         throw error;
     }
 };
-export { getAllValuations, editValuating, searchValuationById, deleteValuation, getMyValuations };
+export { getAllValuations, editValuating, searchValuationById, deleteValuation, getMyValuations, getAvailableStaff };

@@ -2,10 +2,10 @@ import React, { useEffect, useState } from "react";
 import { Form, Input, DatePicker, Button, Table, Space, Modal, message, Dropdown, Menu } from "antd";
 import { getAllAuctions, getAuctionById, searchAuctionByAdmin } from "../../../../../services/api/AuctionApi";
 import SearchModal from "./searchModal";
-import moment from "moment";
+
 import DetailAuctions from "./DetailAuctions";
 import { MoreOutlined } from "@ant-design/icons";
-
+import moment from "moment";
 const AuctionManagement = () => {
     const [form] = Form.useForm();
     const [AuctionsData, setAuctionData] = useState([]);
@@ -30,14 +30,6 @@ const AuctionManagement = () => {
         }
     };
 
-    const formatDateTime = (dateString) => {
-        const date = new Date(dateString);
-        if (isNaN(date.getTime())) {
-            return "";
-        }
-        return moment(date).format("YYYY-MM-DD HH:mm");
-    };
-
     const columns = [
         {
             title: "ID",
@@ -50,8 +42,9 @@ const AuctionManagement = () => {
             title: "Created At",
             dataIndex: "createdAt",
             key: "createdAt",
-            render: (text) => formatDateTime(text),
+
             sorter: (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
+            render: (text) => moment(text).format("YYYY-MM-DD HH:mm:ss"),
         },
         {
             title: "Jewelry",
@@ -69,14 +62,14 @@ const AuctionManagement = () => {
             title: "Start Time",
             dataIndex: "startTime",
             key: "startTime",
-            render: (text) => formatDateTime(text),
+            render: (text) => moment(text).format("YYYY-MM-DD HH:mm:ss"),
             sorter: (a, b) => new Date(a.startTime) - new Date(b.startTime),
         },
         {
             title: "End Time",
             dataIndex: "endTime",
             key: "endTime",
-            render: (text) => formatDateTime(text),
+            render: (text) => moment(text).format("YYYY-MM-DD HH:mm:ss"),
             sorter: (a, b) => new Date(a.endTime) - new Date(b.endTime),
         },
         {
@@ -103,7 +96,7 @@ const AuctionManagement = () => {
             title: "Updated At",
             dataIndex: "updatedAt",
             key: "updatedAt",
-            render: (text) => formatDateTime(text),
+            render: (text) => moment(text).format("YYYY-MM-DD HH:mm:ss"),
             sorter: (a, b) => new Date(a.updatedAt) - new Date(b.updatedAt),
         },
         {
@@ -230,8 +223,13 @@ const AuctionManagement = () => {
                     Advanced Search
                 </Button>
             </Space>
-            <Table columns={columns} dataSource={AuctionsData} rowKey="id" />
-            <Modal title={editingItem ? "Edit Auction" : "Add New Auction"} visible={modalVisible} onOk={handleModalOk} onCancel={handleModalCancel}>
+            <Table columns={columns} dataSource={AuctionsData} rowKey="id" pagination={{ pageSize: 6 }} />
+            <Modal
+                title={editingItem ? "Edit Auction" : "Add New Auction"}
+                visible={modalVisible}
+                onOk={handleModalOk}
+                onCancel={handleModalCancel}
+            >
                 <Form form={form}>
                     <Form.Item label="Start Time" name="startTime" rules={[{ required: true }]}>
                         <DatePicker showTime />
