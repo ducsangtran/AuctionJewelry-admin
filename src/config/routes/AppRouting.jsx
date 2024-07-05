@@ -10,15 +10,17 @@ import { Login } from "@pages/Login/Login";
 import { useSelector } from "react-redux";
 import ProtectedRoute from "./ProtectedRoute";
 import AuctionManagement from "../../pages/Dashboard/components/AuctionManagement/components/Auctions";
-import DeliveryManagement from "../../pages/Dashboard/components/DeliveryManagement/components/Deliveries";
-
 import ValuationManagement from "../../pages/Dashboard/components/ValuationManagement/components/valuations";
 import StaffManagement from "../../pages/Dashboard/components/AccountManagement/components/StaffList/StaffList";
 import UserManagement from "../../pages/Dashboard/components/AccountManagement/components/UserList/UserList";
 import ManagerManagement from "../../pages/Dashboard/components/AccountManagement/components/ManagerList/ManagerList";
-import TotalUser from "../../pages/Dashboard/components/AccountManagement/components/UserList/totalUsers";
-import TotalStaff from "../../pages/Dashboard/components/AccountManagement/components/StaffList/totalStaff";
-import TotalManager from "../../pages/Dashboard/components/AccountManagement/components/ManagerList/totalManager";
+
+import BlogList from "../../pages/Dashboard/components/Blog/components/BlogList";
+import BlogEdit from "../../pages/Dashboard/components/Blog/components/BlogEdit";
+import AddBlog from "../../pages/Dashboard/components/Blog/components/AddBlog";
+import ValuatingDeliveryManagement from "../../pages/Dashboard/components/DeliveryManagement/components/ValuatingDelivery";
+import JewelryDeliveryManagement from "../../pages/Dashboard/components/DeliveryManagement/components/JewelryDelivery";
+import ShipperManagement from "../../pages/Dashboard/components/AccountManagement/components/ShipperList/ShipperList";
 
 const AppRouting = () => {
     const Auth = localStorage.getItem("fullName");
@@ -29,11 +31,9 @@ const AppRouting = () => {
 
             <Route exact path="/" element={<ProtectedRoute element={<Dashboard />} />}>
                 <Route path="users" element={<UserManagement />} />
-                <Route path="totalUser" element={<TotalUser />} />
                 <Route path="staffs" element={<StaffManagement />} />
-                <Route path="totalStaffs" element={<TotalStaff />} />
                 <Route path="managers" element={<ManagerManagement />} />
-                <Route path="totalManagers" element={<TotalManager />} />
+                <Route path="shippers" element={<ShipperManagement />} />
                 <Route path="materials" element={<MaterialsManagement />} />
                 <Route path="categories" element={<CategoriesManagement />} />
                 <Route path="brands" element={<BrandsManagement />} />
@@ -41,8 +41,12 @@ const AppRouting = () => {
                 <Route path="collections" element={<CollectionsManagement />} />
                 <Route path="jewelries" element={<JewelryAdmin />} />
                 <Route path="auctions" element={<AuctionManagement />} />
-                <Route path="deliveries" element={<DeliveryManagement />} />
+                <Route path="valuatingDelivery" element={<ValuatingDeliveryManagement />} />
+                <Route path="jewelryDelivery" element={<JewelryDeliveryManagement />} />
                 <Route path="valuations" element={<ValuationManagement />} />
+                <Route path="blogs" element={<BlogList />} />
+                <Route path="/blogs/add" element={<AddBlog />} />
+                <Route path="/edit/:id" element={<BlogEdit />} />
             </Route>
         </Routes>
     );

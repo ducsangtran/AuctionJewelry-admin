@@ -1,8 +1,8 @@
-import axios from "axios";
+import api from "../../config/axios";
 const API_BASE_URL = "http://apijewelryauction.techx.id.vn:8081";
 const createCollection = async (name, brand) => {
     try {
-        const response = await axios.post(`${API_BASE_URL}/api/v1/collection`, {
+        const response = await api.post(`collection`, {
             name,
             brand,
         });
@@ -16,7 +16,7 @@ const createCollection = async (name, brand) => {
 
 const getAllCollections = async () => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/api/v1/collection`);
+        const response = await api.get(`collection`);
         return response.data;
     } catch (error) {
         // Handle error
@@ -26,7 +26,7 @@ const getAllCollections = async () => {
 };
 const getCollectionById = async (id) => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/api/v1/collection/${id}`);
+        const response = await api.get(`collection/${id}`);
         return response.data;
     } catch (error) {
         // Handle error
@@ -36,7 +36,7 @@ const getCollectionById = async (id) => {
 };
 const updateCollection = async (id, name, brand) => {
     try {
-        const response = await axios.put(`${API_BASE_URL}/api/v1/collection/${id}`, {
+        const response = await api.put(`collection/${id}`, {
             name,
             brand,
         });
@@ -49,7 +49,7 @@ const updateCollection = async (id, name, brand) => {
 };
 const deleteCollection = async (id) => {
     try {
-        const response = await axios.delete(`${API_BASE_URL}/api/v1/collection/${id}`);
+        const response = await api.delete(`collection/${id}`);
         return response.data;
     } catch (error) {
         // Handle error
@@ -58,10 +58,4 @@ const deleteCollection = async (id) => {
     }
 };
 
-export {
-    createCollection,
-    deleteCollection,
-    getAllCollections,
-    updateCollection,
-    getCollectionById,
-};
+export { createCollection, deleteCollection, getAllCollections, updateCollection, getCollectionById };

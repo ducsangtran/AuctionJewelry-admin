@@ -1,11 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { Form, Input, Button, Table, Space, Modal, message, Select, Descriptions, Row, Col, Typography } from "antd";
-import { deleteValuation, editValuating, getAllValuations, getMyValuations, searchValuationById } from "../../../../../services/api/ValuationApi";
+import {
+    deleteValuation,
+    editValuating,
+    getAllValuations,
+    getAvailableStaff,
+    getMyValuations,
+    searchValuationById,
+} from "../../../../../services/api/ValuationApi";
 import { useSelector } from "react-redux";
 import moment from "moment";
 import ConfirmDeleteModal from "../../../../../components/form/ConfirmDeleteModal";
 import TextArea from "antd/es/input/TextArea";
-import { getAllStaff } from "../../../../../services/api/StaffApi";
 
 const { Option } = Select;
 const { Title } = Typography;
@@ -28,21 +34,22 @@ const ValuationManagement = () => {
     useEffect(() => {
         if (userRole === "Manager" || userRole === "Admin") {
             fetchAllValuations();
+            fetchAvailableStaffs();
         } else {
             fetchMyValuations();
         }
-        fetchAllStaffs();
     }, []);
 
-    const fetchAllStaffs = async () => {
+    const fetchAvailableStaffs = async () => {
         try {
-            const response = await getAllStaff();
+            const response = await getAvailableStaff();
             const staffsData = response.data;
             setStaffsData(staffsData);
         } catch (error) {
             message.error("Failed to fetch staff data.");
         }
     };
+
     const fetchAllValuations = async () => {
         try {
             const response = await getAllValuations();
@@ -63,7 +70,6 @@ const ValuationManagement = () => {
             console.log(response.data);
         } catch (error) {
             console.error("Failed to fetch my valuations data:", error);
-            message.error("Failed to fetch valuations data.");
         }
     };
 
@@ -83,7 +89,9 @@ const ValuationManagement = () => {
         }
 
         try {
-            const filteredData = (userRole === "Manager" || userRole === "Admin" ? valuationsData : myValuationsData).filter((item) => item.staff && item.staff.id === staffId);
+            const filteredData = (userRole === "Manager" || userRole === "Admin" ? valuationsData : myValuationsData).filter(
+                (item) => item.staff && item.staff.id === staffId
+            );
             if (userRole === "Manager" || userRole === "Admin") {
                 setValuationsData(filteredData);
             } else {
@@ -121,13 +129,11 @@ const ValuationManagement = () => {
             sorter: (a, b) => a.desiredPrice - b.desiredPrice,
             sortDirections: ["ascend", "descend"],
         },
-
         {
             title: "Payment Method",
             dataIndex: "paymentMethod",
             key: "paymentMethod",
         },
-
         {
             title: "Valuating Fee",
             dataIndex: "valuatingFee",
@@ -173,11 +179,6 @@ const ValuationManagement = () => {
                     : [],
             onFilter: (value, record) => record.staff && record.staff.id === value,
         },
-        // {
-        //     title: "Staff Id",
-        //     dataIndex: ["staff", "id"],
-        //     key: "staffId",
-        // },
         {
             title: "Status",
             dataIndex: "status",
@@ -186,11 +187,12 @@ const ValuationManagement = () => {
                 { text: "VALUATING", value: "VALUATING" },
                 { text: "VALUATED", value: "VALUATED" },
                 { text: "REQUEST", value: "REQUEST" },
+                { text: "PREPARING", value: "PREPARING" },
             ],
             onFilter: (value, record) => record.status === value,
         },
         {
-            title: "Notes               ",
+            title: "Notes",
             dataIndex: "notes",
             key: "notes",
             render: (text) => <span title={text}>{text.length > 30 ? `${text.substring(0, 30)}...` : text}</span>,
@@ -261,9 +263,21 @@ const ValuationManagement = () => {
             const values = await form.validateFields();
             const { id, address, staffId, valuation_value, notes, status, desiredPrice, paymentMethod, valuatingMethod } = values;
 
-            const UpdatedItem = await editValuating(editingItem.id, address, staffId, valuation_value, notes, status, desiredPrice, paymentMethod, valuatingMethod);
+            const UpdatedItem = await editValuating(
+                editingItem.id,
+                address,
+                staffId,
+                valuation_value,
+                notes,
+                status,
+                desiredPrice,
+                paymentMethod,
+                valuatingMethod
+            );
 
-            const updatedData = (userRole === "Manager" || userRole === "Admin" ? valuationsData : myValuationsData).map((item) => (item.id === UpdatedItem.id ? UpdatedItem : item));
+            const updatedData = (userRole === "Manager" || userRole === "Admin" ? valuationsData : myValuationsData).map((item) =>
+                item.id === UpdatedItem.id ? UpdatedItem : item
+            );
 
             if (userRole === "Manager" || userRole === "Admin") {
                 setValuationsData(updatedData);
@@ -279,6 +293,8 @@ const ValuationManagement = () => {
             } else {
                 fetchMyValuations();
             }
+            // Fetch available staff after updating valuation
+            fetchAvailableStaffs();
             message.success("Success to update valuation.");
         } catch (error) {
             console.error("Failed to update valuation:", error);
@@ -327,21 +343,23 @@ const ValuationManagement = () => {
         }
     };
 
+    const handleStaffChange = (value) => {
+        form.setFieldsValue({
+            status: "PREPARING",
+        });
+    };
+
     return (
         <div>
             <Space style={{ marginBottom: 16 }}>
                 <Input.Search placeholder="Search valuations by ID" onSearch={onSearch} enterButton />
-                {/* <Select placeholder="Filter by Staff ID" onChange={handleStaffIdFilterChange} allowClear style={{ width: 200 }}>
-                    {(userRole === "Manager" || userRole === "Admin" ? valuationsData : myValuationsData)
-                        .filter((valuation) => valuation.staff)
-                        .map((valuation) => (
-                            <Option key={valuation.staff.id} value={valuation.staff.id}>
-                                {valuation.staff.full_name}
-                            </Option>
-                        ))}
-                </Select> */}
             </Space>
-            <Table columns={columns} dataSource={userRole === "Manager" || userRole === "Admin" ? valuationsData : myValuationsData} rowKey="id" />
+            <Table
+                columns={columns}
+                dataSource={userRole === "Manager" || userRole === "Admin" ? valuationsData : myValuationsData}
+                rowKey="id"
+                pagination={{ pageSize: 5 }}
+            />
 
             <Modal width={850} open={modalVisible} onOk={handleModalOk} onCancel={handleModalCancel}>
                 {editingItem && editingItem.jewelry && (
@@ -399,10 +417,10 @@ const ValuationManagement = () => {
                             <Form form={form} onFinish={handleModalOk} initialValues={editingItem}>
                                 {userRole === "Manager" || userRole === "Admin" ? (
                                     <Form.Item label="Staff" name="staffId">
-                                        <Select placeholder="Select a Staff">
+                                        <Select placeholder="Select a Staff" onChange={handleStaffChange}>
                                             {staffsData.map((staff) => (
-                                                <Option key={staff.id} value={staff.id}>
-                                                    {staff.full_name}
+                                                <Option key={staff.user.id} value={staff.user.id}>
+                                                    {staff.user.full_name}
                                                 </Option>
                                             ))}
                                         </Select>
@@ -414,13 +432,18 @@ const ValuationManagement = () => {
                                 <Form.Item label="Notes" name="notes">
                                     <TextArea rows={4} />
                                 </Form.Item>
-                                <Form.Item label="Status" name="status" rules={[{ required: true, message: "Please select your status!" }]}>
+                                <Form.Item
+                                    label="Status"
+                                    name="status"
+                                    rules={[{ required: true, message: "Please select your status!" }]}
+                                >
                                     <Select placeholder="Select your status">
                                         {userRole === "Staff" && <Option value="VALUATING">VALUATING</Option>}
                                         {userRole === "Admin" || userRole === "Manager" ? (
                                             <>
                                                 <Option value="VALUATED">VALUATED</Option>
                                                 <Option value="REJECTED">REJECTED</Option>
+                                                <Option value="PREPARING">PREPARING</Option>
                                             </>
                                         ) : (
                                             <Option value="VALUATING">VALUATING</Option>
