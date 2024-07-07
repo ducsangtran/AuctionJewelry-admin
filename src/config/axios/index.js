@@ -1,18 +1,12 @@
-import { notification } from "antd";
 import axios from "axios";
-// import { setTokens } from '@/core/store/auth/authenticate';
 
 const api = axios.create({
     baseURL: "http://apijewelryauction.techx.id.vn:8081/api/v1/",
+    headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+    },
 });
-
-const openNotificationWithIcon = (type, title) => {
-    notification[type]({
-        message: title,
-        placement: "top",
-        duration: 5,
-    });
-};
 
 api.interceptors.request.use(
     (config) => {
@@ -32,11 +26,8 @@ const refreshToken = async () => {
     if (!refresh) {
         throw new Error("No refresh token available");
     }
-    const response = await axios.post(
-        "http://apijewelryauction.techx.id.vn:8081/api/v1/user/refresh",
-        { refresh }
-    );
-    const { accessToken } = response.data;
+    const response = await axios.post("http://apijewelryauction.techx.id.vn:8081/api/v1/user/refresh", { refreshToken: refresh });
+    const { accessToken } = response.data.data;
     localStorage.setItem("accessToken", accessToken);
     return accessToken;
 };
@@ -54,18 +45,15 @@ api.interceptors.response.use(
                 originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
                 return api(originalRequest);
             } catch (error) {
-                console.log(error);
-                openNotificationWithIcon("warning", error.message);
                 localStorage.removeItem("accessToken");
                 localStorage.removeItem("refreshToken");
                 localStorage.removeItem("fullName");
-                localStorage.removeItem("roleName");
-                window.location.href = "/login";
+                localStorage.removeItem("money");
+                // window.location.href = '/login';
                 return Promise.reject(error);
             }
         }
         return Promise.reject(error);
     }
 );
-
 export default api;
