@@ -5,6 +5,7 @@ import staffReducer from "./slices/staffSlice";
 import managerReducer from "./slices/managerSlice";
 import blogReducer from "./slices/blogSlice";
 import shipperSlice from "./slices/shipperSlice";
+import valuationSlice from './slices/valuationSlice';
 const store = configureStore({
     reducer: {
         auth: authReducer,
@@ -13,6 +14,7 @@ const store = configureStore({
         manager: managerReducer,
         shipper: shipperSlice,
         blog: blogReducer,
+        valuation: valuationSlice
     },
 });
 
