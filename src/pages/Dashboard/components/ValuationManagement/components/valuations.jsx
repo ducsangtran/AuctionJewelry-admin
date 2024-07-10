@@ -416,7 +416,7 @@ const ValuationManagement = () => {
                             <Title level={4}>Edit Valuation</Title>
                             <Form form={form} onFinish={handleModalOk} initialValues={editingItem}>
                                 {userRole === "Manager" || userRole === "Admin" ? (
-                                    <Form.Item label="Staff" name="staffId">
+                                    <Form.Item label="Staff" name="staffId" rules={[{ required: true }]}>
                                         <Select placeholder="Select a Staff" onChange={handleStaffChange}>
                                             {staffsData.map((staff) => (
                                                 <Option key={staff.user.id} value={staff.user.id}>
@@ -443,7 +443,6 @@ const ValuationManagement = () => {
                                             <>
                                                 <Option value="VALUATED">VALUATED</Option>
                                                 <Option value="REJECTED">REJECTED</Option>
-                                                <Option value="PREPARING">PREPARING</Option>
                                             </>
                                         ) : (
                                             <Option value="VALUATING">VALUATING</Option>
