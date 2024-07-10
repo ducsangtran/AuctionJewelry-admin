@@ -75,7 +75,8 @@ const ValuationManagement = () => {
     }
     if (editingItem) {
       form.setFieldsValue({
-        startingPrice: valuationPrice * 0.2,
+        startingPrice:
+          valuationPrice * 0.2 || form.getFieldsValue().valuation_value * 0.2,
       });
     }
   }, [editingItem, form, userRole, valuationPrice]);
@@ -327,7 +328,12 @@ const ValuationManagement = () => {
         staffId,
         valuation_value,
         notes,
-        editingItem?.status === 'VALUATING' ? 'VALUATED' : status,
+        editingItem?.status === 'VALUATING' &&
+          valuation_value > 0 &&
+          startingPrice > 0 &&
+          userRole !== 'Staff'
+          ? 'VALUATED'
+          : status,
         desiredPrice,
         paymentMethod,
         valuatingMethod,
@@ -435,10 +441,11 @@ const ValuationManagement = () => {
         open={modalVisible}
         onCancel={handleModalCancel}
         footer={false}
+        centered
       >
         {editingItem && editingItem.jewelry && (
           <Row gutter={16}>
-            <Col span={8}>
+            <Col span={userRole === 'Staff' ? 8 : 12}>
               <Descriptions title='Jewelry Details' bordered column={2}>
                 <Descriptions.Item label='Name' span={2}>
                   {editingItem.jewelry.name}
@@ -484,13 +491,16 @@ const ValuationManagement = () => {
                 <Descriptions.Item label='Desired Price' span={2}>
                   {editingItem.desiredPrice}
                 </Descriptions.Item>
+                <Descriptions.Item label='Valuation At' span={4}>
+                  {editingItem.address}
+                </Descriptions.Item>
               </Descriptions>
             </Col>
-            <Col span={8}>
+            <Col span={userRole === 'Staff' ? 8 : 12}>
               <Title level={4}>Edit Valuation</Title>
               <Form
                 labelCol={{
-                    span: 24
+                  span: 24,
                 }}
                 form={form}
                 onFinish={handleModalOk}
@@ -501,6 +511,12 @@ const ValuationManagement = () => {
                     <Select
                       placeholder='Select a Staff'
                       onChange={handleStaffChange}
+                      disabled={
+                        editingItem?.status === 'VALUATED' ||
+                        editingItem?.status === 'VALUATING'
+                          ? true
+                          : false
+                      }
                     >
                       {staffsData.map((staff) => (
                         <Option key={staff.user.id} value={staff.user.id}>
@@ -516,11 +532,6 @@ const ValuationManagement = () => {
                       required: true,
                       message: 'Must not be empty',
                     },
-                    {
-                        type: 'number',
-                        min: 10000,
-                        message: 'Must be greater than 10.000d'
-                    },
                     // {
                     // //   validator: validatePrices,
                     // },
@@ -531,7 +542,7 @@ const ValuationManagement = () => {
                   {userRole === 'Admin' || userRole === 'Manager' ? (
                     <InputNumber
                       controls={false}
-                      disabled
+                      readOnly
                       className='!w-full'
                     />
                   ) : (
@@ -542,15 +553,22 @@ const ValuationManagement = () => {
                     />
                   )}
                 </Form.Item>
-                <Form.Item label={`Starting Price (20% of valuation value)`} name={'startingPrice'}>
+                <Form.Item
+                  label={`Starting Price (20% of valuation value)`}
+                  name={'startingPrice'}
+                >
                   {userRole === 'Admin' || userRole === 'Manager' ? (
                     <InputNumber
-                      disabled
+                      readOnly
                       controls={false}
                       className='!w-full'
                     />
                   ) : (
-                    <InputNumber controls={false} readOnly className='!w-full' />
+                    <InputNumber
+                      controls={false}
+                      readOnly
+                      className='!w-full'
+                    />
                   )}
                 </Form.Item>
                 <Form.Item label='Notes' name='notes'>
@@ -583,20 +601,26 @@ const ValuationManagement = () => {
                   </Select>
                 </Form.Item>
                 <Form.Item label='Payment Method' name='paymentMethod'>
-                  <Input />
+                  <Input readOnly />
                 </Form.Item>
                 <Form.Item className='flex justify-center'>
                   <Button type='primary' htmlType='submit'>
-                    {editingItem.status === 'VALUATING'
+                    {editingItem.status === 'VALUATING' &&
+                    editingItem.valuation_value > 0 &&
+                    editingItem.startingPrice > 0
                       ? 'Confirm Valuated'
-                      : 'Submit'}
+                      : 'Edit Valuation'}
                   </Button>
                 </Form.Item>
               </Form>
             </Col>
-            <Col span={8}>
-              {userRole === 'Staff' && <OnlineValuation id={editingItem?.id} />}
-            </Col>
+            {userRole === 'Staff' && (
+              <Col>
+                {userRole === 'Staff' && (
+                  <OnlineValuation id={editingItem?.id} />
+                )}
+              </Col>
+            )}
           </Row>
         )}
       </Modal>
