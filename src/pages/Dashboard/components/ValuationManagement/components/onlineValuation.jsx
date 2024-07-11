@@ -6,6 +6,9 @@ import { setOnlinePrice } from '../../../../../core/store/slices/valuationSlice'
 const { Title } = Typography;
 
 export const OnlineValuation = ({ id }) => {
+  const formatPriceVND = (price) =>
+    price?.toLocaleString('vi', { style: 'currency', currency: 'VND' });
+
   const [loading, setLoading] = useState(false);
   const [dataSource, setDataSource] = useState([]);
   const [data, setData] = useState({});
@@ -51,10 +54,11 @@ export const OnlineValuation = ({ id }) => {
         setLoading(true);
         const response = await valuatingOnline(data);
         setData(response.data);
+        console.log(response);
         setDataSource(response.data.materialPriceResponse);
-        dispatch(setOnlinePrice(response.data.materialPriceResponse.price))
+        dispatch(setOnlinePrice(response.data.valuation_value));
       } catch (error) {
-        console.log(error)
+        console.log(error);
       } finally {
         setLoading(false);
       }
@@ -65,12 +69,11 @@ export const OnlineValuation = ({ id }) => {
   }, [dispatch, id]);
   return (
     <>
-      <Divider className='!my-4 !mx-0 border-gray-200 w-full' />
       {loading ? (
         <Spin />
       ) : (
         <>
-          <Title level={5} className='font-sans !font-semibold mt-2'>
+          <Title level={4} className='font-sans !font-semibold mt-2'>
             Name:{' '}
             <span className='text-red-500'>{data && data?.jewelry?.name}</span>
           </Title>
@@ -87,7 +90,7 @@ export const OnlineValuation = ({ id }) => {
             <Title className='!m-0' level={5}>
               Total Valuate:{' '}
               <span className='text-red-500 font-bold '>
-                {data?.valuation_value}
+                {formatPriceVND(data?.valuation_value)}
               </span>
             </Title>
           </Flex>

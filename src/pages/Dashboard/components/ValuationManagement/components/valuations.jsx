@@ -532,11 +532,11 @@ const ValuationManagement = () => {
                       required: true,
                       message: 'Must not be empty',
                     },
-                    // {
-                    // //   validator: validatePrices,
-                    // },
+                    {
+                      validator: validatePrices,
+                    },
                   ]}
-                  label='Valuation Value'
+                  label='Valuation Value (within ±20% of online price)'
                   name='valuation_value'
                 >
                   {userRole === 'Admin' || userRole === 'Manager' ? (
@@ -549,6 +549,7 @@ const ValuationManagement = () => {
                     <InputNumber
                       controls={false}
                       className='!w-full'
+                      readOnly={editingItem?.status === 'VALUATED' ? true : false}
                       onChange={(e) => setValuationPrice(e)}
                     />
                   )}
@@ -617,7 +618,7 @@ const ValuationManagement = () => {
             {userRole === 'Staff' && (
               <Col>
                 {userRole === 'Staff' && (
-                  <OnlineValuation id={editingItem?.id} />
+                  <OnlineValuation id={editingItem?.jewelry?.id} />
                 )}
               </Col>
             )}
