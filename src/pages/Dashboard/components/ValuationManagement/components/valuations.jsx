@@ -416,6 +416,13 @@ const ValuationManagement = () => {
     });
   };
 
+  const handleValuationChange = (value) => {
+    setValuationPrice(value);
+    form.setFieldsValue({
+      status: 'VALUATING',
+    });
+  };
+
   return (
     <div>
       <Space style={{ marginBottom: 16 }}>
@@ -532,9 +539,13 @@ const ValuationManagement = () => {
                       required: true,
                       message: 'Must not be empty',
                     },
-                    {
-                      validator: validatePrices,
-                    },
+                    ...(userRole === 'STAFF'
+                      ? [
+                          {
+                            validator: validatePrices,
+                          },
+                        ]
+                      : []),
                   ]}
                   label='Valuation Value (within ±20% of online price)'
                   name='valuation_value'
@@ -549,8 +560,10 @@ const ValuationManagement = () => {
                     <InputNumber
                       controls={false}
                       className='!w-full'
-                      readOnly={editingItem?.status === 'VALUATED' ? true : false}
-                      onChange={(e) => setValuationPrice(e)}
+                      readOnly={
+                        editingItem?.status === 'VALUATED' ? true : false
+                      }
+                      onChange={handleValuationChange}
                     />
                   )}
                 </Form.Item>
