@@ -539,7 +539,7 @@ const ValuationManagement = () => {
                       required: true,
                       message: 'Must not be empty',
                     },
-                    ...(userRole === 'STAFF'
+                    ...(userRole === 'Staff'
                       ? [
                           {
                             validator: validatePrices,

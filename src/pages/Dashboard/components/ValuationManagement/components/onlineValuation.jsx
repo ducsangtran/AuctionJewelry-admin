@@ -32,11 +32,13 @@ export const OnlineValuation = ({ id }) => {
       title: 'Price Per Material',
       dataIndex: ['price'],
       key: 'pricePerWeight',
+      render: (data) => formatPriceVND(data)
     },
     {
       title: 'Total',
       dataIndex: ['sum'],
       key: 'totalPerMaterial',
+      render: (data) => formatPriceVND(data)
     },
   ];
 
