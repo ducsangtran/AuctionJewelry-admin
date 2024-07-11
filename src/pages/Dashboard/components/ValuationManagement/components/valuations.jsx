@@ -31,12 +31,18 @@ import useSWR from 'swr';
 
 const fetchValuationData = async () => {
   const response = await getAllValuations();
-  return response.data;
+  const filterData = response.data.filter(
+    (element) => element.status !== 'NOT_PAID'
+  );
+  return filterData;
 };
 
 const fetchMyValuation = async () => {
   const response = await getMyValuations();
-  return response.data;
+  const filterData = response.data.filter(
+    (element) => element.status !== 'NOT_PAID'
+  );
+  return filterData;
 };
 
 const { Option } = Select;
@@ -509,7 +515,11 @@ const ValuationManagement = () => {
                 initialValues={editingItem}
               >
                 {userRole === 'Manager' || userRole === 'Admin' ? (
-                  <Form.Item label='Staff' name='staffId'>
+                  <Form.Item
+                    label='Staff'
+                    name='staffId'
+                    rules={[{ required: true, message: 'Staff must be empty' }]}
+                  >
                     <Select
                       placeholder='Select a Staff'
                       onChange={handleStaffChange}
