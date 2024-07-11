@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Form,
   Input,
@@ -27,22 +27,43 @@ import moment from 'moment';
 import ConfirmDeleteModal from '../../../../../components/form/ConfirmDeleteModal';
 import TextArea from 'antd/es/input/TextArea';
 import { OnlineValuation } from './onlineValuation';
+import useSWR from 'swr';
+
+const fetchValuationData = async () => {
+  const response = await getAllValuations();
+  return response.data;
+};
+
+const fetchMyValuation = async () => {
+  const response = await getMyValuations();
+  return response.data;
+};
 
 const { Option } = Select;
 const { Title } = Typography;
 const ValuationManagement = () => {
   const [form] = Form.useForm();
-  const [valuationsData, setValuationsData] = useState([]);
-  const [myValuationsData, setMyValuationsData] = useState([]);
+  const {
+    data: valuationData,
+    isLoading: valuationLoading,
+    mutate: valuationMutation,
+  } = useSWR('valuation-data', fetchValuationData);
+  const {
+    data: myValuationData,
+    isLoading: myValuationLoading,
+    mutate: myValuationMutation,
+  } = useSWR('my-data', fetchMyValuation);
+  // const {data, myIsLoading, myMutation} = useSWR('my-data', fetchMyValuation)
   const [modalVisible, setModalVisible] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [searchStatus, setSearchStatus] = useState(null);
-  const [staffIdFilter, setStaffIdFilter] = useState(null);
+  // const [staffIdFilter, setStaffIdFilter] = useState(null);
   const [staffsData, setStaffsData] = useState([]);
   const priceOnline = useSelector((state) => state.valuation.onlinePrice);
   const [valuationPrice, setValuationPrice] = useState(0);
+
   const validatePrices = (_, value) => {
     if (priceOnline === undefined) {
       return Promise.reject(new Error('Please input the online price first.'));
@@ -67,17 +88,14 @@ const ValuationManagement = () => {
   const userRoleId = useSelector((state) => state.auth.roleId);
 
   useEffect(() => {
-    if (userRole === 'Manager' || userRole === 'Admin') {
-      fetchAllValuations();
-      fetchAvailableStaffs();
-    } else {
-      fetchMyValuations();
-    }
     if (editingItem) {
       form.setFieldsValue({
         startingPrice:
           valuationPrice * 0.2 || form.getFieldsValue().valuation_value * 0.2,
       });
+    }
+    if (userRole === 'Admin' || userRole === 'Manager') {
+      fetchAvailableStaffs();
     }
   }, [editingItem, form, userRole, valuationPrice]);
 
@@ -90,58 +108,36 @@ const ValuationManagement = () => {
       message.error('Failed to fetch staff data.');
     }
   };
+  // const handleStaffIdFilterChange = (value) => {
+  //   setStaffIdFilter(value);
+  //   filterValuationsByStaffId(value);
+  // };
 
-  const fetchAllValuations = async () => {
-    try {
-      const response = await getAllValuations();
-      const valuationsData = response.data;
-      setValuationsData(valuationsData);
-    } catch (error) {
-      console.error('Failed to fetch all valuations data:', error);
-      message.error('Failed to fetch valuations data.');
-    }
-  };
+  // const filterValuationsByStaffId = async (staffId) => {
+  //   if (!staffId) {
+  //     if (userRole === 'Manager' || userRole === 'Admin') {
+  //       fetchAllValuations();
+  //     } else {
+  //       fetchMyValuations();
+  //     }
+  //     return;
+  //   }
 
-  const fetchMyValuations = async () => {
-    try {
-      const response = await getMyValuations();
-      const myValuationsData = response.data;
-      setMyValuationsData(myValuationsData);
-    } catch (error) {
-      console.error('Failed to fetch my valuations data:', error);
-    }
-  };
-
-  const handleStaffIdFilterChange = (value) => {
-    setStaffIdFilter(value);
-    filterValuationsByStaffId(value);
-  };
-
-  const filterValuationsByStaffId = async (staffId) => {
-    if (!staffId) {
-      if (userRole === 'Manager' || userRole === 'Admin') {
-        fetchAllValuations();
-      } else {
-        fetchMyValuations();
-      }
-      return;
-    }
-
-    try {
-      const filteredData = (
-        userRole === 'Manager' || userRole === 'Admin'
-          ? valuationsData
-          : myValuationsData
-      ).filter((item) => item.staff && item.staff.id === staffId);
-      if (userRole === 'Manager' || userRole === 'Admin') {
-        setValuationsData(filteredData);
-      } else {
-        setMyValuationsData(filteredData);
-      }
-    } catch (error) {
-      message.error('Failed to filter valuations data.');
-    }
-  };
+  //   try {
+  //     const filteredData = (
+  //       userRole === 'Manager' || userRole === 'Admin'
+  //         ? valuationsData
+  //         : myValuationsData
+  //     ).filter((item) => item.staff && item.staff.id === staffId);
+  //     if (userRole === 'Manager' || userRole === 'Admin') {
+  //       setValuationsData(filteredData);
+  //     } else {
+  //       setMyValuationsData(filteredData);
+  //     }
+  //   } catch (error) {
+  //     message.error('Failed to filter valuations data.');
+  //   }
+  // };
 
   const columns = [
     {
@@ -276,9 +272,9 @@ const ValuationManagement = () => {
     try {
       await deleteValuation(id);
       if (userRole === 'Manager' || userRole === 'Admin') {
-        setValuationsData(valuationsData.filter((item) => item.id !== id));
+        valuationMutation();
       } else {
-        setMyValuationsData(myValuationsData.filter((item) => item.id !== id));
+        myValuationMutation();
       }
       message.success('Valuation deleted successfully.');
     } catch (error) {
@@ -322,7 +318,7 @@ const ValuationManagement = () => {
         valuatingMethod,
         startingPrice,
       } = values;
-      const UpdatedItem = await editValuating(
+      await editValuating(
         editingItem.id,
         address,
         staffId,
@@ -340,25 +336,19 @@ const ValuationManagement = () => {
         startingPrice
       );
 
-      const updatedData = (
-        userRole === 'Manager' || userRole === 'Admin'
-          ? valuationsData
-          : myValuationsData
-      ).map((item) => (item.id === UpdatedItem.id ? UpdatedItem : item));
-
       if (userRole === 'Manager' || userRole === 'Admin') {
-        setValuationsData(updatedData);
+        valuationMutation();
       } else {
-        setMyValuationsData(updatedData);
+        myValuationMutation();
       }
 
       form.resetFields();
       setModalVisible(false);
       setEditingItem(null);
       if (userRole === 'Manager' || userRole === 'Admin') {
-        fetchAllValuations();
+        valuationMutation();
       } else {
-        fetchMyValuations();
+        myValuationMutation();
       }
       // Fetch available staff after updating valuation
       fetchAvailableStaffs();
@@ -374,9 +364,9 @@ const ValuationManagement = () => {
       if (!value) {
         // If the search value is empty, fetch all valuations or my valuations based on role
         if (userRole === 'Manager' || userRole === 'Admin') {
-          fetchAllValuations();
+          valuationMutation();
         } else {
-          fetchMyValuations();
+          myValuationMutation();
         }
         setSearchStatus(null);
       } else {
@@ -385,16 +375,16 @@ const ValuationManagement = () => {
         if (Array.isArray(data) && data.length === 0) {
           setSearchStatus('No data found');
           if (userRole === 'Manager' || userRole === 'Admin') {
-            setValuationsData([]);
+            valuationMutation([], false);
           } else {
-            setMyValuationsData([]);
+            myValuationMutation([], false);
           }
         } else {
           setSearchStatus(null);
           if (userRole === 'Manager' || userRole === 'Admin') {
-            setValuationsData(Array.isArray(data) ? data : [data]);
+            valuationMutation(Array.isArray(data) ? data : [data], false);
           } else {
-            setMyValuationsData(Array.isArray(data) ? data : [data]);
+            myValuationMutation(Array.isArray(data) ? data : [data], false);
           }
         }
       }
@@ -403,9 +393,9 @@ const ValuationManagement = () => {
       message.error('Failed to search valuation, Id does not exist!');
       setSearchStatus('No data found');
       if (userRoleId === 1 || userRole === 'Admin') {
-        setValuationsData([]);
+        valuationMutation([], false);
       } else {
-        setMyValuationsData([]);
+        myValuationMutation([], false);
       }
     }
   };
@@ -436,11 +426,16 @@ const ValuationManagement = () => {
         columns={columns}
         dataSource={
           userRole === 'Manager' || userRole === 'Admin'
-            ? valuationsData
-            : myValuationsData
+            ? valuationData
+            : myValuationData
         }
         rowKey='id'
         pagination={{ pageSize: 5 }}
+        loading={
+          userRole === 'Manager' || userRole === 'Admin'
+            ? valuationLoading
+            : myValuationLoading
+        }
       />
 
       <Modal
