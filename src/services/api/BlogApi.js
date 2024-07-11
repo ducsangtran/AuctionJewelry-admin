@@ -13,7 +13,7 @@ const getAllBlog = async () => {
 
 const addBlog = async (data) => {
     try {
-        const response = await api.post("blog", data);
+        const response = await api.post("blog", data, { headers: { "Content-Type": "multipart/form-data" } });
         return response.data;
     } catch (error) {
         console.error("Error adding blog:", error);
