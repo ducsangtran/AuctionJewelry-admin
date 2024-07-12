@@ -56,11 +56,7 @@ const TransactionManagement = () => {
             filters: getUniqueFilterValues(transactions, "sender"),
             onFilter: (value, record) => (record.sender?.full_name || "System") === value,
         },
-        {
-            title: "Status",
-            dataIndex: "status",
-            key: "status",
-        },
+
         {
             title: "Receiver",
             dataIndex: ["receiver", "full_name"],

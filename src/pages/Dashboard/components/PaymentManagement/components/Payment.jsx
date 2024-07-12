@@ -45,13 +45,7 @@ const PaymentManagement = () => {
             render: (text) => moment(text).format("YYYY-MM-DD HH:mm:ss"),
             sorter: (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
         },
-        {
-            title: "Wallet ID",
-            dataIndex: ["wallet", "id"],
-            key: "walletId",
-            sorter: (a, b) => a.wallet.id - b.wallet.id,
-            sortDirections: ["ascend", "descend"],
-        },
+
         {
             title: "User Name",
             dataIndex: ["wallet", "user", "full_name"],

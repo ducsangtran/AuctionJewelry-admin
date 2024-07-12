@@ -8,13 +8,12 @@ import JewelryAdmin from "../../pages/Dashboard/components/JewelryManagement/com
 import CollectionsManagement from "../../pages/Dashboard/components/JewelryManagement/components/Collections/Collections";
 import { Login } from "@pages/Login/Login";
 import { useSelector } from "react-redux";
-import ProtectedRoute from "./ProtectedRoute";
+import { ValidRoute, ProtectedRoute, ValidUser } from "./ProtectedRoute";
 import AuctionManagement from "../../pages/Dashboard/components/AuctionManagement/components/Auctions";
 import ValuationManagement from "../../pages/Dashboard/components/ValuationManagement/components/valuations";
 import StaffManagement from "../../pages/Dashboard/components/AccountManagement/components/StaffList/StaffList";
 import UserManagement from "../../pages/Dashboard/components/AccountManagement/components/UserList/UserList";
 import ManagerManagement from "../../pages/Dashboard/components/AccountManagement/components/ManagerList/ManagerList";
-
 import BlogList from "../../pages/Dashboard/components/Blog/components/BlogList";
 import BlogEdit from "../../pages/Dashboard/components/Blog/components/BlogEdit";
 import AddBlog from "../../pages/Dashboard/components/Blog/components/AddBlog";
@@ -22,6 +21,8 @@ import ValuatingDeliveryManagement from "../../pages/Dashboard/components/Delive
 import JewelryDeliveryManagement from "../../pages/Dashboard/components/DeliveryManagement/components/JewelryDelivery";
 import ShipperManagement from "../../pages/Dashboard/components/AccountManagement/components/ShipperList/ShipperList";
 import PaymentManagement from "../../pages/Dashboard/components/PaymentManagement/components/Payment";
+
+import WalletManagement from "../../pages/Dashboard/components/WalletController/components/Wallet";
 import TransactionManagement from "../../pages/Dashboard/components/TransactionManagement/components/Transaction";
 
 const AppRouting = () => {
@@ -32,7 +33,7 @@ const AppRouting = () => {
             <Route path="/login" element={<Login />} />
 
             <Route exact path="/" element={<ProtectedRoute element={<Dashboard />} />}>
-                <Route path="users" element={<UserManagement />} />
+                <Route path="users" element={<ValidUser element={<UserManagement />} />} />
                 <Route path="staffs" element={<StaffManagement />} />
                 <Route path="managers" element={<ManagerManagement />} />
                 <Route path="shippers" element={<ShipperManagement />} />
@@ -51,6 +52,7 @@ const AppRouting = () => {
                 <Route path="/edit/:id" element={<BlogEdit />} />
                 <Route path="/transactions" element={<TransactionManagement />} />
                 <Route path="/payments" element={<PaymentManagement />} />
+                <Route path="/wallet" element={<ValidRoute element={WalletManagement} />} />
             </Route>
         </Routes>
     );

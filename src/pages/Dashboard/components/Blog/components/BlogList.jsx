@@ -31,7 +31,12 @@ const BlogList = () => {
             key: "createdAt",
             render: (text) => moment(text).format("YYYY-MM-DD HH:mm:ss"),
         },
-        { title: "Title", dataIndex: "title", key: "title" },
+        {
+            title: "Title",
+            dataIndex: "title",
+            key: "title",
+            render: (text, record) => <Link onClick={() => getLinkBlog(record.id)}>{text}</Link>,
+        },
         { title: "User", dataIndex: ["user", "full_name"], key: "userName" }, // Access nested user.full_name
 
         {
@@ -47,7 +52,9 @@ const BlogList = () => {
     const handleAddBlog = () => {
         navigate("/blogs/add");
     };
-
+    const getLinkBlog = (id) => {
+        window.open(`http://jewelryauction.techx.id.vn:8081/blog/detail/${id}`);
+    };
     // Check if blogs.data is an array before using it
     const dataSource = blogData.blogs?.data || []; // Access the data array
 

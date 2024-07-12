@@ -8,6 +8,7 @@ import {
     ContainerOutlined,
     TransactionOutlined,
     ShoppingCartOutlined,
+    AccountBookOutlined,
 } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import React, { useEffect, useState } from "react";
@@ -94,6 +95,15 @@ export const AppLayout = ({ components }) => {
                 icon: <ShoppingCartOutlined />,
                 label: <Link to="/payments">Payments Management</Link>,
             },
+            ...(roleName === "Admin" || roleName === "Manager"
+                ? [
+                      {
+                          key: "17",
+                          icon: <AccountBookOutlined />,
+                          label: <Link to="/wallet">Wallet Management</Link>,
+                      },
+                  ]
+                : []), // If role is Admin or Manager, add Wallet Management
         ];
 
         setMenuItems(items);
