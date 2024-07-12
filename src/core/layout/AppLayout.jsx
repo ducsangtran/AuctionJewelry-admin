@@ -76,6 +76,16 @@ export const AppLayout = ({ components }) => {
                 icon: <MonitorOutlined />,
                 label: <Link to="/blogs">Blog Management</Link>,
             },
+            {
+                key: "15",
+                icon: <MonitorOutlined />,
+                label: <Link to="/transactions">Transactions Management</Link>,
+            },
+            {
+                key: "16",
+                icon: <MonitorOutlined />,
+                label: <Link to="/payments">Payments Management</Link>,
+            },
         ];
 
         setMenuItems(items);

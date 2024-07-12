@@ -1,9 +1,9 @@
 import { Outlet } from "react-router-dom";
 
-export const Transactions = () => {
+export const TransactionManagement = () => {
     return (
         <div>
-            <h1>Transactions</h1>
+            <h1>Transactions Management</h1>
             <Outlet />
         </div>
     );

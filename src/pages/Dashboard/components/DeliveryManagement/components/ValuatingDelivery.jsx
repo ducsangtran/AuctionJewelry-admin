@@ -59,7 +59,11 @@ const ValuatingDeliveryManagement = () => {
             message.error("Failed to fetch deliveries data.");
         }
     };
-
+    // Hàm để tạo danh sách các giá trị filter duy nhất
+    const getUniqueFilterValues = (data, key) => {
+        const uniqueValues = [...new Set(data.map((item) => item[key]?.full_name))];
+        return uniqueValues.map((value) => ({ text: value, value }));
+    };
     const columns = [
         {
             title: "ID",
@@ -93,6 +97,9 @@ const ValuatingDeliveryManagement = () => {
             title: "Shipper",
             dataIndex: ["staff", "full_name"],
             key: "shipperName",
+            filters:
+                roleName === "Admin" || roleName === "Manager" ? getUniqueFilterValues(ValuatingDeliveryData || [], "staff") : [],
+            onFilter: (value, record) => record.staff && record.staff.full_name === value,
         },
         {
             title: "Status",
@@ -235,7 +242,10 @@ const ValuatingDeliveryManagement = () => {
                         <Input disabled />
                     </Form.Item>
                     <Form.Item label="Shipper" name="staffId" rules={[{ required: true }]}>
-                        <Select placeholder="Select a staff">
+                        <Select
+                            placeholder="Select a staff"
+                            disabled={editingItem?.status === "VALUATED" || editingItem?.status === "VALUATING" ? true : false}
+                        >
                             {shipperData.map((shipper) => (
                                 <Option key={shipper.id} value={shipper.id}>
                                     {shipper.full_name}

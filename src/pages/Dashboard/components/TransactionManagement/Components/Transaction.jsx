@@ -1,132 +1,79 @@
-// src/TransactionManagement.js
 import React, { useState, useEffect } from "react";
-import { Table, Tag, Space, Button, Modal, Form, Input } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import { Table, Button, Modal, Form, Input } from "antd";
 import { getAllTransactions } from "../../../../../services/api/TransactionApi";
+import moment from "moment";
+import { render } from "react-dom";
 
 const TransactionManagement = () => {
     const [transactions, setTransactions] = useState([]);
-    const [isModalVisible, setIsModalVisible] = useState(false);
     const [form] = Form.useForm();
 
     useEffect(() => {
-        fetchAllTransaction();
+        fetchAllTransactions();
     }, []);
 
-    const fetchAllTransaction = async () => {
+    const fetchAllTransactions = async () => {
         try {
             const response = await getAllTransactions();
-            const transactions = response.data;
+            const transactions = response;
             setTransactions(transactions);
         } catch (error) {
             console.error("Error fetching transactions:", error);
         }
     };
 
-    const showModal = () => {
-        setIsModalVisible(true);
+    const getUniqueFilterValues = (data, key) => {
+        const uniqueValues = [...new Set(data.map((item) => item[key]?.full_name || "System"))];
+        return uniqueValues.map((value) => ({ text: value, value }));
     };
-
-    const handleCancel = () => {
-        setIsModalVisible(false);
-    };
-
-    const handleOk = () => {
-        form.validateFields().then((values) => {
-            setTransactions([...transactions, { ...values, id: transactions.length + 1 }]);
-            form.resetFields();
-            setIsModalVisible(false);
-        });
-    };
-
     const columns = [
         {
             title: "ID",
             dataIndex: "id",
             key: "id",
+            sorter: (a, b) => a.id - b.id,
+            sortDirections: ["ascend", "descend"],
         },
         {
             title: "Created At",
             dataIndex: "createdAt",
             key: "createdAt",
+            render: (text) => moment(text).format("YYYY-MM-DD HH:mm:ss"),
+            sorter: (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
         },
         {
             title: "Money",
             dataIndex: "money",
             key: "money",
+            sorter: (a, b) => a.money - b.money,
+            sortDirections: ["ascend", "descend"],
         },
         {
             title: "Sender",
-            key: "sender",
-            render: (text, record) => (
-                <Space size="middle">
-                    <span>{record.sender.full_name}</span>
-                    <span>{record.sender.email}</span>
-                </Space>
-            ),
+            dataIndex: ["sender", "full_name"],
+            key: "money",
+            render: (text) => text || "System",
+            filters: getUniqueFilterValues(transactions, "sender"),
+            onFilter: (value, record) => (record.sender?.full_name || "System") === value,
         },
         {
             title: "Status",
             dataIndex: "status",
             key: "status",
-            render: (status) => (
-                <Tag color={status === "Pending" ? "volcano" : "green"} key={status}>
-                    {status}
-                </Tag>
-            ),
         },
         {
-            title: "System Receive",
-            dataIndex: "systemReceive",
-            key: "systemReceive",
-            render: (systemReceive) => (systemReceive ? "Yes" : "No"),
-        },
-        {
-            title: "System Send",
-            dataIndex: "systemSend",
-            key: "systemSend",
-            render: (systemSend) => (systemSend ? "Yes" : "No"),
-        },
-        {
-            title: "Action",
-            key: "action",
-            render: (text, record) => (
-                <Space size="middle">
-                    <Button type="primary">Edit</Button>
-                    <Button type="danger">Delete</Button>
-                </Space>
-            ),
+            title: "Receiver",
+            dataIndex: ["receiver", "full_name"],
+            key: "receiverName",
+            render: (text) => text || "System",
+            filters: getUniqueFilterValues(transactions, "receiver"),
+            onFilter: (value, record) => (record.receiver?.full_name || "System") === value,
         },
     ];
 
     return (
         <div>
-            <Button type="primary" onClick={showModal} icon={<PlusOutlined />} style={{ marginBottom: 16 }}>
-                Add Transaction
-            </Button>
             <Table columns={columns} dataSource={transactions} rowKey="id" />
-            <Modal title="Add Transaction" visible={isModalVisible} onOk={handleOk} onCancel={handleCancel}>
-                <Form form={form} layout="vertical">
-                    <Form.Item name="createdAt" label="Created At" rules={[{ required: true }]}>
-                        <Input />
-                    </Form.Item>
-                    <Form.Item name="money" label="Money" rules={[{ required: true }]}>
-                        <Input />
-                    </Form.Item>
-                    <Form.Item name="sender" label="Sender" rules={[{ required: true }]}>
-                        <Input />
-                    </Form.Item>
-                    <Form.Item name="status" label="Status" rules={[{ required: true }]}>
-                        <Input />
-                    </Form.Item>
-                    <Form.Item name="systemReceive" label="System Receive" rules={[{ required: true }]}>
-                        <Input />
-                    </Form.Item>
-                    <Form.Item name="systemSend" label="System Send" rules={[{ required: true }]}>
-                        <Input />
-                    </Form.Item>
-                </Form>
-            </Modal>
         </div>
     );
 };

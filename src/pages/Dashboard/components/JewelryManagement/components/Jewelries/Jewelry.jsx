@@ -91,10 +91,7 @@ const JewelryAdmin = () => {
             key: "description",
             render: (text) => <span title={text}>{text.length > 35 ? `${text.substring(0, 35)}...` : text}</span>,
         },
-        // { title: "Category", dataIndex: ["category", "name"], key: "category_id" },
-        // { title: "Brand", dataIndex: ["brand", "name"], key: "brandName" },
-        // { title: "Material", dataIndex: ["jewelryMaterials", "material", "name"], key: "materialName" },
-        // { title: "Collection", dataIndex: ["collection", "name"], key: "collection_id" },
+
         { title: "Weight", dataIndex: "weight", key: "weight" },
         { title: "Size", dataIndex: "size", key: "size" },
         { title: "Color", dataIndex: "color", key: "color" },
@@ -109,8 +106,20 @@ const JewelryAdmin = () => {
             ],
             onFilter: (value, record) => record.jewelryCondition === value,
         },
-        { title: "Starting Price", dataIndex: "staringPrice", key: "starting_price", sorter: (a, b) => a.staringPrice - b.staringPrice, sortDirections: ["ascend", "descend"] },
-        { title: "Status", dataIndex: "status", key: "status", filters: statusFilters, onFilter: (value, record) => record.status === value },
+        {
+            title: "Starting Price",
+            dataIndex: "staringPrice",
+            key: "starting_price",
+            sorter: (a, b) => a.staringPrice - b.staringPrice,
+            sortDirections: ["ascend", "descend"],
+        },
+        {
+            title: "Status",
+            dataIndex: "status",
+            key: "status",
+            filters: statusFilters,
+            onFilter: (value, record) => record.status === value,
+        },
         {
             title: "",
             key: "action",
@@ -129,7 +138,13 @@ const JewelryAdmin = () => {
             <Space style={{ marginBottom: 16 }}>
                 <Input.Search placeholder="Search Jewelry By Id" onSearch={onSearch} enterButton />
             </Space>
-            <Table columns={jewelryColumns} dataSource={jewelryData} rowKey="id" pagination={{ pageSize: 7 }} onChange={handleTableChange} />
+            <Table
+                columns={jewelryColumns}
+                dataSource={jewelryData}
+                rowKey="id"
+                pagination={{ pageSize: 6 }}
+                onChange={handleTableChange}
+            />
 
             <JewelryDetails
                 visible={detailModalVisible}
