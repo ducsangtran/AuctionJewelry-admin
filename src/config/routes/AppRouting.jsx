@@ -22,7 +22,7 @@ import JewelryDeliveryManagement from "../../pages/Dashboard/components/Delivery
 import ShipperManagement from "../../pages/Dashboard/components/AccountManagement/components/ShipperList/ShipperList";
 import PaymentManagement from "../../pages/Dashboard/components/PaymentManagement/components/Payment";
 
-import WalletManagement from "../../pages/Dashboard/components/WalletController/components/Wallet";
+import WalletManagement from "../../pages/Dashboard/components/WalletManagement/components/Wallet";
 import TransactionManagement from "../../pages/Dashboard/components/TransactionManagement/Components/Transaction";
 
 const AppRouting = () => {
