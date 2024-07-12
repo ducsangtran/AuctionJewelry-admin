@@ -1,6 +1,14 @@
 import { UserOutlined } from "@ant-design/icons";
 import { Layout, Menu, theme } from "antd";
-import { CrownOutlined, ShoppingOutlined, RocketOutlined, MonitorOutlined } from "@ant-design/icons";
+import {
+    CrownOutlined,
+    ShoppingOutlined,
+    RocketOutlined,
+    MonitorOutlined,
+    ContainerOutlined,
+    TransactionOutlined,
+    ShoppingCartOutlined,
+} from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import AppHeader from "./AppHeader";
@@ -73,17 +81,17 @@ export const AppLayout = ({ components }) => {
             },
             {
                 key: "14",
-                icon: <MonitorOutlined />,
+                icon: <ContainerOutlined />,
                 label: <Link to="/blogs">Blog Management</Link>,
             },
             {
                 key: "15",
-                icon: <MonitorOutlined />,
+                icon: <TransactionOutlined />,
                 label: <Link to="/transactions">Transactions Management</Link>,
             },
             {
                 key: "16",
-                icon: <MonitorOutlined />,
+                icon: <ShoppingCartOutlined />,
                 label: <Link to="/payments">Payments Management</Link>,
             },
         ];
