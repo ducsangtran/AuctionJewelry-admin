@@ -14,6 +14,7 @@ export const MaterialsManagement = () => {
     const [editingMaterial, setEditingMaterial] = useState(null);
     const [form] = Form.useForm();
     const [searchStatus, setSearchStatus] = useState(null);
+    const userRole = localStorage.getItem("roleName");
     useEffect(() => {
         fetchMaterials();
     }, []);
@@ -111,12 +112,16 @@ export const MaterialsManagement = () => {
             key: "action",
             render: (_, record) => (
                 <Space size="middle">
-                    <Button type="primary" primary onClick={() => handleEdit(record)}>
-                        Edit
-                    </Button>
-                    <Button type="primary" danger onClick={() => handleDelete(record.id)}>
-                        Delete
-                    </Button>
+                    {(userRole === "Manager" || userRole === "Admin") && (
+                        <Button type="primary" onClick={() => handleEdit(record)}>
+                            Edit
+                        </Button>
+                    )}
+                    {(userRole === "Manager" || userRole === "Admin") && (
+                        <Button type="primary" danger onClick={() => handleDelete(record.id)}>
+                            Delete
+                        </Button>
+                    )}
                 </Space>
             ),
         },
@@ -150,10 +155,11 @@ export const MaterialsManagement = () => {
     return (
         <div>
             <Space style={{ margin: 15 }}>
-                <Button type="primary" onClick={handleAdd}>
-                    Add Material
-                </Button>
-
+                {(userRole === "Manager" || userRole === "Admin") && (
+                    <Button type="primary" onClick={handleAdd}>
+                        Add Material
+                    </Button>
+                )}
                 <Input.Search placeholder="Search Materials By Id" onSearch={onSearch} enterButton style={{ marginLeft: 20 }} />
             </Space>
             <Table dataSource={materials} columns={columns} rowKey="id" pagination={{ pageSize: 7 }} />

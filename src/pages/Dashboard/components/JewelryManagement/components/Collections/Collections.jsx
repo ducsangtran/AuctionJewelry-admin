@@ -16,6 +16,7 @@ const CollectionsManagement = () => {
     const [editingCollection, setEditingCollection] = useState(null);
     const [form] = Form.useForm();
     const [searchStatus, setSearchStatus] = useState(null);
+    const userRole = localStorage.getItem("roleName");
     useEffect(() => {
         fetchBrands();
         fetchCollections();
@@ -124,13 +125,17 @@ const CollectionsManagement = () => {
             key: "action",
             render: (_, record) => (
                 <>
-                    <Space size={"middle"}>
-                        <Button type="primary" onClick={() => handleEdit(record)}>
-                            Edit
-                        </Button>
-                        <Button type="primary" danger onClick={() => handleDelete(record.id)}>
-                            Delete
-                        </Button>
+                    <Space size="middle">
+                        {(userRole === "Manager" || userRole === "Admin") && (
+                            <Button type="primary" onClick={() => handleEdit(record)}>
+                                Edit
+                            </Button>
+                        )}
+                        {(userRole === "Manager" || userRole === "Admin") && (
+                            <Button type="primary" danger onClick={() => handleDelete(record.id)}>
+                                Delete
+                            </Button>
+                        )}
                     </Space>
                 </>
             ),
@@ -164,9 +169,11 @@ const CollectionsManagement = () => {
     return (
         <div>
             <Space style={{ margin: 15 }}>
-                <Button type="primary" onClick={handleAdd}>
-                    Add Collection
-                </Button>
+                {(userRole === "Manager" || userRole === "Admin") && (
+                    <Button type="primary" onClick={handleAdd}>
+                        Add Collection
+                    </Button>
+                )}
 
                 <Input.Search placeholder="Search Category By Id" onSearch={onSearch} enterButton style={{ marginLeft: 20 }} />
             </Space>

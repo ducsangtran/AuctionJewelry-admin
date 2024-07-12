@@ -22,8 +22,8 @@ import JewelryDeliveryManagement from "../../pages/Dashboard/components/Delivery
 import ShipperManagement from "../../pages/Dashboard/components/AccountManagement/components/ShipperList/ShipperList";
 import PaymentManagement from "../../pages/Dashboard/components/PaymentManagement/components/Payment";
 
-import WalletManagement from "../../pages/Dashboard/components/WalletController/components/Wallet";
-import TransactionManagement from "../../pages/Dashboard/components/TransactionManagement/components/Transaction";
+import WalletManagement from "../../pages/Dashboard/components/WalletManagement/components/Wallet";
+import TransactionManagement from "../../pages/Dashboard/components/TransactionManagement/Components/Transaction";
 
 const AppRouting = () => {
     const Auth = localStorage.getItem("fullName");
@@ -52,7 +52,7 @@ const AppRouting = () => {
                 <Route path="/edit/:id" element={<BlogEdit />} />
                 <Route path="/transactions" element={<TransactionManagement />} />
                 <Route path="/payments" element={<PaymentManagement />} />
-                <Route path="/wallet" element={<ValidRoute element={WalletManagement} />} />
+                <Route path="/wallet" element={<ValidRoute element={<WalletManagement />} />} />
             </Route>
         </Routes>
     );

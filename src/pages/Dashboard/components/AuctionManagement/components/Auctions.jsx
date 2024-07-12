@@ -91,8 +91,8 @@ const AuctionManagement = () => {
         },
         {
             title: "Starting Price",
-            dataIndex: ["jewelry", "startingPrice"],
-            key: "startingPrice",
+            dataIndex: ["jewelry", "staringPrice"],
+            key: "jewelry.staringPrice",
         },
         {
             title: "Step",

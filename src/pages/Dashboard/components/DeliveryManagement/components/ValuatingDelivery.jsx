@@ -83,16 +83,7 @@ const ValuatingDeliveryManagement = () => {
             dataIndex: "full_name",
             key: "full_name",
         },
-        {
-            title: "Jewelry",
-            dataIndex: "jewelry",
-            key: "jewelry",
-        },
-        {
-            title: "Phone Number",
-            dataIndex: "phone_number",
-            key: "phoneNumber",
-        },
+
         {
             title: "Shipper",
             dataIndex: ["staff", "full_name"],
@@ -112,11 +103,7 @@ const ValuatingDeliveryManagement = () => {
             key: "updatedAt",
             render: (text) => moment(text).format("YYYY-MM-DD HH:mm:ss"),
         },
-        {
-            title: "User",
-            dataIndex: "user",
-            key: "user",
-        },
+
         {
             title: "Valuating Delivery",
             dataIndex: "valuatingDelivery",
@@ -137,11 +124,11 @@ const ValuatingDeliveryManagement = () => {
                                 Delete
                             </Button>
                         </>
-                    ) : (
+                    ) : roleName === "Shipper" ? (
                         <Button type="primary" onClick={() => handleConfirm(record.id)} disabled={record.status === "DELIVERED"}>
                             Confirm
                         </Button>
-                    )}
+                    ) : null}
                 </Space>
             ),
         },

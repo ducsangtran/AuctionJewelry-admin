@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import { editDelivered, getAllDeliveries, getDeliveryById, getMyDelivery } from "../../../../../services/api/DeliveryApi";
 import api from "../../../../../config/axios";
 import { getAllShipper } from "../../../../../services/api/ShipperApi";
-
+import moment from "moment";
 const { Option } = Select;
 
 const ValuatingDeliveryManagement = () => {
@@ -17,6 +17,7 @@ const ValuatingDeliveryManagement = () => {
     const [myDeliveryData, setMyDeliveryData] = useState([]);
     const roleName = useSelector((state) => state.auth.roleName);
     const [shipperData, setShipperData] = useState([]);
+    const userRole = useSelector((state) => state.auth.roleName);
     useEffect(() => {
         if (roleName === "Admin" || roleName === "Manager") {
             fetchAllDeliveries();
@@ -81,13 +82,18 @@ const ValuatingDeliveryManagement = () => {
         },
         {
             title: "Jewelry",
-            dataIndex: "jewelry",
+            dataIndex: ["jewelry", "name"],
             key: "jewelry",
         },
         {
             title: "Phone Number",
-            dataIndex: "phoneNumber",
+            dataIndex: ["user", "phone_number"],
             key: "phoneNumber",
+        },
+        {
+            title: "Address",
+            dataIndex: ["address"],
+            key: "address",
         },
         {
             title: "Staff",
@@ -108,11 +114,6 @@ const ValuatingDeliveryManagement = () => {
             key: "updatedAt",
             render: (text) => moment(text).format("YYYY-MM-DD HH:mm:ss"),
         },
-        {
-            title: "User",
-            dataIndex: "user",
-            key: "user",
-        },
 
         {
             title: "Action",
@@ -128,11 +129,11 @@ const ValuatingDeliveryManagement = () => {
                                 Delete
                             </Button>
                         </>
-                    ) : (
+                    ) : roleName === "Shipper" ? (
                         <Button type="primary" onClick={() => handleConfirm(record.id)} disabled={record.status === "DELIVERED"}>
                             Confirm
                         </Button>
-                    )}
+                    ) : null}
                 </Space>
             ),
         },

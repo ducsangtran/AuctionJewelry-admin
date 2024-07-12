@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Table, Button, Modal, Form, Input, DatePicker, message, Space } from "antd";
-import { createCategory, deleteCategory, getAllCategories, getCategoryById, updateCategory } from "../../../../../../services/api/Categories";
+import {
+    createCategory,
+    deleteCategory,
+    getAllCategories,
+    getCategoryById,
+    updateCategory,
+} from "../../../../../../services/api/Categories";
 
 const CategoriesManagement = () => {
     const [categories, setCategories] = useState([]);
@@ -8,6 +14,7 @@ const CategoriesManagement = () => {
     const [editingCategory, setEditingCategory] = useState(null);
     const [form] = Form.useForm();
     const [searchStatus, setSearchStatus] = useState(null);
+    const userRole = localStorage.getItem("roleName");
     useEffect(() => {
         fetchCategories();
     }, []);
@@ -111,13 +118,17 @@ const CategoriesManagement = () => {
             key: "action",
             render: (_, record) => (
                 <>
-                    <Space size={"middle"}>
-                        <Button type="primary" onClick={() => handleEdit(record)}>
-                            Edit
-                        </Button>
-                        <Button type="primary" danger onClick={() => handleDelete(record.id)}>
-                            Delete
-                        </Button>
+                    <Space size="middle">
+                        {(userRole === "Manager" || userRole === "Admin") && (
+                            <Button type="primary" onClick={() => handleEdit(record)}>
+                                Edit
+                            </Button>
+                        )}
+                        {(userRole === "Manager" || userRole === "Admin") && (
+                            <Button type="primary" danger onClick={() => handleDelete(record.id)}>
+                                Delete
+                            </Button>
+                        )}
                     </Space>
                 </>
             ),
@@ -151,15 +162,21 @@ const CategoriesManagement = () => {
     return (
         <div>
             <Space style={{ margin: 15 }}>
-                <Button type="primary" onClick={handleAdd}>
-                    Add Category
-                </Button>
-
+                {(userRole === "Manager" || userRole === "Admin") && (
+                    <Button type="primary" onClick={handleAdd}>
+                        Add Category
+                    </Button>
+                )}
                 <Input.Search placeholder="Search Category By Id" onSearch={onSearch} enterButton style={{ marginLeft: 20 }} />
             </Space>
 
             <Table dataSource={categories} columns={columns} rowKey="id" pagination={{ pageSize: 7 }} />
-            <Modal title={editingCategory ? "Edit Category" : "Add Category"} visible={isModalVisible} onOk={handleOk} onCancel={handleCancel}>
+            <Modal
+                title={editingCategory ? "Edit Category" : "Add Category"}
+                visible={isModalVisible}
+                onOk={handleOk}
+                onCancel={handleCancel}
+            >
                 <Form form={form} layout="vertical">
                     <Form.Item
                         name="name"
