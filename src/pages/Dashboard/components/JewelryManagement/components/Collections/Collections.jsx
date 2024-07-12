@@ -1,8 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { Table, Button, Modal, Form, Input, Select, message, Space } from "antd";
-import { getAllCollections, createCollection, updateCollection, deleteCollection, getCollectionById } from "../../../../../../services/api/Collections";
+import {
+    getAllCollections,
+    createCollection,
+    updateCollection,
+    deleteCollection,
+    getCollectionById,
+} from "../../../../../../services/api/Collections";
 import { getAllBrands } from "../../../../../../services/api/BrandApi";
-
+import moment from "moment";
 const CollectionsManagement = () => {
     const [collections, setCollections] = useState([]);
     const [brands, setBrands] = useState([]);
@@ -94,19 +100,7 @@ const CollectionsManagement = () => {
             }
         }
     };
-    const formatDateTime = (dateString) => {
-        const date = new Date(dateString);
-        if (isNaN(date.getTime())) {
-            // Check if the date is invalid
-            return ""; // Return an empty string if the date is invalid
-        }
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, "0");
-        const day = String(date.getDate()).padStart(2, "0");
-        const hours = String(date.getHours()).padStart(2, "0");
-        const minutes = String(date.getMinutes()).padStart(2, "0");
-        return `${year}-${month}-${day} ${hours}:${minutes}`;
-    };
+
     const columns = [
         { title: "ID", dataIndex: "id", key: "id", sorter: (a, b) => a.id - b.id, sortDirections: ["ascend", "descend"] },
         { title: "Name", dataIndex: "name", key: "name" },
@@ -115,14 +109,14 @@ const CollectionsManagement = () => {
             title: "Created At",
             dataIndex: "createdAt",
             key: "created_at",
-            render: (text) => formatDateTime(text),
+            render: (text) => moment(text).format("YYYY-MM-DD HH:mm:ss"),
             sorter: (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
         },
         {
             title: "Updated At",
             dataIndex: "updatedAt",
             key: "updated_at",
-            render: (text) => formatDateTime(text),
+            render: (text) => moment(text).format("YYYY-MM-DD HH:mm:ss"),
             sorter: (a, b) => new Date(a.updatedAt) - new Date(b.updatedAt),
         },
         {
@@ -177,7 +171,12 @@ const CollectionsManagement = () => {
                 <Input.Search placeholder="Search Category By Id" onSearch={onSearch} enterButton style={{ marginLeft: 20 }} />
             </Space>
             <Table dataSource={collections} columns={columns} rowKey="id" pagination={{ pageSize: 7 }} />
-            <Modal title={editingCollection ? "Edit Collection" : "Add Collection"} visible={isModalVisible} onOk={() => form.submit()} onCancel={handleCancel}>
+            <Modal
+                title={editingCollection ? "Edit Collection" : "Add Collection"}
+                visible={isModalVisible}
+                onOk={() => form.submit()}
+                onCancel={handleCancel}
+            >
                 <Form form={form} layout="vertical" onFinish={handleFormSubmit}>
                     <Form.Item
                         name="name"

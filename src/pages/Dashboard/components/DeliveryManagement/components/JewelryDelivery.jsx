@@ -55,7 +55,11 @@ const ValuatingDeliveryManagement = () => {
             message.error("Failed to fetch user data.");
         }
     };
-
+    // Hàm để tạo danh sách các giá trị filter duy nhất
+    const getUniqueFilterValues = (data, key) => {
+        const uniqueValues = [...new Set(data.map((item) => item[key]?.full_name))];
+        return uniqueValues.map((value) => ({ text: value, value }));
+    };
     const columns = [
         {
             title: "ID",
@@ -68,6 +72,7 @@ const ValuatingDeliveryManagement = () => {
             title: "Created At",
             dataIndex: "createdAt",
             key: "createdAt",
+            render: (text) => moment(text).format("YYYY-MM-DD HH:mm:ss"),
         },
         {
             title: "Full Name",
@@ -88,6 +93,9 @@ const ValuatingDeliveryManagement = () => {
             title: "Staff",
             dataIndex: ["staff", "full_name"],
             key: "staff",
+            filters:
+                roleName === "Admin" || roleName === "Manager" ? getUniqueFilterValues(JewelryDeliveryData || [], "staff") : [],
+            onFilter: (value, record) => record.staff && record.staff.full_name === value,
         },
         {
             title: "Status",
@@ -98,6 +106,7 @@ const ValuatingDeliveryManagement = () => {
             title: "Updated At",
             dataIndex: "updatedAt",
             key: "updatedAt",
+            render: (text) => moment(text).format("YYYY-MM-DD HH:mm:ss"),
         },
         {
             title: "User",
@@ -228,7 +237,10 @@ const ValuatingDeliveryManagement = () => {
                         <Input disabled />
                     </Form.Item>
                     <Form.Item label="Staff" name="staff_id" rules={[{ required: true }]}>
-                        <Select placeholder="Select a staff">
+                        <Select
+                            placeholder="Select a staff"
+                            disabled={editingItem?.status === "VALUATED" || editingItem?.status === "VALUATING" ? true : false}
+                        >
                             {shipperData.map((shipper) => (
                                 <Option key={shipper.id} value={shipper.id}>
                                     {shipper.full_name}

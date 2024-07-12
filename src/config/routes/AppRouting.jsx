@@ -21,6 +21,8 @@ import AddBlog from "../../pages/Dashboard/components/Blog/components/AddBlog";
 import ValuatingDeliveryManagement from "../../pages/Dashboard/components/DeliveryManagement/components/ValuatingDelivery";
 import JewelryDeliveryManagement from "../../pages/Dashboard/components/DeliveryManagement/components/JewelryDelivery";
 import ShipperManagement from "../../pages/Dashboard/components/AccountManagement/components/ShipperList/ShipperList";
+import PaymentManagement from "../../pages/Dashboard/components/PaymentManagement/components/Payment";
+import TransactionManagement from "../../pages/Dashboard/components/TransactionManagement/components/Transaction";
 
 const AppRouting = () => {
     const Auth = localStorage.getItem("fullName");
@@ -47,6 +49,8 @@ const AppRouting = () => {
                 <Route path="blogs" element={<BlogList />} />
                 <Route path="/blogs/add" element={<AddBlog />} />
                 <Route path="/edit/:id" element={<BlogEdit />} />
+                <Route path="/transactions" element={<TransactionManagement />} />
+                <Route path="/payments" element={<PaymentManagement />} />
             </Route>
         </Routes>
     );

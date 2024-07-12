@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchBlogs } from "../../../../../core/store/slices/blogSlice";
 import TotalBlog from "./TotalBlog";
+import moment from "moment";
 
 const BlogList = () => {
     const dispatch = useDispatch();
@@ -24,8 +25,15 @@ const BlogList = () => {
 
     const columns = [
         { title: "ID", dataIndex: "id", key: "id" },
+        {
+            title: "Created At",
+            dataIndex: "createdAt",
+            key: "createdAt",
+            render: (text) => moment(text).format("YYYY-MM-DD HH:mm:ss"),
+        },
         { title: "Title", dataIndex: "title", key: "title" },
         { title: "User", dataIndex: ["user", "full_name"], key: "userName" }, // Access nested user.full_name
+
         {
             title: "Images",
             key: "images",
@@ -33,17 +41,6 @@ const BlogList = () => {
                 const url = imageURL(record.blogImages[0]?.url);
                 return url ? <Image width={100} src={url} alt="Blog Image" preview={false} /> : <span>No images</span>;
             },
-        },
-        {
-            title: "Actions",
-            key: "actions",
-            render: (text, record) => (
-                <span>
-                    <Link to={`/edit/${record.id}`}>
-                        <Button type="primary">Edit</Button>
-                    </Link>
-                </span>
-            ),
         },
     ];
 

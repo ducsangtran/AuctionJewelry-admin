@@ -30,6 +30,12 @@ const AuctionManagement = () => {
         }
     };
 
+    // Hàm để tạo danh sách các giá trị filter duy nhất
+    const getUniqueFilterValues = (data, key) => {
+        const uniqueValues = [...new Set(data.map((item) => item[key]?.full_name).filter((value) => value))];
+        return uniqueValues.map((value) => ({ text: value, value }));
+    };
+
     const columns = [
         {
             title: "ID",
@@ -76,6 +82,12 @@ const AuctionManagement = () => {
             title: "Status",
             dataIndex: "status",
             key: "status",
+            filters: [
+                { text: "InProgress", value: "InProgress" },
+                { text: "Waiting", value: "Waiting" },
+                // { text: "Done", value: "Done" },
+            ],
+            onFilter: (value, record) => record.status === value,
         },
         {
             title: "Starting Price",
@@ -86,11 +98,15 @@ const AuctionManagement = () => {
             title: "Step",
             dataIndex: "step",
             key: "step",
+            sorter: (a, b) => a.step - b.step,
+            sortDirections: ["ascend", "descend"],
         },
         {
             title: "Total Bid",
             dataIndex: "totalBids",
             key: "totalBids",
+            sorter: (a, b) => a.totalBids - b.totalBids,
+            sortDirections: ["ascend", "descend"],
         },
         {
             title: "Updated At",
@@ -102,7 +118,9 @@ const AuctionManagement = () => {
         {
             title: "Winner",
             dataIndex: ["winner", "full_name"],
-            key: "winnerName",
+            key: "winner.full_name",
+            filters: getUniqueFilterValues(AuctionsData, "winner"),
+            onFilter: (value, record) => record.winner && record.winner.full_name === value,
         },
         {
             title: "Action",

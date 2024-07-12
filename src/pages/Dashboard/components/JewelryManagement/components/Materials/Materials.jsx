@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Table, Button, Modal, Form, Input, Space, message } from "antd";
-import { createMaterial, getAllMaterials, updateMaterial, deleteMaterial, getMaterialById } from "../../../../../../services/api/MaterialApi";
-
+import {
+    createMaterial,
+    getAllMaterials,
+    updateMaterial,
+    deleteMaterial,
+    getMaterialById,
+} from "../../../../../../services/api/MaterialApi";
+import moment from "moment";
 export const MaterialsManagement = () => {
     const [materials, setMaterials] = useState([]);
     const [isModalVisible, setIsModalVisible] = useState(false);
@@ -81,19 +87,6 @@ export const MaterialsManagement = () => {
         setIsModalVisible(false);
         form.resetFields();
     };
-    const formatDateTime = (dateString) => {
-        const date = new Date(dateString);
-        if (isNaN(date.getTime())) {
-            // Check if the date is invalid
-            return ""; // Return an empty string if the date is invalid
-        }
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, "0");
-        const day = String(date.getDate()).padStart(2, "0");
-        const hours = String(date.getHours()).padStart(2, "0");
-        const minutes = String(date.getMinutes()).padStart(2, "0");
-        return `${year}-${month}-${day} ${hours}:${minutes}`;
-    };
 
     const columns = [
         { title: "ID", dataIndex: "id", key: "id", sorter: (a, b) => a.id - b.id, sortDirections: ["ascend", "descend"] },
@@ -103,14 +96,14 @@ export const MaterialsManagement = () => {
             title: "Created At",
             dataIndex: "createdAt",
             key: "createdAt",
-            render: (text) => formatDateTime(text),
+            render: (text) => moment(text).format("YYYY-MM-DD HH:mm:ss"),
             sorter: (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
         },
         {
             title: "Updated At",
             dataIndex: "updatedAt",
             key: "updatedAt",
-            render: (text) => formatDateTime(text),
+            render: (text) => moment(text).format("YYYY-MM-DD HH:mm:ss"),
             sorter: (a, b) => new Date(a.updatedAt) - new Date(b.updatedAt),
         },
         {
@@ -164,7 +157,12 @@ export const MaterialsManagement = () => {
                 <Input.Search placeholder="Search Materials By Id" onSearch={onSearch} enterButton style={{ marginLeft: 20 }} />
             </Space>
             <Table dataSource={materials} columns={columns} rowKey="id" pagination={{ pageSize: 7 }} />
-            <Modal title={editingMaterial ? "Edit Material" : "Add Material"} visible={isModalVisible} onOk={handleOk} onCancel={handleCancel}>
+            <Modal
+                title={editingMaterial ? "Edit Material" : "Add Material"}
+                visible={isModalVisible}
+                onOk={handleOk}
+                onCancel={handleCancel}
+            >
                 <Form form={form} layout="vertical">
                     <Form.Item
                         name="name"
