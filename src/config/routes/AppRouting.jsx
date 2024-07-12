@@ -23,7 +23,7 @@ import ShipperManagement from "../../pages/Dashboard/components/AccountManagemen
 import PaymentManagement from "../../pages/Dashboard/components/PaymentManagement/components/Payment";
 
 import WalletManagement from "../../pages/Dashboard/components/WalletController/components/Wallet";
-import TransactionManagement from "../../pages/Dashboard/components/TransactionManagement/components/Transaction";
+import TransactionManagement from "../../pages/Dashboard/components/TransactionManagement/Components/Transaction";
 
 const AppRouting = () => {
     const Auth = localStorage.getItem("fullName");
