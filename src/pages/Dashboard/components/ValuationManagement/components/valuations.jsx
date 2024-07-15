@@ -187,7 +187,12 @@ const ValuationManagement = () => {
             title: "Notes",
             dataIndex: "notes",
             key: "notes",
-            render: (text) => <span title={text}>{text.length > 30 ? `${text.substring(0, 30)}...` : text}</span>,
+            render: (text) => {
+                if (typeof text === "string" && (text.trim() === "" || text.trim().toLowerCase() === "string")) {
+                    return "";
+                }
+                return <span title={text}>{text.length > 30 ? `${text.substring(0, 30)}...` : text}</span>;
+            },
         },
         {
             title: "Action",
@@ -197,9 +202,11 @@ const ValuationManagement = () => {
                     <Button onClick={() => handleEdit(record)} type="primary">
                         Edit
                     </Button>
-                    <Button onClick={() => showDeleteModal(record.id)} type="primary" danger>
-                        Delete
-                    </Button>
+                    {record.status === "REQUEST" && (
+                        <Button onClick={() => showDeleteModal(record.id)} type="primary" danger>
+                            Delete
+                        </Button>
+                    )}
                 </Space>
             ),
         },
