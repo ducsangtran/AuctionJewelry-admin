@@ -38,7 +38,7 @@ const AppHeader = () => {
     };
     return (
         <Flex className="mx-28 h-full" vertical gap={"0.8rem"}>
-            <Flex justify="space-between" className="h-20 ">
+            <Flex justify="space-between" className="!h-full">
                 <Flex flex={0.4} justify="start" align="center">
                     <Title style={{ marginBottom: "0" }} className="w-3/5 font-serif" level={4}>
                         JEWELRY AUCTION
@@ -46,12 +46,18 @@ const AppHeader = () => {
                 </Flex>
                 <Flex flex={0.3} justify="end" align="center">
                     <Dropdown overlay={menu} placement="bottomRight">
-                        <Avatar
-                            style={{ backgroundColor: "#87d068", cursor: "pointer" }}
-                            icon={<UserOutlined />}
-                        >
-                            {getInitials(fullName)}
-                        </Avatar>
+                        <div className='flex gap-5 items-center border border-gray px-5 rounded-lg cursor-pointer py-1'>
+                            <Avatar
+                                style={{ backgroundColor: "#87d068", cursor: "pointer" }}
+                                icon={<UserOutlined />}
+                            >
+                                {getInitials(fullName)}
+                            </Avatar>
+                            <div className='flex flex-col gap-1'>
+                                <Typography.Title className='!text-sm !m-0 !font-bold'>{fullName}</Typography.Title>
+                                <Typography.Title className='!text-xs !text-gray-500 !m-0'>Role: {localStorage.getItem('roleName')}</Typography.Title>
+                            </div>
+                        </div>
                     </Dropdown>
                 </Flex>
             </Flex>
