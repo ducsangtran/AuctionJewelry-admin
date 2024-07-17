@@ -1,551 +1,648 @@
-import { useState, useEffect } from "react";
-import { Form, Input, Button, Table, Space, Modal, message, Select, Descriptions, Row, Col, Typography, InputNumber } from "antd";
+import { useState, useEffect } from 'react';
 import {
-    deleteValuation,
-    editValuating,
-    getAllValuations,
-    getAvailableStaff,
-    getMyValuations,
-    searchValuationById,
-} from "../../../../../services/api/ValuationApi";
-import { useSelector } from "react-redux";
-import moment from "moment";
-import ConfirmDeleteModal from "../../../../../components/form/ConfirmDeleteModal";
-import TextArea from "antd/es/input/TextArea";
-import { OnlineValuation } from "./onlineValuation";
-import useSWR from "swr";
+  Form,
+  Input,
+  Button,
+  Table,
+  Space,
+  Modal,
+  message,
+  Select,
+  Descriptions,
+  Row,
+  Col,
+  Typography,
+  InputNumber,
+} from 'antd';
+import {
+  deleteValuation,
+  editValuating,
+  getAllValuations,
+  getAvailableStaff,
+  getMyValuations,
+  searchValuationById,
+} from '../../../../../services/api/ValuationApi';
+import { useSelector } from 'react-redux';
+import moment from 'moment';
+import ConfirmDeleteModal from '../../../../../components/form/ConfirmDeleteModal';
+import TextArea from 'antd/es/input/TextArea';
+import { OnlineValuation } from './onlineValuation';
+import useSWR from 'swr';
 
 const fetchValuationData = async () => {
-    const response = await getAllValuations();
-    const filterData = response.data.filter((element) => element.status !== "NOT_PAID");
-    return filterData;
+  const response = await getAllValuations();
+  const filterData = response.data.filter(
+    (element) => element.status !== 'NOT_PAID'
+  );
+  return filterData;
 };
 
 const fetchMyValuation = async () => {
-    const response = await getMyValuations();
-    const filterData = response.data.filter((element) => element.status !== "NOT_PAID");
-    return filterData;
+  const response = await getMyValuations();
+  const filterData = response.data.filter(
+    (element) => element.status !== 'NOT_PAID'
+  );
+  return filterData;
 };
 
 const { Option } = Select;
 const { Title } = Typography;
 const ValuationManagement = () => {
-    const [form] = Form.useForm();
-    const {
-        data: valuationData,
-        isLoading: valuationLoading,
-        mutate: valuationMutation,
-    } = useSWR("valuation-data", fetchValuationData);
-    const {
-        data: myValuationData,
-        isLoading: myValuationLoading,
-        mutate: myValuationMutation,
-    } = useSWR("my-data", fetchMyValuation);
-    // const {data, myIsLoading, myMutation} = useSWR('my-data', fetchMyValuation)
-    const [modalVisible, setModalVisible] = useState(false);
-    const [editingItem, setEditingItem] = useState(null);
-    const [deleteModalVisible, setDeleteModalVisible] = useState(false);
-    const [deleteId, setDeleteId] = useState(null);
-    const [searchStatus, setSearchStatus] = useState(null);
-    // const [staffIdFilter, setStaffIdFilter] = useState(null);
-    const [staffsData, setStaffsData] = useState([]);
-    const priceOnline = useSelector((state) => state.valuation.onlinePrice);
-    const [valuationPrice, setValuationPrice] = useState(0);
+  const [form] = Form.useForm();
+  const {
+    data: valuationData,
+    isLoading: valuationLoading,
+    mutate: valuationMutation,
+  } = useSWR('valuation-data', fetchValuationData);
+  const {
+    data: myValuationData,
+    isLoading: myValuationLoading,
+    mutate: myValuationMutation,
+  } = useSWR('my-data', fetchMyValuation);
+  // const {data, myIsLoading, myMutation} = useSWR('my-data', fetchMyValuation)
+  const [modalVisible, setModalVisible] = useState(false);
+  const [editingItem, setEditingItem] = useState(null);
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [deleteId, setDeleteId] = useState(null);
+  const [searchStatus, setSearchStatus] = useState(null);
+  // const [staffIdFilter, setStaffIdFilter] = useState(null);
+  const [staffsData, setStaffsData] = useState([]);
+  const priceOnline = useSelector((state) => state.valuation.onlinePrice);
+  const [valuationPrice, setValuationPrice] = useState(0);
+  const [valuationStatus, setValuationStatus] = useState('');
 
-    const validatePrices = (_, value) => {
-        if (priceOnline === undefined) {
-            return Promise.reject(new Error("Please input the online price first."));
+  const validatePrices = (_, value) => {
+    if (priceOnline === undefined) {
+      return Promise.reject(new Error('Please input the online price first.'));
+    }
+
+    const valuationPrice = value;
+    const lowerBound = priceOnline * 0.8;
+    const upperBound = priceOnline * 1.2;
+
+    if (valuationPrice < lowerBound || valuationPrice > upperBound) {
+      return Promise.reject(
+        new Error('Valuation price must be within ±20% of online price.')
+      );
+    }
+
+    return Promise.resolve();
+  };
+
+  // Fetch user role from Redux store
+  const userRole = useSelector((state) => state.auth.roleName);
+
+  const userRoleId = useSelector((state) => state.auth.roleId);
+
+  useEffect(() => {
+    if (editingItem) {
+      form.setFieldsValue({
+        startingPrice:
+          valuationPrice * 0.2 || form.getFieldsValue().valuation_value * 0.2,
+      });
+    }
+    if (userRole === 'Admin' || userRole === 'Manager') {
+      fetchAvailableStaffs();
+    }
+  }, [editingItem, form, userRole, valuationPrice]);
+
+  const fetchAvailableStaffs = async () => {
+    try {
+      const response = await getAvailableStaff();
+      const staffsData = response.data;
+      setStaffsData(staffsData);
+    } catch (error) {
+      message.error('Failed to fetch staff data.');
+    }
+  };
+
+  const columns = [
+    {
+      title: 'ID',
+      dataIndex: 'id',
+      key: 'id',
+      sorter: (a, b) => a.id - b.id,
+      sortDirections: ['ascend', 'descend'],
+    },
+    {
+      title: 'Jewelry',
+      dataIndex: ['jewelry', 'name'],
+      key: 'jewelry',
+    },
+    {
+      title: 'Created At',
+      dataIndex: 'createdAt',
+      key: 'createdAt',
+      render: (text) => moment(text).format('YY-MM-DD HH:mm'),
+      sorter: (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
+    },
+    {
+      title: 'Desired Price',
+      dataIndex: 'desiredPrice',
+      key: 'desiredPrice',
+      sorter: (a, b) => a.desiredPrice - b.desiredPrice,
+      sortDirections: ['ascend', 'descend'],
+    },
+    {
+      title: 'Payment Method',
+      dataIndex: 'paymentMethod',
+      key: 'paymentMethod',
+    },
+    {
+      title: 'Valuating Fee',
+      dataIndex: 'valuatingFee',
+      key: 'valuatingFee',
+      sorter: (a, b) => a.valuatingFee - b.valuatingFee,
+      sortDirections: ['ascend', 'descend'],
+    },
+    {
+      title: 'Valuating Method',
+      dataIndex: 'valuatingMethod',
+      key: 'valuatingMethod',
+    },
+    {
+      title: 'Valuation Value',
+      dataIndex: 'valuation_value',
+      key: 'valuation_value',
+      sorter: (a, b) => a.valuation_value - b.valuation_value,
+      sortDirections: ['ascend', 'descend'],
+    },
+    {
+      title: 'Online',
+      dataIndex: 'online',
+      key: 'online',
+      render: (text) => (text ? 'True' : 'False'),
+    },
+    {
+      title: 'Updated At',
+      dataIndex: 'updatedAt',
+      key: 'updatedAt',
+      render: (text) => moment(text).format('YY-MM-DD HH:mm'),
+      sorter: (a, b) => new Date(a.updatedAt) - new Date(b.updatedAt),
+    },
+    {
+      title: 'Staff Name',
+      dataIndex: ['staff', 'full_name'],
+      key: 'staffName',
+      filters:
+        userRole === 'Admin' || userRole === 'Manager'
+          ? staffsData.map((staff) => ({
+              text: staff.full_name,
+              value: staff.id,
+            }))
+          : [],
+      onFilter: (value, record) => record.staff && record.staff.id === value,
+    },
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
+      filters: [
+        { text: 'VALUATING', value: 'VALUATING' },
+        { text: 'VALUATED', value: 'VALUATED' },
+        { text: 'REQUEST', value: 'REQUEST' },
+        { text: 'PREPARING', value: 'PREPARING' },
+      ],
+      onFilter: (value, record) => record.status === value,
+    },
+    {
+      title: 'Notes',
+      dataIndex: 'notes',
+      key: 'notes',
+      render: (text) => {
+        if (
+          typeof text === 'string' &&
+          (text.trim() === '' || text.trim().toLowerCase() === 'string')
+        ) {
+          return '';
         }
+        return (
+          <span title={text}>
+            {text.length > 30 ? `${text.substring(0, 30)}...` : text}
+          </span>
+        );
+      },
+    },
+    {
+      title: 'Action',
+      key: 'action',
+      render: (text, record) => (
+        <Space size='middle'>
+          <Button onClick={() => handleEdit(record)} type='primary'>
+            Edit
+          </Button>
+          {record.status === 'REQUEST' && (
+            <Button
+              onClick={() => showDeleteModal(record.id)}
+              type='primary'
+              danger
+            >
+              Delete
+            </Button>
+          )}
+        </Space>
+      ),
+    },
+  ];
 
-        const valuationPrice = value;
-        const lowerBound = priceOnline * 0.8;
-        const upperBound = priceOnline * 1.2;
+  const handleEdit = (record) => {
+    setEditingItem(record);
+    form.setFieldsValue({
+      ...record,
+      staffId: record.staff?.id,
+      full_name: record.staff?.full_name,
+    });
+    setModalVisible(true);
+  };
 
-        if (valuationPrice < lowerBound || valuationPrice > upperBound) {
-            return Promise.reject(new Error("Valuation price must be within ±20% of online price."));
+  const handleDelete = async (id) => {
+    try {
+      await deleteValuation(id);
+      if (userRole === 'Manager' || userRole === 'Admin') {
+        valuationMutation();
+      } else {
+        myValuationMutation();
+      }
+      message.success('Valuation deleted successfully.');
+    } catch (error) {
+      console.error('Failed to delete valuation:', error);
+      message.error('Failed to delete valuation.');
+    }
+  };
+
+  const showDeleteModal = (id) => {
+    setDeleteId(id);
+    setDeleteModalVisible(true);
+  };
+
+  const handleConfirmDelete = () => {
+    handleDelete(deleteId);
+    setDeleteModalVisible(false);
+  };
+
+  const handleCancelDelete = () => {
+    setDeleteModalVisible(false);
+  };
+
+  const handleModalCancel = () => {
+    setModalVisible(false);
+    form.resetFields();
+    setEditingItem(null);
+    setValuationStatus('')
+  };
+
+  const handleModalOk = async () => {
+    try {
+      const values = await form.validateFields();
+      const {
+        id,
+        address,
+        staffId,
+        valuation_value,
+        notes,
+        status,
+        desiredPrice,
+        paymentMethod,
+        valuatingMethod,
+        startingPrice,
+      } = values;
+      await editValuating(
+        editingItem.id,
+        address,
+        staffId,
+        valuation_value,
+        notes,
+        editingItem?.status === 'VALUATING' &&
+          valuation_value > 0 &&
+          startingPrice > 0 &&
+          userRole !== 'Staff'
+          ? 'VALUATED'
+          : status,
+        desiredPrice,
+        paymentMethod,
+        valuatingMethod,
+        startingPrice
+      );
+
+      if (userRole === 'Manager' || userRole === 'Admin') {
+        valuationMutation();
+      } else {
+        myValuationMutation();
+      }
+
+      form.resetFields();
+      setModalVisible(false);
+      setEditingItem(null);
+      if (userRole === 'Manager' || userRole === 'Admin') {
+        valuationMutation();
+      } else {
+        myValuationMutation();
+      }
+      // Fetch available staff after updating valuation
+      fetchAvailableStaffs();
+      message.success('Success to update valuation.');
+    } catch (error) {
+      console.error('Failed to update valuation:', error);
+      message.error('Failed to update valuation.');
+    }
+  };
+
+  const onSearch = async (value) => {
+    try {
+      if (!value) {
+        // If the search value is empty, fetch all valuations or my valuations based on role
+        if (userRole === 'Manager' || userRole === 'Admin') {
+          valuationMutation();
+        } else {
+          myValuationMutation();
         }
-
-        return Promise.resolve();
-    };
-
-    // Fetch user role from Redux store
-    const userRole = useSelector((state) => state.auth.roleName);
-
-    const userRoleId = useSelector((state) => state.auth.roleId);
-
-    useEffect(() => {
-        if (editingItem) {
-            form.setFieldsValue({
-                startingPrice: valuationPrice * 0.2 || form.getFieldsValue().valuation_value * 0.2,
-            });
+        setSearchStatus(null);
+      } else {
+        const response = await searchValuationById(value);
+        const data = response.data;
+        if (Array.isArray(data) && data.length === 0) {
+          setSearchStatus('No data found');
+          if (userRole === 'Manager' || userRole === 'Admin') {
+            valuationMutation([], false);
+          } else {
+            myValuationMutation([], false);
+          }
+        } else {
+          setSearchStatus(null);
+          if (userRole === 'Manager' || userRole === 'Admin') {
+            valuationMutation(Array.isArray(data) ? data : [data], false);
+          } else {
+            myValuationMutation(Array.isArray(data) ? data : [data], false);
+          }
         }
-        if (userRole === "Admin" || userRole === "Manager") {
-            fetchAvailableStaffs();
+      }
+    } catch (error) {
+      console.error('Failed to search valuation by ID:', error);
+      message.error('Failed to search valuation, Id does not exist!');
+      setSearchStatus('No data found');
+      if (userRoleId === 1 || userRole === 'Admin') {
+        valuationMutation([], false);
+      } else {
+        myValuationMutation([], false);
+      }
+    }
+  };
+
+  const handleStaffChange = (value) => {
+    form.setFieldsValue({
+      status: 'PREPARING',
+    });
+  };
+
+  const handleValuationChange = (value) => {
+    setValuationPrice(value);
+    form.setFieldsValue({
+      status: 'VALUATING',
+    });
+  };
+
+  const handleRejected = (value) => {
+    setValuationStatus(value);
+  };
+
+  return (
+    <div>
+      <Space style={{ marginBottom: 16 }}>
+        <Input.Search
+          placeholder='Search valuations by ID'
+          onSearch={onSearch}
+          enterButton
+        />
+      </Space>
+      <Table
+        columns={columns}
+        dataSource={
+          userRole === 'Manager' || userRole === 'Admin'
+            ? valuationData
+            : myValuationData
         }
-    }, [editingItem, form, userRole, valuationPrice]);
-
-    const fetchAvailableStaffs = async () => {
-        try {
-            const response = await getAvailableStaff();
-            const staffsData = response.data;
-            setStaffsData(staffsData);
-        } catch (error) {
-            message.error("Failed to fetch staff data.");
+        rowKey='id'
+        pagination={{ pageSize: 4 }}
+        loading={
+          userRole === 'Manager' || userRole === 'Admin'
+            ? valuationLoading
+            : myValuationLoading
         }
-    };
-
-    const columns = [
-        {
-            title: "ID",
-            dataIndex: "id",
-            key: "id",
-            sorter: (a, b) => a.id - b.id,
-            sortDirections: ["ascend", "descend"],
-        },
-        {
-            title: "Jewelry",
-            dataIndex: ["jewelry", "name"],
-            key: "jewelry",
-        },
-        {
-            title: "Created At",
-            dataIndex: "createdAt",
-            key: "createdAt",
-            render: (text) => moment(text).format("YY-MM-DD HH:mm"),
-            sorter: (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
-        },
-        {
-            title: "Desired Price",
-            dataIndex: "desiredPrice",
-            key: "desiredPrice",
-            sorter: (a, b) => a.desiredPrice - b.desiredPrice,
-            sortDirections: ["ascend", "descend"],
-        },
-        {
-            title: "Payment Method",
-            dataIndex: "paymentMethod",
-            key: "paymentMethod",
-        },
-        {
-            title: "Valuating Fee",
-            dataIndex: "valuatingFee",
-            key: "valuatingFee",
-            sorter: (a, b) => a.valuatingFee - b.valuatingFee,
-            sortDirections: ["ascend", "descend"],
-        },
-        {
-            title: "Valuating Method",
-            dataIndex: "valuatingMethod",
-            key: "valuatingMethod",
-        },
-        {
-            title: "Valuation Value",
-            dataIndex: "valuation_value",
-            key: "valuation_value",
-            sorter: (a, b) => a.valuation_value - b.valuation_value,
-            sortDirections: ["ascend", "descend"],
-        },
-        {
-            title: "Online",
-            dataIndex: "online",
-            key: "online",
-            render: (text) => (text ? "True" : "False"),
-        },
-        {
-            title: "Updated At",
-            dataIndex: "updatedAt",
-            key: "updatedAt",
-            render: (text) => moment(text).format("YY-MM-DD HH:mm"),
-            sorter: (a, b) => new Date(a.updatedAt) - new Date(b.updatedAt),
-        },
-        {
-            title: "Staff Name",
-            dataIndex: ["staff", "full_name"],
-            key: "staffName",
-            filters:
-                userRole === "Admin" || userRole === "Manager"
-                    ? staffsData.map((staff) => ({
-                          text: staff.full_name,
-                          value: staff.id,
-                      }))
-                    : [],
-            onFilter: (value, record) => record.staff && record.staff.id === value,
-        },
-        {
-            title: "Status",
-            dataIndex: "status",
-            key: "status",
-            filters: [
-                { text: "VALUATING", value: "VALUATING" },
-                { text: "VALUATED", value: "VALUATED" },
-                { text: "REQUEST", value: "REQUEST" },
-                { text: "PREPARING", value: "PREPARING" },
-            ],
-            onFilter: (value, record) => record.status === value,
-        },
-        {
-            title: "Notes",
-            dataIndex: "notes",
-            key: "notes",
-            render: (text) => {
-                if (typeof text === "string" && (text.trim() === "" || text.trim().toLowerCase() === "string")) {
-                    return "";
-                }
-                return <span title={text}>{text.length > 30 ? `${text.substring(0, 30)}...` : text}</span>;
-            },
-        },
-        {
-            title: "Action",
-            key: "action",
-            render: (text, record) => (
-                <Space size="middle">
-                    <Button onClick={() => handleEdit(record)} type="primary">
-                        Edit
-                    </Button>
-                    {record.status === "REQUEST" && (
-                        <Button onClick={() => showDeleteModal(record.id)} type="primary" danger>
-                            Delete
-                        </Button>
-                    )}
-                </Space>
-            ),
-        },
-    ];
-
-    const handleEdit = (record) => {
-        setEditingItem(record);
-        form.setFieldsValue({
-            ...record,
-            staffId: record.staff?.id,
-            full_name: record.staff?.full_name,
-        });
-        setModalVisible(true);
-    };
-
-    const handleDelete = async (id) => {
-        try {
-            await deleteValuation(id);
-            if (userRole === "Manager" || userRole === "Admin") {
-                valuationMutation();
-            } else {
-                myValuationMutation();
-            }
-            message.success("Valuation deleted successfully.");
-        } catch (error) {
-            console.error("Failed to delete valuation:", error);
-            message.error("Failed to delete valuation.");
-        }
-    };
-
-    const showDeleteModal = (id) => {
-        setDeleteId(id);
-        setDeleteModalVisible(true);
-    };
-
-    const handleConfirmDelete = () => {
-        handleDelete(deleteId);
-        setDeleteModalVisible(false);
-    };
-
-    const handleCancelDelete = () => {
-        setDeleteModalVisible(false);
-    };
-
-    const handleModalCancel = () => {
-        setModalVisible(false);
-        form.resetFields();
-        setEditingItem(null);
-    };
-
-    const handleModalOk = async () => {
-        try {
-            const values = await form.validateFields();
-            const {
-                id,
-                address,
-                staffId,
-                valuation_value,
-                notes,
-                status,
-                desiredPrice,
-                paymentMethod,
-                valuatingMethod,
-                startingPrice,
-            } = values;
-            await editValuating(
-                editingItem.id,
-                address,
-                staffId,
-                valuation_value,
-                notes,
-                editingItem?.status === "VALUATING" && valuation_value > 0 && startingPrice > 0 && userRole !== "Staff"
-                    ? "VALUATED"
-                    : status,
-                desiredPrice,
-                paymentMethod,
-                valuatingMethod,
-                startingPrice
-            );
-
-            if (userRole === "Manager" || userRole === "Admin") {
-                valuationMutation();
-            } else {
-                myValuationMutation();
-            }
-
-            form.resetFields();
-            setModalVisible(false);
-            setEditingItem(null);
-            if (userRole === "Manager" || userRole === "Admin") {
-                valuationMutation();
-            } else {
-                myValuationMutation();
-            }
-            // Fetch available staff after updating valuation
-            fetchAvailableStaffs();
-            message.success("Success to update valuation.");
-        } catch (error) {
-            console.error("Failed to update valuation:", error);
-            message.error("Failed to update valuation.");
-        }
-    };
-
-    const onSearch = async (value) => {
-        try {
-            if (!value) {
-                // If the search value is empty, fetch all valuations or my valuations based on role
-                if (userRole === "Manager" || userRole === "Admin") {
-                    valuationMutation();
-                } else {
-                    myValuationMutation();
-                }
-                setSearchStatus(null);
-            } else {
-                const response = await searchValuationById(value);
-                const data = response.data;
-                if (Array.isArray(data) && data.length === 0) {
-                    setSearchStatus("No data found");
-                    if (userRole === "Manager" || userRole === "Admin") {
-                        valuationMutation([], false);
-                    } else {
-                        myValuationMutation([], false);
-                    }
-                } else {
-                    setSearchStatus(null);
-                    if (userRole === "Manager" || userRole === "Admin") {
-                        valuationMutation(Array.isArray(data) ? data : [data], false);
-                    } else {
-                        myValuationMutation(Array.isArray(data) ? data : [data], false);
-                    }
-                }
-            }
-        } catch (error) {
-            console.error("Failed to search valuation by ID:", error);
-            message.error("Failed to search valuation, Id does not exist!");
-            setSearchStatus("No data found");
-            if (userRoleId === 1 || userRole === "Admin") {
-                valuationMutation([], false);
-            } else {
-                myValuationMutation([], false);
-            }
-        }
-    };
-
-    const handleStaffChange = (value) => {
-        form.setFieldsValue({
-            status: "PREPARING",
-        });
-    };
-
-    const handleValuationChange = (value) => {
-        setValuationPrice(value);
-        form.setFieldsValue({
-            status: "VALUATING",
-        });
-    };
-
-    return (
-        <div>
-            <Space style={{ marginBottom: 16 }}>
-                <Input.Search placeholder="Search valuations by ID" onSearch={onSearch} enterButton />
-            </Space>
-            <Table
-                columns={columns}
-                dataSource={userRole === "Manager" || userRole === "Admin" ? valuationData : myValuationData}
-                rowKey="id"
-                pagination={{ pageSize: 4 }}
-                loading={userRole === "Manager" || userRole === "Admin" ? valuationLoading : myValuationLoading}
-            />
-            <Modal width={1500} open={modalVisible} onCancel={handleModalCancel} footer={false} centered>
-                {editingItem && editingItem.jewelry && (
-                    <Row gutter={16}>
-                        <Col span={userRole === "Staff" ? 8 : 12}>
-                            <Descriptions title="Jewelry Details" bordered column={2}>
-                                <Descriptions.Item label="Name" span={2}>
-                                    {editingItem.jewelry.name}
-                                </Descriptions.Item>
-                                {/* <Descriptions.Item label="Image" span={2}>
+      />
+      <Modal
+        width={1500}
+        open={modalVisible}
+        onCancel={handleModalCancel}
+        footer={false}
+        centered
+      >
+        {editingItem && editingItem.jewelry && (
+          <Row gutter={16}>
+            <Col span={userRole === 'Staff' ? 8 : 12}>
+              <Descriptions title='Jewelry Details' bordered column={2}>
+                <Descriptions.Item label='Name' span={2}>
+                  {editingItem.jewelry.name}
+                </Descriptions.Item>
+                {/* <Descriptions.Item label="Image" span={2}>
                                     {editingItem.jewelry.jewelryImages.url}
                                 </Descriptions.Item> */}
-                                <Descriptions.Item label="Material" span={2}>
-                                    {editingItem.jewelry.jewelryMaterials[0]?.material.name}
-                                </Descriptions.Item>
+                <Descriptions.Item label='Material' span={2}>
+                  {editingItem.jewelry.jewelryMaterials[0]?.material.name}
+                </Descriptions.Item>
 
-                                <Descriptions.Item label="Material Weight" span={1}>
-                                    {editingItem.jewelry.jewelryMaterials[0]?.weight}
-                                </Descriptions.Item>
-                                <Descriptions.Item label="Unit" span={1}>
-                                    {editingItem.jewelry.jewelryMaterials[0]?.material.unit}
-                                </Descriptions.Item>
-                                <Descriptions.Item label="Description" span={2}>
-                                    {editingItem.jewelry.description}
-                                </Descriptions.Item>
-                                <Descriptions.Item label="Jewelry Condition" span={1}>
-                                    {editingItem.jewelry.jewelryCondition}
-                                </Descriptions.Item>
-                                <Descriptions.Item label="Sex" span={1}>
-                                    {editingItem.jewelry.sex}
-                                </Descriptions.Item>
+                <Descriptions.Item label='Material Weight' span={1}>
+                  {editingItem.jewelry.jewelryMaterials[0]?.weight}
+                </Descriptions.Item>
+                <Descriptions.Item label='Unit' span={1}>
+                  {editingItem.jewelry.jewelryMaterials[0]?.material.unit}
+                </Descriptions.Item>
+                <Descriptions.Item label='Description' span={2}>
+                  {editingItem.jewelry.description}
+                </Descriptions.Item>
+                <Descriptions.Item label='Jewelry Condition' span={1}>
+                  {editingItem.jewelry.jewelryCondition}
+                </Descriptions.Item>
+                <Descriptions.Item label='Sex' span={1}>
+                  {editingItem.jewelry.sex}
+                </Descriptions.Item>
 
-                                <Descriptions.Item label="Jewelry Weight" span={1}>
-                                    {editingItem.jewelry.weight}
-                                </Descriptions.Item>
-                                <Descriptions.Item label="Unit" span={1}>
-                                    {editingItem.jewelry.jewelryMaterials[0]?.material.unit}
-                                </Descriptions.Item>
-                                <Descriptions.Item label="Brand" span={2}>
-                                    {editingItem.jewelry.brand.name}
-                                </Descriptions.Item>
-                                <Descriptions.Item label="Category" span={2}>
-                                    {editingItem.jewelry.category.name}
-                                </Descriptions.Item>
-                                <Descriptions.Item label="Collection" span={2}>
-                                    {editingItem.jewelry.collection.name}
-                                </Descriptions.Item>
-                                <Descriptions.Item label="Desired Price" span={2}>
-                                    {editingItem.desiredPrice}
-                                </Descriptions.Item>
-                                <Descriptions.Item label="Valuation At" span={4}>
-                                    {editingItem.address}
-                                </Descriptions.Item>
-                            </Descriptions>
-                        </Col>
-                        <Col span={userRole === "Staff" ? 8 : 12}>
-                            <Title level={4}>Edit Valuation</Title>
-                            <Form
-                                labelCol={{
-                                    span: 24,
-                                }}
-                                form={form}
-                                onFinish={handleModalOk}
-                                initialValues={editingItem}
-                            >
-                                {userRole === "Manager" || userRole === "Admin" ? (
-                                    <Form.Item
-                                        label="Staff"
-                                        name="staffId"
-                                        rules={[{ required: true, message: "Staff must not be empty" }]}
-                                    >
-                                        <Select
-                                            placeholder="Select a Staff"
-                                            onChange={handleStaffChange}
-                                            disabled={
-                                                editingItem?.status === "VALUATED" || editingItem?.status === "VALUATING"
-                                                    ? true
-                                                    : false
-                                            }
-                                        >
-                                            {staffsData.map((staff) => (
-                                                <Option key={staff.user.id} value={staff.user.id}>
-                                                    {staff.user.full_name}
-                                                </Option>
-                                            ))}
-                                        </Select>
-                                    </Form.Item>
-                                ) : null}
-                                <Form.Item
-                                    rules={[
-                                        {
-                                            required: true,
-                                            message: "Must not be empty",
-                                        },
-                                        ...(userRole === "Staff"
-                                            ? [
-                                                  {
-                                                      validator: validatePrices,
-                                                  },
-                                              ]
-                                            : []),
-                                    ]}
-                                    label="Valuation Value (within ±20% of online price)"
-                                    name="valuation_value"
-                                >
-                                    {userRole === "Admin" || userRole === "Manager" ? (
-                                        <InputNumber controls={false} readOnly className="!w-full" />
-                                    ) : (
-                                        <InputNumber
-                                            controls={false}
-                                            className="!w-full"
-                                            readOnly={editingItem?.status === "VALUATED" ? true : false}
-                                            onChange={handleValuationChange}
-                                        />
-                                    )}
-                                </Form.Item>
-                                <Form.Item label={`Starting Price (20% of valuation value)`} name={"startingPrice"}>
-                                    {userRole === "Admin" || userRole === "Manager" ? (
-                                        <InputNumber readOnly controls={false} className="!w-full" />
-                                    ) : (
-                                        <InputNumber controls={false} readOnly className="!w-full" />
-                                    )}
-                                </Form.Item>
-                                <Form.Item label="Notes" name="notes">
-                                    <TextArea rows={4} />
-                                </Form.Item>
-                                <Form.Item
-                                    label="Status"
-                                    name="status"
-                                    rules={[{ required: true, message: "Please select your status!" }]}
-                                >
-                                    <Select
-                                        placeholder="Select your status"
-                                        disabled={
-                                            editingItem.status === "VALUATING" || editingItem.status === "VALUATED" ? true : false
-                                        }
-                                    >
-                                        {userRole === "Admin" || userRole === "Manager" ? (
-                                            <>
-                                                <Option value="REJECTED">REJECTED</Option>
-                                                <Option value="PREPARING">PREPARING</Option>
-                                            </>
-                                        ) : (
-                                            <Option value="VALUATING">VALUATING</Option>
-                                        )}
-                                    </Select>
-                                </Form.Item>
-                                <Form.Item label="Payment Method" name="paymentMethod">
-                                    <Input readOnly />
-                                </Form.Item>
-                                <Form.Item className="flex justify-center">
-                                    <Button type="primary" htmlType="submit">
-                                        {editingItem.status === "VALUATING" &&
-                                        editingItem.valuation_value > 0 &&
-                                        editingItem.startingPrice > 0
-                                            ? "Confirm Valuated"
-                                            : "Edit Valuation"}
-                                    </Button>
-                                </Form.Item>
-                            </Form>
-                        </Col>
-                        {userRole === "Staff" && (
-                            <Col>{userRole === "Staff" && <OnlineValuation id={editingItem?.jewelry?.id} />}</Col>
-                        )}
-                    </Row>
+                <Descriptions.Item label='Jewelry Weight' span={1}>
+                  {editingItem.jewelry.weight}
+                </Descriptions.Item>
+                <Descriptions.Item label='Unit' span={1}>
+                  {editingItem.jewelry.jewelryMaterials[0]?.material.unit}
+                </Descriptions.Item>
+                <Descriptions.Item label='Brand' span={2}>
+                  {editingItem.jewelry.brand.name}
+                </Descriptions.Item>
+                <Descriptions.Item label='Category' span={2}>
+                  {editingItem.jewelry.category.name}
+                </Descriptions.Item>
+                <Descriptions.Item label='Collection' span={2}>
+                  {editingItem.jewelry.collection.name}
+                </Descriptions.Item>
+                <Descriptions.Item label='Desired Price' span={2}>
+                  {editingItem.desiredPrice}
+                </Descriptions.Item>
+                <Descriptions.Item label='Valuation At' span={4}>
+                  {editingItem.address}
+                </Descriptions.Item>
+              </Descriptions>
+            </Col>
+            <Col span={userRole === 'Staff' ? 8 : 12}>
+              <Title level={4}>Edit Valuation</Title>
+              <Form
+                labelCol={{
+                  span: 24,
+                }}
+                form={form}
+                onFinish={handleModalOk}
+                initialValues={editingItem}
+              >
+                {(userRole === 'Manager' || userRole === 'Admin') &&
+                valuationStatus !== 'REJECTED' ? (
+                  <Form.Item
+                    label='Staff'
+                    name='staffId'
+                    rules={[
+                      {
+                        required: true,
+                        message: 'Must not be empty',
+                      },
+                    ]}
+                  >
+                    <Select
+                      placeholder='Select a Staff'
+                      onChange={handleStaffChange}
+                      disabled={
+                        editingItem?.status === 'VALUATED' ||
+                        editingItem?.status === 'VALUATING'
+                          ? true
+                          : false
+                      }
+                    >
+                      {staffsData.map((staff) => (
+                        <Option key={staff.user.id} value={staff.user.id}>
+                          {staff.user.full_name}
+                        </Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                ) : null}
+                <Form.Item
+                  rules={[
+                    {
+                      required: true,
+                      message: 'Must not be empty',
+                    },
+                    ...(userRole === 'Staff'
+                      ? [
+                          {
+                            validator: validatePrices,
+                          },
+                        ]
+                      : []),
+                  ]}
+                  label='Valuation Value (within ±20% of online price)'
+                  name='valuation_value'
+                >
+                  {userRole === 'Admin' || userRole === 'Manager' ? (
+                    <InputNumber
+                      controls={false}
+                      readOnly
+                      className='!w-full'
+                    />
+                  ) : (
+                    <InputNumber
+                      controls={false}
+                      className='!w-full'
+                      readOnly={
+                        editingItem?.status === 'VALUATED' ? true : false
+                      }
+                      onChange={handleValuationChange}
+                    />
+                  )}
+                </Form.Item>
+                <Form.Item
+                  label={`Starting Price (20% of valuation value)`}
+                  name={'startingPrice'}
+                >
+                  {userRole === 'Admin' || userRole === 'Manager' ? (
+                    <InputNumber
+                      readOnly
+                      controls={false}
+                      className='!w-full'
+                    />
+                  ) : (
+                    <InputNumber
+                      controls={false}
+                      readOnly
+                      className='!w-full'
+                    />
+                  )}
+                </Form.Item>
+                <Form.Item label='Notes' name='notes'>
+                  <TextArea rows={4} />
+                </Form.Item>
+                <Form.Item
+                  label='Status'
+                  name='status'
+                  rules={[
+                    { required: true, message: 'Please select your status!' },
+                  ]}
+                >
+                  <Select
+                    placeholder='Select your status'
+                    disabled={
+                      editingItem.status === 'VALUATING' ||
+                      editingItem.status === 'VALUATED'
+                        ? true
+                        : false
+                    }
+                    onChange={handleRejected}
+                  >
+                    {userRole === 'Admin' || userRole === 'Manager' ? (
+                      <>
+                        <Option value='REJECTED'>REJECTED</Option>
+                        <Option value='PREPARING'>PREPARING</Option>
+                      </>
+                    ) : (
+                      <Option value='VALUATING'>VALUATING</Option>
+                    )}
+                  </Select>
+                </Form.Item>
+                <Form.Item label='Payment Method' name='paymentMethod'>
+                  <Input readOnly />
+                </Form.Item>
+                <Form.Item className='flex justify-center'>
+                  <Button type='primary' htmlType='submit'>
+                    {editingItem.status === 'VALUATING' &&
+                    editingItem.valuation_value > 0 &&
+                    editingItem.startingPrice > 0
+                      ? 'Confirm Valuated'
+                      : 'Edit Valuation'}
+                  </Button>
+                </Form.Item>
+              </Form>
+            </Col>
+            {userRole === 'Staff' && (
+              <Col>
+                {userRole === 'Staff' && (
+                  <OnlineValuation id={editingItem?.jewelry?.id} />
                 )}
-            </Modal>
+              </Col>
+            )}
+          </Row>
+        )}
+      </Modal>
 
-            <ConfirmDeleteModal visible={deleteModalVisible} onConfirm={handleConfirmDelete} onCancel={handleCancelDelete} />
-        </div>
-    );
+      <ConfirmDeleteModal
+        visible={deleteModalVisible}
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+      />
+    </div>
+  );
 };
 
 export default ValuationManagement;
